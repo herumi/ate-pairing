@@ -69,7 +69,9 @@ http://homepage1.nifty.com/herumi/crypt/ate-pairing.html
 History
 -------------
 
-* 2012/Jan/30 rewrite ate pairing according to "Faster explicit formulas for computing pairings over ordinary curves.  see http://www.patricklonga.bravehost.com/speed_pairing.html
+* 2012/Jan/30 rewrite ate pairing according to
+  "Faster explicit formulas for computing pairings over ordinary curves.
+  see http://www.patricklonga.bravehost.com/speed_pairing.html
 * [2010/Sep/8 change xi from u + 12 to u
 * 2010/Jul/15 use cyclotomic squaring for final_exp
 * 2010/Jun/18 first release
@@ -77,6 +79,5 @@ History
 AUTHOR
 -------------
 
-* MITSUNARI Shigeo(herumi at nifty dot com)
-* TERUYA Tadanori
-
+* MITSUNARI Shigeo(herumi@nifty.com)
+* TERUYA Tadanori(tadanori.teruya@gmail.com)
