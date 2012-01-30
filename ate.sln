@@ -1,0 +1,47 @@
+þ½Ž¿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_zm", "test\test_zm.vcproj", "{C8EC3A26-31ED-4764-A6F1-D5EBD2D09AFF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EE582B17-7936-4203-83DE-00233B1A0A28} = {EE582B17-7936-4203-83DE-00233B1A0A28}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_bn", "test\test_bn.vcproj", "{F4B8F9CD-2E24-4374-9BF6-6886347E861B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EE582B17-7936-4203-83DE-00233B1A0A28} = {EE582B17-7936-4203-83DE-00233B1A0A28}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "test\bench\bench.vcproj", "{D3016C82-693F-4C7A-9BA7-5C658EDE39ED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EE582B17-7936-4203-83DE-00233B1A0A28} = {EE582B17-7936-4203-83DE-00233B1A0A28}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zmlib", "src\zmlib\zmlib.vcproj", "{EE582B17-7936-4203-83DE-00233B1A0A28}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C8EC3A26-31ED-4764-A6F1-D5EBD2D09AFF}.Debug|x64.ActiveCfg = Debug|x64
+		{C8EC3A26-31ED-4764-A6F1-D5EBD2D09AFF}.Debug|x64.Build.0 = Debug|x64
+		{C8EC3A26-31ED-4764-A6F1-D5EBD2D09AFF}.Release|x64.ActiveCfg = Release|x64
+		{C8EC3A26-31ED-4764-A6F1-D5EBD2D09AFF}.Release|x64.Build.0 = Release|x64
+		{F4B8F9CD-2E24-4374-9BF6-6886347E861B}.Debug|x64.ActiveCfg = Debug|x64
+		{F4B8F9CD-2E24-4374-9BF6-6886347E861B}.Debug|x64.Build.0 = Debug|x64
+		{F4B8F9CD-2E24-4374-9BF6-6886347E861B}.Release|x64.ActiveCfg = Release|x64
+		{F4B8F9CD-2E24-4374-9BF6-6886347E861B}.Release|x64.Build.0 = Release|x64
+		{D3016C82-693F-4C7A-9BA7-5C658EDE39ED}.Debug|x64.ActiveCfg = Debug|x64
+		{D3016C82-693F-4C7A-9BA7-5C658EDE39ED}.Debug|x64.Build.0 = Debug|x64
+		{D3016C82-693F-4C7A-9BA7-5C658EDE39ED}.Release|x64.ActiveCfg = Release|x64
+		{D3016C82-693F-4C7A-9BA7-5C658EDE39ED}.Release|x64.Build.0 = Release|x64
+		{EE582B17-7936-4203-83DE-00233B1A0A28}.Debug|x64.ActiveCfg = Debug|x64
+		{EE582B17-7936-4203-83DE-00233B1A0A28}.Debug|x64.Build.0 = Debug|x64
+		{EE582B17-7936-4203-83DE-00233B1A0A28}.Release|x64.ActiveCfg = Release|x64
+		{EE582B17-7936-4203-83DE-00233B1A0A28}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
