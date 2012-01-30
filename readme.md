@@ -47,6 +47,7 @@ Xbyak
 
 Xbyak is a x86/x86-64 JIT assembler for C++.
 I made this library for developping pairing functions efficiently.
+
 >http://homepage1.nifty.com/herumi/soft/xbyak_e.html
 >https://github.com/heurmi/xbyak/
 
@@ -54,6 +55,7 @@ License
 -------------
 
 modified new BSD License
+
 >http://opensource.org/licenses/BSD-3-Clause
 
 If you have any questions or problems, just let me know, then I'm happy.
@@ -67,6 +69,7 @@ History
 -------------
 
 * 2012/Jan/30 rewrite ate pairing according to "Faster explicit formulas for computing pairings over ordinary curves.
+
 ** see http://www.patricklonga.bravehost.com/speed_pairing.html
 * [2010/Sep/8 change xi from u + 12 to u
 * 2010/Jul/15 use cyclotomic squaring for final_exp
