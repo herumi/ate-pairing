@@ -8,7 +8,7 @@ Abstruct
 The library is able to compute the optimal ate pairing over a 254-bit prime field Fp.
 p = 36t^4 + 36t^3 + 24t^2 + 6t + 1, t = -(2^62 + 2^55 + 1).
 
-> old version
+> old version:
 >The library is able to compute the optimal ate pairing over a 254-bit prime field Fp.
 >p = 36t^4 + 36t^3 + 24t^2 + 6t + 1, t = 2^62 - 2^54 + 2^44.
 
@@ -49,6 +49,7 @@ Xbyak is a x86/x86-64 JIT assembler for C++.
 I made this library for developping pairing functions efficiently.
 
 >http://homepage1.nifty.com/herumi/soft/xbyak_e.html
+
 >https://github.com/heurmi/xbyak/
 
 License
@@ -68,9 +69,7 @@ http://homepage1.nifty.com/herumi/crypt/ate-pairing.html
 History
 -------------
 
-* 2012/Jan/30 rewrite ate pairing according to "Faster explicit formulas for computing pairings over ordinary curves.
-
-** see http://www.patricklonga.bravehost.com/speed_pairing.html
+* 2012/Jan/30 rewrite ate pairing according to "Faster explicit formulas for computing pairings over ordinary curves.  see http://www.patricklonga.bravehost.com/speed_pairing.html
 * [2010/Sep/8 change xi from u + 12 to u
 * 2010/Jul/15 use cyclotomic squaring for final_exp
 * 2010/Jun/18 first release
