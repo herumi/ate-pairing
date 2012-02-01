@@ -31,15 +31,45 @@ static int s_testNum = 0;
 const mie::Vuint& p = Param::p;
 const mie::Vuint& r = Param::r;
 
-#define P_INIT Fp(2), Fp("16740896641879863340107777353588575149660814923656713498672603551465628253431")
+/**
+   generate a value of X-coordinate of P
+*/
+const Fp genPx()
+{
+  const Fp Px = Fp(2);
+  return Px;
+}
+/**
+   generate a value of Y-coordinate of P
+*/
+const Fp genPy()
+{
+  const Fp Py = Fp("16740896641879863340107777353588575149660814923656713498672603551465628253431");
+  return Py;
+}
 
-#define P2_INIT Fp("13438486984812665827952643313785387127911349697151255879146972340858203091778"), Fp("12741389316352206200828479361093127917015298445269456291074734498988157668221")
+/**
+   generate a value of X-coordinate of [2]P
+*/
+const Fp genP2x()
+{
+  const Fp P2x = Fp("13438486984812665827952643313785387127911349697151255879146972340858203091778");
+  return P2x;
+}
+/**
+   generate a value of Y-coordinate of [2]P
+*/
+const Fp genP2y()
+{
+  const Fp P2y = Fp("12741389316352206200828479361093127917015298445269456291074734498988157668221");
+  return P2y;
+}
 
 void testECOperationsG1()
 {
 	puts(__FUNCTION__);
 
-	const Fp P[] = { P_INIT, Fp(1) };
+	const Fp P[] = { genPx(), genPy(), Fp(1) };
 	TEST_ASSERT(isOnEC(P));
 
 	const Fp R[] = {
@@ -49,7 +79,7 @@ void testECOperationsG1()
 	};
 	TEST_ASSERT(isOnEC(R));
 
-	const Fp P2_ok[] = { P2_INIT, Fp(1) };
+	const Fp P2_ok[] = { genP2x(), genP2y(), Fp(1) };
 	TEST_ASSERT(isOnEC(P2_ok));
 
 	const Fp P3_ok[] = {
@@ -514,19 +544,55 @@ void testFp2()
 	}
 }
 
-#define Q_INIT								\
-  Fp2(Fp("13234664681033688271405396239524358974366484883419628236101274746557464997054"), Fp("11347691494386824311357230151706543132011346014309658325337514955760433353199")), Fp2(Fp("9427224573130940705767837740977388851395498800066112237265227139877389298881"), Fp("8452141316509224651353689669356928563000175149166480473836682926961687453514"))
+/**
+   generate a value of X-coordinate of Q
+*/
+const Fp2 genQx()
+{
+  const Fp2 Qx = Fp2
+    (Fp("13234664681033688271405396239524358974366484883419628236101274746557464997054"),
+     Fp("11347691494386824311357230151706543132011346014309658325337514955760433353199"));
+  return Qx;
+}
+/**
+   generate a value of Y-coordinate of Q
+*/
+const Fp2 genQy()
+{
+  const Fp2 Qy = Fp2
+    (Fp("9427224573130940705767837740977388851395498800066112237265227139877389298881"),
+     Fp("8452141316509224651353689669356928563000175149166480473836682926961687453514"));
+  return Qy;
+}
 
-#define Q2_INIT								\
-  Fp2(Fp("5299180442706306781938040029147283818308705141288620744338313273731299805815"), Fp("15797930548095856607649462137302524883761892212429298307727251696384886639045")), Fp2(Fp("14682155566465612687855553028405011181016442868657350988232774125667855691350"), Fp("16774596877583816470230777985570065066758171976339091353731418650582998086894"))
+/**
+   generate a value of X-coordinate of [2]Q
+*/
+const Fp2 genQ2x()
+{
+  const Fp2 Q2x = Fp2
+    (Fp("5299180442706306781938040029147283818308705141288620744338313273731299805815"),
+     Fp("15797930548095856607649462137302524883761892212429298307727251696384886639045"));
+  return Q2x;
+}
+/**
+   generate a value of Y-coordinate of [2]Q
+*/
+const Fp2 genQ2y()
+{
+  const Fp2 Q2y = Fp2
+    (Fp("14682155566465612687855553028405011181016442868657350988232774125667855691350"),
+     Fp("16774596877583816470230777985570065066758171976339091353731418650582998086894"));
+  return Q2y;
+}
 
 void testECOperationsG2()
 {
   puts(__FUNCTION__);
-  
-  const Fp2 P[] = { Q_INIT, Fp2(Fp(1), Fp(0)) };
+
+  const Fp2 P[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
   TEST_ASSERT(isOnTwistEC(P));
-  
+
   /*
     R = [m]P,
     m = 5966028534901141772758784140942452307515635636755408154850488537894844702903
@@ -537,13 +603,13 @@ void testECOperationsG2()
     Fp2(Fp(1), Fp(0)),
   };
   TEST_ASSERT(isOnTwistEC(R));
-  
+
   /*
     P2 = P + P
   */
-  const Fp2 P2_ok[] = { Q2_INIT, Fp2(Fp(1), Fp(0)) };
+  const Fp2 P2_ok[] = { genQ2x(), genQ2y(), Fp2(Fp(1), Fp(0)) };
   TEST_ASSERT(isOnTwistEC(P2_ok));
-  
+
   /*
     P3 = P + P + P
   */
@@ -1050,13 +1116,13 @@ void test_pointDblLineEval()
 {
 	puts(__FUNCTION__);
 
-	Fp2 Q[] = { Q_INIT, Fp2(Fp(1), Fp(0)) };
+	Fp2 Q[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
 	TEST_ASSERT(isOnTwistECHom3(Q));
 
-	Fp P[3] = { P_INIT }; Fp::neg(P[2], P[1]);
+	Fp P[3] = { genPx(), genPy() }; Fp::neg(P[2], P[1]);
 	TEST_ASSERT(isOnECHom(P));
 
-	const Fp2 Q2_ok[] = { Q2_INIT, Fp2(Fp(1), Fp(0)) };
+	const Fp2 Q2_ok[] = { genQ2x(), genQ2y(), Fp2(Fp(1), Fp(0)) };
 	TEST_ASSERT(isOnTwistECHom3(Q2_ok));
 
 	const Fp2 l00_ok(Fp("1218653166067285584538203738497237160646510048316462546675922230477971988366"),
@@ -1098,10 +1164,10 @@ void test_pointAddLineEval()
 {
 	puts(__FUNCTION__);
 
-	Fp2 Q[] = { Q_INIT, Fp2(Fp(1), Fp(0)) };
+	Fp2 Q[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
 	TEST_ASSERT(isOnTwistECHom3(Q));
 
-	const Fp P[] = { P_INIT, Fp(1) };
+	const Fp P[] = { genPx(), genPy(), Fp(1) };
 	TEST_ASSERT(isOnECHom(P));
 
 	/*
@@ -1316,25 +1382,25 @@ void test_sqru()
 void test_FrobEndOnTwist_1()
 {
   puts(__FUNCTION__);
-  
-  Fp2 Q[] = { Q_INIT };
+
+  Fp2 Q[] = { genQx(), genQy() };
   TEST_ASSERT(isOnTwistECHom2(Q));
-  
+
   const Fp2 Qp[] = {
     Fp2(Fp("2056759109515975861665426147192151608007308721500683629663464772885511939168"), Fp("10296094419291805247741898368672988774667071764149880389566192920518825046253")),
     Fp2(Fp("15318789889948026269195465641311637076887470214980886516517795245676250468201"), Fp("16086843419903922136591069704206201345656058171834106763866049911942744484945")),
   };
   TEST_ASSERT(isOnTwistECHom2(Qp));
-  
+
   FrobEndOnTwist_1(Q, Q);
   TEST_EQUAL(Q[0], Qp[0]);
   TEST_EQUAL(Q[1], Qp[1]);
-  
+
   for (size_t i = 1; i < 12; ++i) {
     FrobEndOnTwist_1(Q, Q);
   }
   {
-    Fp2 Q1[] = { Q_INIT };
+    Fp2 Q1[] = { genQx(), genQy() };
     TEST_EQUAL(Q[0], Q1[0]);
     TEST_EQUAL(Q[1], Q1[1]);
   }
@@ -1355,7 +1421,7 @@ void test_FrobEndOnTwist_2()
 {
 	puts(__FUNCTION__);
 
-	Fp2 Q[] = { Q_INIT };
+	Fp2 Q[] = { genQx(), genQy() };
 	TEST_ASSERT(isOnTwistECHom2(Q));
 
 	const Fp2 Qp2_ok[] = {
@@ -1372,7 +1438,7 @@ void test_FrobEndOnTwist_2()
 	FrobEndOnTwist_2(Q, Q);
 	}
 	{
-	Fp2 Q1[] = { Q_INIT };
+      Fp2 Q1[] = { genQx(), genQy() };
 	TEST_EQUAL(Q[0], Q1[0]);
 	TEST_EQUAL(Q[1], Q1[1]);
 	}
@@ -1393,16 +1459,16 @@ void testPairing()
 {
 	puts(__FUNCTION__);
 
-	const Fp P[] = { P_INIT };
+	const Fp P[] = { genPx(), genPy() };
 	TEST_ASSERT(isOnECHom(P));
 
-	const Fp P2[] = { P2_INIT };
+	const Fp P2[] = { genP2x(), genP2y() };
 	TEST_ASSERT(isOnECHom(P2));
 
-	const Fp2 Q[] = { Q_INIT };
+	const Fp2 Q[] = { genQx(), genQy() };
 	TEST_ASSERT(isOnTwistECHom2(Q));
 
-	const Fp2 Q2[] = { Q2_INIT };
+	const Fp2 Q2[] = { genQ2x(), genQ2y() };
 	TEST_ASSERT(isOnTwistECHom2(Q2));
 
 	Fp12 e, e21, e22;
@@ -2318,7 +2384,7 @@ int main(int argc, char *argv[]) try
 #ifdef USE_VTUNE
 	puts("begin profile");
 #endif
-#if 0
+#if 1
   testParameters();
 
   testFp();
@@ -2348,7 +2414,7 @@ int main(int argc, char *argv[]) try
 
   test_sqru();
 
-#if 0
+#if 1
   test_FrobEndOnTwist_1();
   test_FrobEndOnTwist_2();
 
