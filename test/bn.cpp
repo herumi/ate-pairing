@@ -1227,7 +1227,7 @@ void test_pointAddLineEval()
 void test_compression()
 {
   puts(__FUNCTION__);
-  
+
   Fp12 a;
   for (int i = 0; i < 12; ++i) {
     a.get()[i] = i;
@@ -1250,9 +1250,9 @@ void test_compression()
   }
   TEST_EQUAL(a, c);
 
-#if 0  
+#if 0
     intptr_t s = sizeof(Fp2);
-    
+
     TEST_EQUAL(intptr_t(&b), intptr_t(&b.g2_));
     TEST_EQUAL(intptr_t(&b), intptr_t(&b.g2_));
     TEST_EQUAL(intptr_t(&b) + s, intptr_t(&b.g3_));
@@ -1311,7 +1311,7 @@ void test_compressed_square()
 void test_compressed_fixed_power()
 {
   puts(__FUNCTION__);
-  
+
   Fp12 a;
   for (int i = 0; i < 12; ++i) {
     a.get()[i] = i;
@@ -1320,11 +1320,11 @@ void test_compressed_fixed_power()
   a.mapToCyclo(aa);
   a = aa;
   Fp12 b;
-  
+
   Compress::fixed_power(b, a);
-  Fp12 c = mie::power(a, Param::t.get());
+  Fp12 c = mie::power(a, Param::z.get());
   TEST_EQUAL(b, c);
-  
+
   {
     Xbyak::util::Clock clk;
     const size_t N = 10000;

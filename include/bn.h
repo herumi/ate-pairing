@@ -16,7 +16,7 @@ namespace bn {
 template<class Fp2>
 struct ParamT {
 	typedef typename Fp2::Fp Fp;
-	static mie::Vsint t;
+	static mie::Vsint z;
 	static mie::Vuint p;
 	static mie::Vuint r;
 	static Fp Z;
@@ -32,12 +32,12 @@ struct ParamT {
 
 	static inline void init(int mode)
 	{
-		const int64_t org_t = -((1LL << 62) + (1LL << 55) + (1LL << 0));
+		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
 		const int pCoff[] = { 1, 6, 24, 36, 36 };
 		const int rCoff[] = { 1, 6, 18, 36, 36 };
-		t.set(org_t);
-		eval(p, t, pCoff);
-		eval(r, t, rCoff);
+		z.set(org_z);
+		eval(p, z, pCoff);
+		eval(r, z, rCoff);
 		Fp::setModulo(p, mode);
 
 		half = Fp(1)/Fp(2);
@@ -87,7 +87,7 @@ struct ParamT {
 };
 
 template<class Fp2>
-mie::Vsint ParamT<Fp2>::t;
+mie::Vsint ParamT<Fp2>::z;
 template<class Fp2>
 mie::Vuint ParamT<Fp2>::p;
 template<class Fp2>
