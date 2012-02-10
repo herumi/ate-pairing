@@ -207,7 +207,7 @@ public:
 			R = 2^256
 			get r2^(-k)R^2 = r 2^(512 - k)
 		*/
-		mul(out, r, invTbl_[511 - k]);
+		mul(out, r, invTbl_[k]);
 	}
 	void inverse()
 	{

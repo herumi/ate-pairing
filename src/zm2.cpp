@@ -3506,7 +3506,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode)
 		{
 			Fp t(2);
 			for (int i = 0; i < 512; i++) {
-				invTbl_[i] = t;
+				invTbl_[511 - i] = t;
 				t += t;
 			}
 		}
