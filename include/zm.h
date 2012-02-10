@@ -1050,6 +1050,11 @@ public:
 			out.isNeg_ = false;
 		}
 	}
+
+  static inline void absolute(V& out, const VsintT& in)
+  {
+    out = in.get();
+  }
 };
 
 //typedef VuintT<local::VariableBuffer> Vuint;
