@@ -2079,8 +2079,11 @@ inline bool isOnTwistECHom3(const Fp2T<Fp> *P)
   return P[1]*P[1]*P[2] == (P[0]*P[0]*P[0] + Param::b_invxi*P[2]*P[2]*P[2]);
 }
 
+/*
+  For Jacobian coordinates
+*/
 template<class FF>
-inline void Normalize(FF (&out)[3], const FF (&in)[3])
+inline void NormalizeJac(FF (&out)[3], const FF (&in)[3])
 {
   if (in[2] == 0) {
     out[2] = 0;

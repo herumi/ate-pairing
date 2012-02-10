@@ -108,7 +108,7 @@ void testECOperationsG1()
 		Fp P2[3];
 		ECDouble(P2, P);
 		TEST_ASSERT(isOnECJac3(P2));
-		Normalize(P2, P2);
+		NormalizeJac(P2, P2);
 		TEST_ASSERT(isOnECJac3(P2));
 		TEST_EQUAL(P2[0], P2_ok[0]);
 		TEST_EQUAL(P2[1], P2_ok[1]);
@@ -135,8 +135,8 @@ void testECOperationsG1()
 		TEST_ASSERT(isOnECJac3(P3));
 		TEST_ASSERT(isOnECJac3(PR));
 
-		Normalize(P3, P3);
-		Normalize(PR, PR);
+		NormalizeJac(P3, P3);
+		NormalizeJac(PR, PR);
 
 		TEST_ASSERT(isOnECJac3(P3));
 		TEST_ASSERT(isOnECJac3(PR));
@@ -169,7 +169,7 @@ void testECOperationsG1()
 			ScalarMult(Pm, P, m);
 			TEST_ASSERT(isOnECJac3(Pm));
 			TEST_EQUAL(Pm[2], 0);
-			Normalize(Pm_norm, Pm);
+			NormalizeJac(Pm_norm, Pm);
 			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[2], 0);
 		}
@@ -178,7 +178,7 @@ void testECOperationsG1()
 			m = 1;
 			ScalarMult(Pm, P, m);
 			TEST_ASSERT(isOnECJac3(Pm));
-			Normalize(Pm_norm, Pm);
+			NormalizeJac(Pm_norm, Pm);
 			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[0], P[0]);
 			TEST_EQUAL(Pm_norm[1], P[1]);
@@ -189,7 +189,7 @@ void testECOperationsG1()
 			m = 2;
 			ScalarMult(Pm, P, m);
 			TEST_ASSERT(isOnECJac3(Pm));
-			Normalize(Pm_norm, Pm);
+			NormalizeJac(Pm_norm, Pm);
 			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[0], P2_ok[0]);
 			TEST_EQUAL(Pm_norm[1], P2_ok[1]);
@@ -200,7 +200,7 @@ void testECOperationsG1()
 			m = 3;
 			ScalarMult(Pm, P, m);
 			TEST_ASSERT(isOnECJac3(Pm));
-			Normalize(Pm_norm, Pm);
+			NormalizeJac(Pm_norm, Pm);
 			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[0], P3_ok[0]);
 			TEST_EQUAL(Pm_norm[1], P3_ok[1]);
@@ -211,7 +211,7 @@ void testECOperationsG1()
 			m.set(m_str);
 			ScalarMult(Pm, P, m);
 			TEST_ASSERT(isOnECJac3(Pm));
-			Normalize(Pm, Pm);
+			NormalizeJac(Pm, Pm);
 			TEST_ASSERT(isOnECJac3(Pm));
 			TEST_EQUAL(Pm[0], Pm_ok[0]);
 			TEST_EQUAL(Pm[1], Pm_ok[1]);
@@ -657,7 +657,7 @@ void testECOperationsG2()
 
     Fp2 P2_norm[3];
 
-    Normalize(P2_norm, P2);
+    NormalizeJac(P2_norm, P2);
     TEST_ASSERT(isOnTwistEC(P2_norm));
     TEST_EQUAL(P2_norm[0], P2_ok[0]);
     TEST_EQUAL(P2_norm[1], P2_ok[1]);
@@ -685,8 +685,8 @@ void testECOperationsG2()
 
     Fp2 P3_norm[3], PR_norm[3];
 
-    Normalize(P3_norm, P3);
-    Normalize(PR_norm, PR);
+    NormalizeJac(P3_norm, P3);
+    NormalizeJac(PR_norm, PR);
 
     TEST_ASSERT(isOnTwistEC(P3_norm));
     TEST_ASSERT(isOnTwistEC(PR_norm));
@@ -709,7 +709,7 @@ void testECOperationsG2()
       ScalarMult(Pm, P, m);
       TEST_ASSERT(isOnTwistEC(Pm));
       TEST_EQUAL(Pm[2], 0);
-      Normalize(Pm_norm, Pm);
+      NormalizeJac(Pm_norm, Pm);
       TEST_ASSERT(isOnTwistEC(Pm_norm));
       TEST_EQUAL(Pm_norm[2], 0);
     }
@@ -718,7 +718,7 @@ void testECOperationsG2()
       m = 1;
       ScalarMult(Pm, P, m);
       TEST_ASSERT(isOnTwistEC(Pm));
-      Normalize(Pm_norm, Pm);
+      NormalizeJac(Pm_norm, Pm);
       TEST_ASSERT(isOnTwistEC(Pm_norm));
       TEST_EQUAL(Pm_norm[0], P[0]);
       TEST_EQUAL(Pm_norm[1], P[1]);
@@ -729,7 +729,7 @@ void testECOperationsG2()
       m = 2;
       ScalarMult(Pm, P, m);
       TEST_ASSERT(isOnTwistEC(Pm));
-      Normalize(Pm_norm, Pm);
+      NormalizeJac(Pm_norm, Pm);
       TEST_ASSERT(isOnTwistEC(Pm_norm));
       TEST_EQUAL(Pm_norm[0], P2_ok[0]);
       TEST_EQUAL(Pm_norm[1], P2_ok[1]);
@@ -740,7 +740,7 @@ void testECOperationsG2()
       m = 3;
       ScalarMult(Pm, P, m);
       TEST_ASSERT(isOnTwistEC(Pm));
-      Normalize(Pm_norm, Pm);
+      NormalizeJac(Pm_norm, Pm);
       TEST_ASSERT(isOnTwistEC(Pm_norm));
       TEST_EQUAL(Pm_norm[0], P3_ok[0]);
       TEST_EQUAL(Pm_norm[1], P3_ok[1]);
@@ -764,7 +764,7 @@ void testECOperationsG2()
     }
 
     TEST_ASSERT(isOnTwistEC(Pm));
-    Normalize(Pm_norm, Pm);
+    NormalizeJac(Pm_norm, Pm);
     TEST_ASSERT(isOnTwistEC(Pm_norm));
 
     TEST_EQUAL(Pm_norm[0], Pm_ok[0]);
