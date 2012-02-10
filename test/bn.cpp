@@ -2412,7 +2412,7 @@ int main(int argc, char *argv[]) try
 #endif
   test_final_exp();
 #endif
-//  testFpDbl_mul_mod();
+  testFpDbl_mul_mod();
   testPairing();
 
   // ToDo:QQQ: follow new xi
