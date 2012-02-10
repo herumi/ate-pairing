@@ -1120,7 +1120,7 @@ void test_pointDblLineEval()
 	TEST_ASSERT(isOnTwistECHom3(Q));
 
 	Fp P[3] = { genPx(), genPy() }; Fp::neg(P[2], P[1]);
-	TEST_ASSERT(isOnECHom(P));
+	TEST_ASSERT(isOnECHom3(P));
 
 	const Fp2 Q2_ok[] = { genQ2x(), genQ2y(), Fp2(Fp(1), Fp(0)) };
 	TEST_ASSERT(isOnTwistECHom3(Q2_ok));
@@ -1168,7 +1168,7 @@ void test_pointAddLineEval()
 	TEST_ASSERT(isOnTwistECHom3(Q));
 
 	const Fp P[] = { genPx(), genPy(), Fp(1) };
-	TEST_ASSERT(isOnECHom(P));
+	TEST_ASSERT(isOnECHom3(P));
 
 	/*
 		R = [m]Q
@@ -1448,10 +1448,10 @@ void testPairing()
 	puts(__FUNCTION__);
 
 	const Fp P[] = { genPx(), genPy() };
-	TEST_ASSERT(isOnECHom(P));
+	TEST_ASSERT(isOnECHom2(P));
 
 	const Fp P2[] = { genP2x(), genP2y() };
-	TEST_ASSERT(isOnECHom(P2));
+	TEST_ASSERT(isOnECHom2(P2));
 
 	const Fp2 Q[] = { genQx(), genQy() };
 	TEST_ASSERT(isOnTwistECHom2(Q));

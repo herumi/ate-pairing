@@ -2014,7 +2014,7 @@ inline bool isOnEC(const Fp (&P)[3])
   Homogeneous.
 */
 template<class Fp>
-inline bool isOnECHom(const Fp (&P)[2])
+inline bool isOnECHom2(const Fp (&P)[2])
 {
   return P[1]*P[1] == P[0]*P[0]*P[0] + Fp(2);
 }
@@ -2024,7 +2024,7 @@ inline bool isOnECHom(const Fp (&P)[2])
   Homogeneous.
 */
 template<class Fp>
-inline bool isOnECHom(const Fp (&P)[3])
+inline bool isOnECHom3(const Fp (&P)[3])
 {
   if (P[2] == 0) return true;
   Fp ZZZ;
