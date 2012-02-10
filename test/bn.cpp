@@ -32,7 +32,7 @@ const mie::Vuint& p = Param::p;
 const mie::Vuint& r = Param::r;
 
 /**
-   generate a value of X-coordinate of P
+   generate a value of the X-coordinate of P
 */
 const Fp genPx()
 {
@@ -40,7 +40,7 @@ const Fp genPx()
   return Px;
 }
 /**
-   generate a value of Y-coordinate of P
+   generate a value of the Y-coordinate of P
 */
 const Fp genPy()
 {
@@ -49,7 +49,7 @@ const Fp genPy()
 }
 
 /**
-   generate a value of X-coordinate of [2]P
+   generate a value of the X-coordinate of [2]P
 */
 const Fp genP2x()
 {
@@ -57,7 +57,7 @@ const Fp genP2x()
   return P2x;
 }
 /**
-   generate a value of Y-coordinate of [2]P
+   generate a value of the Y-coordinate of [2]P
 */
 const Fp genP2y()
 {
@@ -143,11 +143,11 @@ void testECOperationsG1()
 
 		TEST_EQUAL(P3[0], P3_ok[0]);
 		TEST_EQUAL(P3[1], P3_ok[1]);
-		TEST_EQUAL(P3[2], P3_ok[2]);  
+		TEST_EQUAL(P3[2], P3_ok[2]);
 
 		TEST_EQUAL(PR[0], PR_ok[0]);
 		TEST_EQUAL(PR[1], PR_ok[1]);
-		TEST_EQUAL(PR[2], PR_ok[2]);  
+		TEST_EQUAL(PR[2], PR_ok[2]);
 
 		Xbyak::util::Clock clk;
 		const size_t N = 10000;
