@@ -2086,7 +2086,7 @@ template<class FF>
 inline void NormalizeJac(FF (&out)[3], const FF (&in)[3])
 {
   if (in[2] == 0) {
-    out[2] = 0;
+    out[2].clear();
   } else {
     FF A, AA, t0;
     A = in[2];
@@ -2106,7 +2106,7 @@ template<class FF>
 inline void NormalizeHom(FF (&out)[3], const FF (&in)[3])
 {
   if (in[2] == 0) {
-    out[2] = 0;
+    out[2].clear();
   } else {
     FF A = in[2];
     A.inverse();
