@@ -1119,8 +1119,9 @@ void test_pointDblLineEval()
 	Fp2 Q[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
 	TEST_ASSERT(isOnTwistECHom3(Q));
 
-	Fp P[3] = { genPx(), genPy() }; Fp::neg(P[2], P[1]);
+	Fp P[3] = { genPx(), genPy(), Fp(1) };
 	TEST_ASSERT(isOnECHom3(P));
+    Fp::neg(P[2], P[1]); // @note: For the assumption of pointDblLineEval
 
 	const Fp2 Q2_ok[] = { genQ2x(), genQ2y(), Fp2(Fp(1), Fp(0)) };
 	TEST_ASSERT(isOnTwistECHom3(Q2_ok));
@@ -2393,8 +2394,8 @@ int main(int argc, char *argv[]) try
 
   testFp12();
 
-//  test_pointDblLineEval();
-//  test_pointAddLineEval();
+  test_pointDblLineEval();
+  test_pointAddLineEval();
 
   test_compression();
   test_compressed_square();
