@@ -1272,7 +1272,7 @@ void test_compressed_square()
   a = aa;
   Fp12 d;
   Compress b(d, a);
-  
+
   a *= a;
 
   Fp12 d2;
@@ -1280,7 +1280,7 @@ void test_compressed_square()
   Compress::square_n(c, 1);
   c.decompress();
   TEST_EQUAL(a, d2);
-  
+
   Compress::square_n(b, 1);
   b.decompress();
   TEST_EQUAL(a, d);
@@ -1392,7 +1392,7 @@ void test_FrobEndOnTwist_1()
     TEST_EQUAL(Q[0], Q1[0]);
     TEST_EQUAL(Q[1], Q1[1]);
   }
-  
+
   {
     Xbyak::util::Clock clk;
     clk.begin();
@@ -2236,7 +2236,7 @@ void testNewVersion()
 void testParameters()
 {
   puts(__FUNCTION__);
-  
+
   {
     const mie::Vuint p_ok("16798108731015832284940804142231733909889187121439069848933715426072753864723");
     const mie::Vuint &p = Fp::getModulo();
@@ -2244,20 +2244,20 @@ void testParameters()
     TEST_EQUAL(p, p_ok);
     TEST_EQUAL(param_p, p_ok);
   }
-  
+
   {
     const mie::Vuint r_ok("16798108731015832284940804142231733909759579603404752749028378864165570215949");
     const mie::Vuint &r = Param::r;
     TEST_EQUAL(r, r_ok);
   }
-  
+
   {
     const Fp Z_ok("1807136345283977465813277102364620289631804529403213381639");
     Fp t = Z_ok*Z_ok + Z_ok + 1;
     TEST_ASSERT(t.isZero());
     t = Z_ok*Z_ok*Z_ok;
     TEST_EQUAL(t, 1);
-    
+
     const Fp &Z = Param::Z;
     t = Z*Z + Z + 1;
     TEST_ASSERT(t.isZero());
@@ -2266,7 +2266,7 @@ void testParameters()
 
     TEST_EQUAL(Z, Z_ok);
   }
-  
+
   {
     const Fp2 W2p_ok(Fp(0),
                      Fp("16798108731015832283133667796947756444075910019074449559301910896669540483083"));
@@ -2280,12 +2280,12 @@ void testParameters()
     const Fp2 &W3p = Param::W3p;
     TEST_EQUAL(W3p, W3p_ok);
   }
-  
+
   typedef struct Fp2_str_t {
     const char *a;
     const char *b;
   } Fp2_str;
-  
+
   {
     const Fp2 (&gammar)[5] = Param::gammar;
     const Fp2_str gammar_str[] = {
@@ -2310,7 +2310,7 @@ void testParameters()
       }
     }
   }
-  
+
   {
     const Fp2 (&gammar2)[5] = Param::gammar2;
     const Fp2_str gammar2_str[] = {
