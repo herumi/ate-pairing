@@ -545,7 +545,7 @@ void testFp2()
 }
 
 /**
-   generate a value of X-coordinate of Q
+   generate a value of the X-coordinate of Q
 */
 const Fp2 genQx()
 {
@@ -555,7 +555,7 @@ const Fp2 genQx()
   return Qx;
 }
 /**
-   generate a value of Y-coordinate of Q
+   generate a value of the Y-coordinate of Q
 */
 const Fp2 genQy()
 {
@@ -566,7 +566,7 @@ const Fp2 genQy()
 }
 
 /**
-   generate a value of X-coordinate of [2]Q
+   generate a value of the X-coordinate of [2]Q
 */
 const Fp2 genQ2x()
 {
@@ -576,7 +576,7 @@ const Fp2 genQ2x()
   return Q2x;
 }
 /**
-   generate a value of Y-coordinate of [2]Q
+   generate a value of the Y-coordinate of [2]Q
 */
 const Fp2 genQ2y()
 {
