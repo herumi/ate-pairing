@@ -70,31 +70,31 @@ void testECOperationsG1()
 	puts(__FUNCTION__);
 
 	const Fp P[] = { genPx(), genPy(), Fp(1) };
-	TEST_ASSERT(isOnEC(P));
+	TEST_ASSERT(isOnECJac3(P));
 
 	const Fp R[] = {
 		Fp("13444485882265322272857095018562747159513775856924555608551532122942502696033"),
 		Fp("11811997307285544251176681325629039017467625014708607213193666012921830535998"),
 		Fp(1),
 	};
-	TEST_ASSERT(isOnEC(R));
+	TEST_ASSERT(isOnECJac3(R));
 
 	const Fp P2_ok[] = { genP2x(), genP2y(), Fp(1) };
-	TEST_ASSERT(isOnEC(P2_ok));
+	TEST_ASSERT(isOnECJac3(P2_ok));
 
 	const Fp P3_ok[] = {
 		Fp("933228262834212904718933563457318550549399284524392769385206412559597436928"),
 		Fp("13081617668227268048378253503661144166646030151223471427486357073175298320248"),
 		Fp(1),
 	};
-	TEST_ASSERT(isOnEC(P3_ok));
+	TEST_ASSERT(isOnECJac3(P3_ok));
 
 	const Fp PR_ok[] = {
 		Fp("5029559281027098065112074313654538061170641740632027092904459697655977527307"),
 		Fp("8600928869174184710378059261155172010154737801304483073001259795547035852644"),
 		Fp(1),
 	};
-	TEST_ASSERT(isOnEC(PR_ok));
+	TEST_ASSERT(isOnECJac3(PR_ok));
 
 	const std::string m_str("9347746330740818252600716999005395295745642941583534686803606077666502");
 	const Fp Pm_ok[] = {
@@ -102,14 +102,14 @@ void testECOperationsG1()
 		Fp("4188048486869311245492662268177668835013141885357103548787568172806640854865"),
 		Fp(1),
 	};
-	TEST_ASSERT(isOnEC(Pm_ok));
+	TEST_ASSERT(isOnECJac3(Pm_ok));
 
 	{
 		Fp P2[3];
 		ECDouble(P2, P);
-		TEST_ASSERT(isOnEC(P2));
+		TEST_ASSERT(isOnECJac3(P2));
 		Normalize(P2, P2);
-		TEST_ASSERT(isOnEC(P2));
+		TEST_ASSERT(isOnECJac3(P2));
 		TEST_EQUAL(P2[0], P2_ok[0]);
 		TEST_EQUAL(P2[1], P2_ok[1]);
 		TEST_EQUAL(P2[2], P2_ok[2]);
@@ -132,14 +132,14 @@ void testECOperationsG1()
 		ECAdd(P3, P3, P2_ok);
 		ECAdd(PR, PR, R);
 
-		TEST_ASSERT(isOnEC(P3));
-		TEST_ASSERT(isOnEC(PR));
+		TEST_ASSERT(isOnECJac3(P3));
+		TEST_ASSERT(isOnECJac3(PR));
 
 		Normalize(P3, P3);
 		Normalize(PR, PR);
 
-		TEST_ASSERT(isOnEC(P3));
-		TEST_ASSERT(isOnEC(PR));
+		TEST_ASSERT(isOnECJac3(P3));
+		TEST_ASSERT(isOnECJac3(PR));
 
 		TEST_EQUAL(P3[0], P3_ok[0]);
 		TEST_EQUAL(P3[1], P3_ok[1]);
@@ -167,19 +167,19 @@ void testECOperationsG1()
 		{
 			m = 0;
 			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnEC(Pm));
+			TEST_ASSERT(isOnECJac3(Pm));
 			TEST_EQUAL(Pm[2], 0);
 			Normalize(Pm_norm, Pm);
-			TEST_ASSERT(isOnEC(Pm_norm));
+			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[2], 0);
 		}
 
 		{
 			m = 1;
 			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnEC(Pm));
+			TEST_ASSERT(isOnECJac3(Pm));
 			Normalize(Pm_norm, Pm);
-			TEST_ASSERT(isOnEC(Pm_norm));
+			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[0], P[0]);
 			TEST_EQUAL(Pm_norm[1], P[1]);
 			TEST_EQUAL(Pm_norm[2], P[2]);
@@ -188,9 +188,9 @@ void testECOperationsG1()
 		{
 			m = 2;
 			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnEC(Pm));
+			TEST_ASSERT(isOnECJac3(Pm));
 			Normalize(Pm_norm, Pm);
-			TEST_ASSERT(isOnEC(Pm_norm));
+			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[0], P2_ok[0]);
 			TEST_EQUAL(Pm_norm[1], P2_ok[1]);
 			TEST_EQUAL(Pm_norm[2], P2_ok[2]);
@@ -199,9 +199,9 @@ void testECOperationsG1()
 		{
 			m = 3;
 			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnEC(Pm));
+			TEST_ASSERT(isOnECJac3(Pm));
 			Normalize(Pm_norm, Pm);
-			TEST_ASSERT(isOnEC(Pm_norm));
+			TEST_ASSERT(isOnECJac3(Pm_norm));
 			TEST_EQUAL(Pm_norm[0], P3_ok[0]);
 			TEST_EQUAL(Pm_norm[1], P3_ok[1]);
 			TEST_EQUAL(Pm_norm[2], P3_ok[2]);
@@ -210,9 +210,9 @@ void testECOperationsG1()
 		{
 			m.set(m_str);
 			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnEC(Pm));
+			TEST_ASSERT(isOnECJac3(Pm));
 			Normalize(Pm, Pm);
-			TEST_ASSERT(isOnEC(Pm));
+			TEST_ASSERT(isOnECJac3(Pm));
 			TEST_EQUAL(Pm[0], Pm_ok[0]);
 			TEST_EQUAL(Pm[1], Pm_ok[1]);
 			TEST_EQUAL(Pm[2], Pm_ok[2]);

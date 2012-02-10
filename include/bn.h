@@ -1993,18 +1993,18 @@ inline void copy(FF (&out)[3], const FF (&in)[3])
 }
 
 /*
-  @memo Y^2=X^3+2
+  @memo Jacobian coordinates: Y^2 = X^3 + 2*Z^6
 */
 template<class Fp>
-inline bool isOnEC(const Fp (&P)[3])
+inline bool isOnECJac3(const Fp (&P)[3])
 {
   if (P[2] == 0) return true;
 
-  Fp Z6p;
-  Fp::square(Z6p, P[2]);
-  Fp::mul(Z6p, Z6p, P[2]);
-  Fp::square(Z6p, Z6p);
-  Fp Z6p_2 = Z6p + Z6p;
+  Fp Z6p_2;
+  Fp::square(Z6p_2, P[2]);
+  Fp::mul(Z6p_2, Z6p_2, P[2]);
+  Fp::square(Z6p_2, Z6p_2);
+  Fp::add(Z6p_2, Z6p_2, Z6p_2);
 
   return P[1]*P[1] == P[0]*P[0]*P[0] + Z6p_2;
 }
