@@ -19,6 +19,8 @@ struct ParamT {
 	static mie::Vsint z;
 	static mie::Vuint p;
 	static mie::Vuint r;
+  static mie::Vuint t; /* trace of Frobenius */
+  static mie::Vsint largest_c; /* 6z + 2, the largest coefficient of short vector */
 	static Fp Z;
 	static Fp2 W2p;
 	static Fp2 W3p;
@@ -35,9 +37,12 @@ struct ParamT {
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
 		const int pCoff[] = { 1, 6, 24, 36, 36 };
 		const int rCoff[] = { 1, 6, 18, 36, 36 };
+		const int tCoff[] = { 1, 0, 6 };
 		z.set(org_z);
 		eval(p, z, pCoff);
 		eval(r, z, rCoff);
+        eval(t, z, tCoff);
+        largest_c = 6*z + 2;
 		Fp::setModulo(p, mode);
 
 		half = Fp(1)/Fp(2);
@@ -92,6 +97,10 @@ template<class Fp2>
 mie::Vuint ParamT<Fp2>::p;
 template<class Fp2>
 mie::Vuint ParamT<Fp2>::r;
+template<class Fp2>
+mie::Vuint ParamT<Fp2>::t;
+template<class Fp2>
+mie::Vsint ParamT<Fp2>::largest_c;
 
 template<class Fp2>
 typename Fp2::Fp ParamT<Fp2>::Z;
