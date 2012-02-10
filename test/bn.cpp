@@ -1237,6 +1237,14 @@ void test_compression()
   a = aa;
   Fp12 c;
   Compress b(c, a);
+  TEST_EQUAL(intptr_t(&b.z_), intptr_t(&c));
+  TEST_EQUAL(b.z_, c);
+  TEST_EQUAL(b.g1_, c.getFp2()[4]);
+  TEST_EQUAL(b.g2_, c.getFp2()[3]);
+  TEST_EQUAL(b.g3_, c.getFp2()[2]);
+  TEST_EQUAL(b.g4_, c.getFp2()[1]);
+  TEST_EQUAL(b.g5_, c.getFp2()[5]);
+
   {
     Xbyak::util::Clock clk;
     const size_t N = 10000;
@@ -1249,26 +1257,6 @@ void test_compression()
     printf("decompress:\t% 10.2fclk\n", clk.getClock() / double(N));
   }
   TEST_EQUAL(a, c);
-
-#if 0
-    intptr_t s = sizeof(Fp2);
-
-    TEST_EQUAL(intptr_t(&b), intptr_t(&b.g2_));
-    TEST_EQUAL(intptr_t(&b), intptr_t(&b.g2_));
-    TEST_EQUAL(intptr_t(&b) + s, intptr_t(&b.g3_));
-    TEST_EQUAL(intptr_t(&b) + 2*s, intptr_t(&b.g4_));
-    TEST_EQUAL(intptr_t(&b) + 3*s, intptr_t(&b.g5_));
-    
-    intptr_t diff = intptr_t(&b.g3_) - intptr_t(&b.g2_);
-    TEST_EQUAL(diff, sizeof(Fp2));
-    TEST_ASSERT(0 < diff);
-    diff = intptr_t(&b.g4_) - intptr_t(&b.g3_);
-    TEST_EQUAL(diff, sizeof(Fp2));
-    TEST_ASSERT(0 < diff);
-    diff = intptr_t(&b.g5_) - intptr_t(&b.g4_);
-    TEST_EQUAL(diff, sizeof(Fp2));
-    TEST_ASSERT(0 < diff);
-#endif
 }
 
 void test_compressed_square()
