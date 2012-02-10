@@ -619,7 +619,7 @@ void testECOperationsG2()
     Fp2(Fp(1), Fp(0)),
   };
   TEST_ASSERT(isOnTwistEC(P3_ok));
-  
+
   /*
     PR = P + R
   */
@@ -629,7 +629,7 @@ void testECOperationsG2()
     Fp2(Fp(1), Fp(0)),
   };
   TEST_ASSERT(isOnTwistEC(PR_ok));
-  
+
   const std::string m_str("9347746330740818252600716999005395295745642941583534686803606077666502");
   const Fp2 Pm_ok[] = {
     Fp2(Fp("10441210346477881509066116513368913513335705597787319222238764774307447511387"), Fp("14433824588814776544086946350203752791948488948859728417684455048057787177915")),
@@ -637,14 +637,14 @@ void testECOperationsG2()
     Fp2(Fp(1), Fp(0)),
   };
   TEST_ASSERT(isOnTwistEC(Pm_ok));
-  
+
   {
     Fp2 P2[3];
-    
+
     {
       Xbyak::util::Clock clk;
       const size_t N = 10000;
-      
+
       clk.begin();
       for (size_t i = 0; i < N; i++) {
         ECDouble(P2, P);
@@ -652,26 +652,26 @@ void testECOperationsG2()
       clk.end();
       printf("ECDouble:\t% 10.2fclk\n", clk.getClock() / double(N));
     }
-    
+
     TEST_ASSERT(isOnTwistEC(P2));
-    
+
     Fp2 P2_norm[3];
-    
+
     Normalize(P2_norm, P2);
     TEST_ASSERT(isOnTwistEC(P2_norm));
     TEST_EQUAL(P2_norm[0], P2_ok[0]);
     TEST_EQUAL(P2_norm[1], P2_ok[1]);
     TEST_EQUAL(P2_norm[2], P2_ok[2]);
   }
-  
+
   {
     Fp2 P3[3], PR[3];
-    
+
     ECAdd(P3, P, P2_ok);
     {
       Xbyak::util::Clock clk;
       const size_t N = 10000;
-      
+
       clk.begin();
       for (size_t i = 0; i < N; i++) {
         ECAdd(PR, P, R);
@@ -679,31 +679,31 @@ void testECOperationsG2()
       clk.end();
       printf("ECAdd:\t\t% 10.2fclk\n", clk.getClock() / double(N));
     }
-    
+
     TEST_ASSERT(isOnTwistEC(P3));
     TEST_ASSERT(isOnTwistEC(PR));
-    
+
     Fp2 P3_norm[3], PR_norm[3];
-    
+
     Normalize(P3_norm, P3);
     Normalize(PR_norm, PR);
-    
+
     TEST_ASSERT(isOnTwistEC(P3_norm));
     TEST_ASSERT(isOnTwistEC(PR_norm));
-    
+
     TEST_EQUAL(P3_norm[0], P3_ok[0]);
     TEST_EQUAL(P3_norm[1], P3_ok[1]);
-    TEST_EQUAL(P3_norm[2], P3_ok[2]);  
-    
+    TEST_EQUAL(P3_norm[2], P3_ok[2]);
+
     TEST_EQUAL(PR_norm[0], PR_ok[0]);
     TEST_EQUAL(PR_norm[1], PR_ok[1]);
-    TEST_EQUAL(PR_norm[2], PR_ok[2]);  
+    TEST_EQUAL(PR_norm[2], PR_ok[2]);
   }
 
   {
     mie::Vuint m;
     Fp2 Pm[3], Pm_norm[3];
-    
+
     {
       m = 0;
       ScalarMult(Pm, P, m);
@@ -713,7 +713,7 @@ void testECOperationsG2()
       TEST_ASSERT(isOnTwistEC(Pm_norm));
       TEST_EQUAL(Pm_norm[2], 0);
     }
-    
+
     {
       m = 1;
       ScalarMult(Pm, P, m);
@@ -724,7 +724,7 @@ void testECOperationsG2()
       TEST_EQUAL(Pm_norm[1], P[1]);
       TEST_EQUAL(Pm_norm[2], P[2]);
     }
-    
+
     {
       m = 2;
       ScalarMult(Pm, P, m);
@@ -735,7 +735,7 @@ void testECOperationsG2()
       TEST_EQUAL(Pm_norm[1], P2_ok[1]);
       TEST_EQUAL(Pm_norm[2], P2_ok[2]);
     }
-    
+
     {
       m = 3;
       ScalarMult(Pm, P, m);
@@ -746,14 +746,14 @@ void testECOperationsG2()
       TEST_EQUAL(Pm_norm[1], P3_ok[1]);
       TEST_EQUAL(Pm_norm[2], P3_ok[2]);
     }
-    
+
     {
       m.set(m_str);
-      
+
       Xbyak::util::Clock clk;
       const size_t N = 5000;
       const size_t K = 1000;
-      
+
       clk.begin();
       for (size_t i = 0; i < N; i++) {
         ScalarMult(Pm, P, m);
@@ -762,23 +762,23 @@ void testECOperationsG2()
       printf("ScalarMult:\t% 10.2fKclk\n"
              , (clk.getClock() / K) / double(N));
     }
-    
+
     TEST_ASSERT(isOnTwistEC(Pm));
     Normalize(Pm_norm, Pm);
     TEST_ASSERT(isOnTwistEC(Pm_norm));
-    
+
     TEST_EQUAL(Pm_norm[0], Pm_ok[0]);
     TEST_EQUAL(Pm_norm[1], Pm_ok[1]);
     TEST_EQUAL(Pm_norm[2], Pm_ok[2]);
   }
-  
+
   {
     const mie::Vuint &r = Param::r;
     Fp2 Pz[3], Rz[3];
-    
+
     ScalarMult(Pz, P, r);
     ScalarMult(Rz, R, r);
-    
+
     TEST_ASSERT(Pz[2].isZero());
     TEST_ASSERT(Rz[2].isZero());
   }
