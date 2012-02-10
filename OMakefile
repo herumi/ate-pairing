@@ -1,0 +1,95 @@
+########################################################################
+# Phony targets are scoped, so you probably want to declare them first.
+#
+
+CC = gcc
+CXX = g++ -x c++
+LD = g++
+AR = ar r
+MKDIR = mkdir -p
+BIT = -m64
+
+CXXFLAGS_ARCOPT[] =
+	-O3
+	-fomit-frame-pointer
+	-msse2
+	-mfpmath=sse
+	-march=core2
+
+CXXFLAGS_DEBUG[] =
+	-DNDEBUG
+
+CXXFLAGS_WARN[] =
+	-Wall
+	-Wextra
+	-Wformat=2
+	-Wcast-qual
+	-Wcast-align
+	-Wwrite-strings
+	-Wfloat-equal
+	-Wpointer-arith
+#	-Wswitch-enum
+#	-Wstrict-aliasing=2
+
+CXXFLAGS_ALWAYS[] =
+	-D_FILE_OFFSET_BITS=64
+	-fno-operator-names
+
+CXXFLAGS_BIT = $(BIT)
+
+CXXFLAGS = $(CXXFLAGS_ARCOPT) $(CXXFLAGS_DEBUG) $(CXXFLAGS_WARN) $(CXXFLAGS_ALWAYS) $(CXXFLAGS_BIT)
+LDFLAGS = -s $(BIT)
+
+########################################################################
+# Subdirectories.
+# You may want to include some subdirectories in this project.
+# If so, define the subdirectory targets and uncomment this section.
+#
+
+.PHONY: all install clean
+
+clean:
+	$(RM) -r lib
+
+.SUBDIRS: src test
+
+########################################################################
+# C configuration.
+# Delete this section if you are not building C files.
+#
+
+################################################
+# Configuration.  You might want to modify any of these
+# configuration variables.
+#
+
+# CFLAGS +=
+# ASFLAGS +=
+# LDFLAGS +=
+# INCLUDES +=
+
+################################################
+# Uncomment the following section if you want
+# to build a C program in the current directory.
+#
+
+# CFILES[] =
+#    file1
+#    main
+#
+# MAIN = main
+#
+# .DEFAULT: $(CProgram $(MAIN), $(CFILES))
+
+################################################
+# Uncomment the following section if you want to build a C library
+# in the current directory.
+#
+
+# LIBFILES[] =
+#    file1
+#    file2
+#
+# LIB = libxxx
+#
+# .DEFAULT: $(StaticCLibrary $(LIB), $(LIBFILES))

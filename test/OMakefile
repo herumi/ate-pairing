@@ -1,0 +1,16 @@
+
+INCLUDES[] =
+	../src
+	../../xbyak
+	../include
+
+LDFLAGS += -L../lib -lm -lzm
+
+bn.o: bn.cpp
+bn: bn.o ../lib/libzm.a
+	$(LD) -o $@ $< $(LDFLAGS)
+
+clean:
+	$(RM) *~ *.o bn
+
+.DEFAULT: bn

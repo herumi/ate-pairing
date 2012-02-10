@@ -1,1 +1,4 @@
+*~
+*.omc
+.omakedb*
 lib/
