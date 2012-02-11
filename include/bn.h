@@ -1398,10 +1398,9 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		typedef CompressT<Fp2> Compress;
 		// 431k
 		Compress::fixed_power(ft1, ff);
-		Fp6::neg(ft1.b_, ft1.b_);
 		Compress::fixed_power(ft2, ft1);
-		Fp6::neg(ft2.b_, ft2.b_);
 		Compress::fixed_power(ft3, ft2);
+		Fp6::neg(ft1.b_, ft1.b_);
 		Fp6::neg(ft3.b_, ft3.b_);
 
 		ff.Frobenius(y0); // 1.7k
