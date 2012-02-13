@@ -1,5 +1,5 @@
 
-High-Speed Software Implementation of the Optimal Ate Pairing over BN Curves
+High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves
 =============
 
 Abstruct
@@ -31,7 +31,11 @@ then you can get the binary in ate/x64/Release/test_bn.exe .
 
 Type
 
-    cd ate && make
+    $ make
+
+or, if you have OMake,
+
+    $ omake
 
 then you can get ate/test/bn .
 
