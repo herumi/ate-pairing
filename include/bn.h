@@ -19,8 +19,8 @@ struct ParamT {
 	static mie::Vsint z;
 	static mie::Vuint p;
 	static mie::Vuint r;
-  static mie::Vuint t; /* trace of Frobenius */
-  static mie::Vsint largest_c; /* 6z + 2, the largest coefficient of short vector */
+	static mie::Vuint t; /* trace of Frobenius */
+	static mie::Vsint largest_c; /* 6z + 2, the largest coefficient of short vector */
 	static Fp Z;
 	static Fp2 W2p;
 	static Fp2 W3p;
@@ -2370,3 +2370,11 @@ typedef Fp12::Dbl Fp12Dbl;
 typedef CompressT<Fp2> Compress;
 
 } // bn
+
+/*
+  Local Variables:
+  c-basic-offset: 4
+  indent-tabs-mode: t
+  tab-width: 4
+  End:
+*/

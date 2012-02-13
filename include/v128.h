@@ -260,3 +260,11 @@ static MIE_FORCE_INLINE void rotlByte(V128& x0, V128& x1, V128& x2)
 #endif
 
 #endif /* MIE_V128_H_ */
+
+/*
+  Local Variables:
+  c-basic-offset: 4
+  indent-tabs-mode: t
+  tab-width: 4
+  End:
+*/

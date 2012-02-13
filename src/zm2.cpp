@@ -3518,3 +3518,11 @@ void Fp::setModulo(const mie::Vuint& p, int mode)
 	}
 	::exit(1);
 }
+
+/*
+  Local Variables:
+  c-basic-offset: 4
+  indent-tabs-mode: t
+  tab-width: 4
+  End:
+*/
