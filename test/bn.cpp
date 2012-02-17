@@ -591,7 +591,7 @@ void testECOperationsG2()
   puts(__FUNCTION__);
 
   const Fp2 P[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
-  TEST_ASSERT(isOnTwistEC(P));
+  TEST_ASSERT(isOnTwistECJac3(P));
 
   /*
     R = [m]P,
@@ -602,13 +602,13 @@ void testECOperationsG2()
     Fp2(Fp("13675004707765291840926741134330657174325775842323897203730447415462283202661"), Fp("6686821593302402098300348923000142044418144174058402521315042066378362212321")),
     Fp2(Fp(1), Fp(0)),
   };
-  TEST_ASSERT(isOnTwistEC(R));
+  TEST_ASSERT(isOnTwistECJac3(R));
 
   /*
     P2 = P + P
   */
   const Fp2 P2_ok[] = { genQ2x(), genQ2y(), Fp2(Fp(1), Fp(0)) };
-  TEST_ASSERT(isOnTwistEC(P2_ok));
+  TEST_ASSERT(isOnTwistECJac3(P2_ok));
 
   /*
     P3 = P + P + P
@@ -618,7 +618,7 @@ void testECOperationsG2()
     Fp2(Fp("4448845430036386900904134218385919238634516280940850750340057793276116990520"), Fp("5381197710638591824110650873873102215710463161465576982098481156644922737066")),
     Fp2(Fp(1), Fp(0)),
   };
-  TEST_ASSERT(isOnTwistEC(P3_ok));
+  TEST_ASSERT(isOnTwistECJac3(P3_ok));
 
   /*
     PR = P + R
@@ -628,7 +628,7 @@ void testECOperationsG2()
     Fp2(Fp("4188277960223912253520496835244041970690458283101292677577969922331161931355"), Fp("6626563699999679639856135562000857142994474772523438562835858347560344528530")),
     Fp2(Fp(1), Fp(0)),
   };
-  TEST_ASSERT(isOnTwistEC(PR_ok));
+  TEST_ASSERT(isOnTwistECJac3(PR_ok));
 
   const std::string m_str("9347746330740818252600716999005395295745642941583534686803606077666502");
   const Fp2 Pm_ok[] = {
@@ -636,7 +636,7 @@ void testECOperationsG2()
     Fp2(Fp("5562925282053339482485224304075873800061135879275456976861613117140339306723"), Fp("4780189879307383623106336041945958171623286554407266664048019152689513531681")),
     Fp2(Fp(1), Fp(0)),
   };
-  TEST_ASSERT(isOnTwistEC(Pm_ok));
+  TEST_ASSERT(isOnTwistECJac3(Pm_ok));
 
   {
     Fp2 P2[3];
@@ -653,12 +653,12 @@ void testECOperationsG2()
       printf("ECDouble:\t% 10.2fclk\n", clk.getClock() / double(N));
     }
 
-    TEST_ASSERT(isOnTwistEC(P2));
+    TEST_ASSERT(isOnTwistECJac3(P2));
 
     Fp2 P2_norm[3];
 
     NormalizeJac(P2_norm, P2);
-    TEST_ASSERT(isOnTwistEC(P2_norm));
+    TEST_ASSERT(isOnTwistECJac3(P2_norm));
     TEST_EQUAL(P2_norm[0], P2_ok[0]);
     TEST_EQUAL(P2_norm[1], P2_ok[1]);
     TEST_EQUAL(P2_norm[2], P2_ok[2]);
@@ -680,16 +680,16 @@ void testECOperationsG2()
       printf("ECAdd:\t\t% 10.2fclk\n", clk.getClock() / double(N));
     }
 
-    TEST_ASSERT(isOnTwistEC(P3));
-    TEST_ASSERT(isOnTwistEC(PR));
+    TEST_ASSERT(isOnTwistECJac3(P3));
+    TEST_ASSERT(isOnTwistECJac3(PR));
 
     Fp2 P3_norm[3], PR_norm[3];
 
     NormalizeJac(P3_norm, P3);
     NormalizeJac(PR_norm, PR);
 
-    TEST_ASSERT(isOnTwistEC(P3_norm));
-    TEST_ASSERT(isOnTwistEC(PR_norm));
+    TEST_ASSERT(isOnTwistECJac3(P3_norm));
+    TEST_ASSERT(isOnTwistECJac3(PR_norm));
 
     TEST_EQUAL(P3_norm[0], P3_ok[0]);
     TEST_EQUAL(P3_norm[1], P3_ok[1]);
@@ -707,19 +707,19 @@ void testECOperationsG2()
     {
       m = 0;
       ScalarMult(Pm, P, m);
-      TEST_ASSERT(isOnTwistEC(Pm));
+      TEST_ASSERT(isOnTwistECJac3(Pm));
       TEST_EQUAL(Pm[2], 0);
       NormalizeJac(Pm_norm, Pm);
-      TEST_ASSERT(isOnTwistEC(Pm_norm));
+      TEST_ASSERT(isOnTwistECJac3(Pm_norm));
       TEST_EQUAL(Pm_norm[2], 0);
     }
 
     {
       m = 1;
       ScalarMult(Pm, P, m);
-      TEST_ASSERT(isOnTwistEC(Pm));
+      TEST_ASSERT(isOnTwistECJac3(Pm));
       NormalizeJac(Pm_norm, Pm);
-      TEST_ASSERT(isOnTwistEC(Pm_norm));
+      TEST_ASSERT(isOnTwistECJac3(Pm_norm));
       TEST_EQUAL(Pm_norm[0], P[0]);
       TEST_EQUAL(Pm_norm[1], P[1]);
       TEST_EQUAL(Pm_norm[2], P[2]);
@@ -728,9 +728,9 @@ void testECOperationsG2()
     {
       m = 2;
       ScalarMult(Pm, P, m);
-      TEST_ASSERT(isOnTwistEC(Pm));
+      TEST_ASSERT(isOnTwistECJac3(Pm));
       NormalizeJac(Pm_norm, Pm);
-      TEST_ASSERT(isOnTwistEC(Pm_norm));
+      TEST_ASSERT(isOnTwistECJac3(Pm_norm));
       TEST_EQUAL(Pm_norm[0], P2_ok[0]);
       TEST_EQUAL(Pm_norm[1], P2_ok[1]);
       TEST_EQUAL(Pm_norm[2], P2_ok[2]);
@@ -739,9 +739,9 @@ void testECOperationsG2()
     {
       m = 3;
       ScalarMult(Pm, P, m);
-      TEST_ASSERT(isOnTwistEC(Pm));
+      TEST_ASSERT(isOnTwistECJac3(Pm));
       NormalizeJac(Pm_norm, Pm);
-      TEST_ASSERT(isOnTwistEC(Pm_norm));
+      TEST_ASSERT(isOnTwistECJac3(Pm_norm));
       TEST_EQUAL(Pm_norm[0], P3_ok[0]);
       TEST_EQUAL(Pm_norm[1], P3_ok[1]);
       TEST_EQUAL(Pm_norm[2], P3_ok[2]);
@@ -763,9 +763,9 @@ void testECOperationsG2()
              , (clk.getClock() / K) / double(N));
     }
 
-    TEST_ASSERT(isOnTwistEC(Pm));
+    TEST_ASSERT(isOnTwistECJac3(Pm));
     NormalizeJac(Pm_norm, Pm);
-    TEST_ASSERT(isOnTwistEC(Pm_norm));
+    TEST_ASSERT(isOnTwistECJac3(Pm_norm));
 
     TEST_EQUAL(Pm_norm[0], Pm_ok[0]);
     TEST_EQUAL(Pm_norm[1], Pm_ok[1]);

@@ -2036,7 +2036,7 @@ inline bool isOnECHom3(const Fp (&P)[3])
   @memo Y^2=X^3+2/xi
 */
 template<class Fp>
-inline bool isOnTwistEC(const Fp2T<Fp> (&P)[3])
+inline bool isOnTwistECJac3(const Fp2T<Fp> (&P)[3])
 {
   typedef Fp2T<Fp> Fp2;
   typedef ParamT<Fp2> Param;
