@@ -237,7 +237,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T> > {
 		Fp::divBy4(z.b_, x.b_);
 	}
 
-	/*
+	/***
 		u^2 = -1
 		xi = 1 + u
 		(a + bu)(1 + u) = (a - b) + (a + b)u
