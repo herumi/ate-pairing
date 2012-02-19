@@ -2301,11 +2301,11 @@ void FrobEndOnTwist_1(Fp2T<Fp> (&Q)[2], const Fp2T<Fp> *P)
 
   Q[0].a_ = P[0].a_;
   Fp::neg(Q[0].b_, P[0].b_);
-  Fp2::mul_Fp_1(Q[0], Param::W2p.b_);
+  Fp2::mul_Fp_1(Q[0], Param::twist_tbl6_[1].b_);
 
   Q[1].a_ = P[1].a_;
   Fp::neg(Q[1].b_, P[1].b_);
-  Q[1] *= Param::W3p;
+  Q[1] *= Param::twist_tbl4_[1];
 }
 
 template<class Fp>
@@ -2314,8 +2314,7 @@ void FrobEndOnTwist_2(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
   typedef Fp2T<Fp> Fp2;
   typedef ParamT<Fp2> Param;
 
-  Fp::mul(Q[0].a_, P[0].a_, Param::Z);
-  Fp::mul(Q[0].b_, P[0].b_, Param::Z);
+  Fp2::mul_Fp_0(Q[0], P[0], Param::twist_tbl3_[1]);
   Fp2::neg(Q[1], P[1]);
 }
 
@@ -2326,8 +2325,7 @@ void FrobEndOnTwist_8(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
   typedef Fp2T<Fp> Fp2;
   typedef ParamT<Fp2> Param;
 
-  Fp::mul(Q[0].a_, P[0].a_, Param::Z);
-  Fp::mul(Q[0].b_, P[0].b_, Param::Z);
+  Fp2::mul_Fp_0(Q[0], P[0], Param::twist_tbl3_[1]);
   Q[1] = P[1];
 }
 
