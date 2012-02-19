@@ -137,6 +137,7 @@ void mul_gamma_add(F& z, const F& x, const F& y)
 	G::add(z.b_, x.a_, y.b_);
 	G::add(z.c_, x.b_, y.c_);
 }
+
 /*
 	beta = -1
 	Fp2 = F[u] / (u^2 + 1)
@@ -278,10 +279,11 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T> > {
 		b_ *= t;
 	}
 	void clear() { a_.clear(); b_.clear(); }
+
+	std::string toString(int base = 10) const
+	{ return ("[" + a_.toString(base) + "," + b_.toString(base) + "]"); }
 	friend std::ostream& operator<<(std::ostream& os, const Fp2T& x)
-	{
-		return os << '[' << x.a_ << "," << x.b_ << "]";
-	}
+	{ return os << x.toString(); }
 	bool operator==(const Fp2T& rhs) const
 	{
 		return a_ == rhs.a_ && b_ == rhs.b_;
