@@ -32,6 +32,10 @@ struct ParamT {
 	static Fp2 b_invxi; // b/xi of twist E' : Y^2 = X^3 + b/xi
 	static Fp half;
 
+	static Fp  twist_tbl3_[3];
+	static Fp2 twist_tbl4_[4];
+	static Fp2 twist_tbl6_[6];
+
 	static inline void init(int mode)
 	{
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
@@ -47,9 +51,7 @@ struct ParamT {
 
 		half = Fp(1)/Fp(2);
 
-		Fp2 xi;
-		xi.a_ = 1;
-		xi.b_ = 1;
+		Fp2 xi(1,1);
 
 		/*
 		b = 2,
@@ -79,6 +81,8 @@ struct ParamT {
 		Fp::square(Z, -temp.a_);
 		i0 = 0;
 		i1 = 1;
+
+		init_twistMapParam();
 	}
 
 	// y = sum_{i=0}^4 c_i x^i
@@ -88,6 +92,42 @@ struct ParamT {
 	{
 		U tmp = (((c[4]*x + c[3])*x + c[2])*x + c[1])*x + c[0];
 		y = tmp.get();
+	}
+
+private:
+	static void init_twistMapParam()
+	{
+		const Fp beta(2);
+		const Fp2 xi(1, 1);
+		mie::Vuint pi;
+
+		twist_tbl3_[0] = 1;
+		pi = p;
+		for (int i = 1; i < 3; ++i) {
+			twist_tbl3_[i] = mie::power(beta, (pi-1)/3);
+			pi *= p;
+		}
+		assert(twist_tbl3_[1] == Z);
+		assert(twist_tbl3_[1]*twist_tbl3_[2] == Fp(1));
+
+		twist_tbl4_[0] = 1;
+		pi = p;
+		for (int i = 1; i < 4; ++i) {
+			twist_tbl4_[i] = mie::power(xi, (pi-1)/2);
+			pi *= p;
+		}
+		assert(twist_tbl4_[1] == W3p);
+		assert(twist_tbl4_[1]*twist_tbl4_[3] == Fp2(0, 1));
+
+		twist_tbl6_[0] = 1;
+		pi = p;
+		for (int i = 1; i < 6; ++i) {
+			twist_tbl6_[i] = mie::power(xi, (pi-1)/3);
+			pi *= p;
+		}
+		assert(twist_tbl6_[1] == W2p);
+		assert(twist_tbl6_[1]*twist_tbl6_[5] == -Fp2(1, 0));
+		assert(twist_tbl6_[2]*twist_tbl6_[4] == Fp2(1, 0));
 	}
 };
 
@@ -126,6 +166,13 @@ Fp2 ParamT<Fp2>::gammar2[5];
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar3[5];
 
+template<class Fp2>
+typename ParamT<Fp2>::Fp ParamT<Fp2>::twist_tbl3_[3];
+template<class Fp2>
+Fp2 ParamT<Fp2>::twist_tbl4_[4];
+template<class Fp2>
+Fp2 ParamT<Fp2>::twist_tbl6_[6];
+
 /*
 	mul_gamma(z, x) + z += y;
 */
@@ -144,7 +191,8 @@ void mul_gamma_add(F& z, const F& x, const F& y)
 	x = a_ + b_ u
 */
 template<class T>
-struct Fp2T : public mie::local::addsubmul<Fp2T<T> > {
+struct Fp2T : public mie::local::addsubmul<Fp2T<T>
+				   , mie::local::hasNegative<Fp2T<T> > > {
 	typedef T Fp;
 	Fp a_, b_;
 	Fp2T()
