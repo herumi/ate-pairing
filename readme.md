@@ -5,12 +5,12 @@ High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehr
 Abstruct
 -------------
 
-The library is able to compute the optimal ate pairing over a 254-bit prime field Fp.
-p = 36t^4 + 36t^3 + 24t^2 + 6t + 1, t = -(2^62 + 2^55 + 1).
+The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
+where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = -(2^62 + 2^55 + 1).
 
 > old version:
->The library is able to compute the optimal ate pairing over a 254-bit prime field Fp.
->p = 36t^4 + 36t^3 + 24t^2 + 6t + 1, t = 2^62 - 2^54 + 2^44.
+>The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
+>where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = 2^62 - 2^54 + 2^44.
 
 Requirements
 -------------
@@ -29,11 +29,11 @@ then you can get the binary in ate/x64/Release/test_bn.exe .
 
 ### Linux
 
-Type
+Type:
 
     $ make
 
-or, if you have OMake,
+or, if you have OMake:
 
     $ omake
 
