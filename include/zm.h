@@ -274,6 +274,23 @@ public:
 	T& operator[](size_t n) { return v_[n]; }
 };
 
+inline size_t popcnt64(uint64_t x)
+{
+	const uint64_t masks[] = {
+		0x5555555555555555UL,
+		0x3333333333333333UL,
+		0x0f0f0f0f0f0f0f0fUL,
+		0x00ff00ff00ff00ffUL,
+		0x0000ffff0000ffffUL,
+		0x00000000ffffffffUL,
+	};
+
+	for (size_t i = 0; i < sizeof(masks)/sizeof(*masks); ++i) {
+		x = (x & masks[i]) + ((x >> (1 << i)) & masks[i]);
+	}
+	return x;
+}
+
 } // local
 
 /**
@@ -482,6 +499,16 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 		size_t bit_pos  = i % (sizeof(T) * 8);
 		T mask = T(1) << bit_pos;
 		return ((*this)[unit_pos] & mask) != 0;
+	}
+
+	size_t HammingWeight() const
+	{
+		size_t hw = 0;
+		const size_t size = this->size();
+		for (size_t i = 0; i < size; ++i) {
+			hw += local::popcnt64((*this)[i]);
+		}
+		return hw;
 	}
 
 	static bool add_in(VuintT& out, const VuintT& x, const VuintT& y)

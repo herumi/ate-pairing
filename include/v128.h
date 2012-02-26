@@ -1,3 +1,4 @@
+/* -*- mode: c++ -*- */
 #ifndef MIE_V128_H_
 #define MIE_V128_H_
 
