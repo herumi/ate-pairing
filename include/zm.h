@@ -916,7 +916,7 @@ class VsintT : public local::addsubmul<VsintT<V>,
 public:
 	typedef typename V::value_type value_type;
 	VsintT(int x = 0)
-		: v_(abs(x))
+		: v_(x < 0 ? -x : x) // @note Is it OK?
 		, isNeg_(x < 0)
 	{
 	}
@@ -933,11 +933,11 @@ public:
 	{
 		v_.set(x);
 	}
-  void set(int64_t x)
-  {
-    isNeg_ = x < 0;
-    v_.set(isNeg_ ? -x : x);
-  }
+	void set(int64_t x)
+	{
+		isNeg_ = x < 0;
+		v_.set(isNeg_ ? -x : x);
+	}
 	void set(const V& x)
 	{
 		v_  = x;
@@ -1078,10 +1078,12 @@ public:
 		}
 	}
 
-  static inline void absolute(V& out, const VsintT& in)
-  {
-    out = in.get();
-  }
+	static inline void absolute(V& out, const VsintT& in)
+	{
+		out = in.get();
+	}
+
+	inline V abs() const { V x; absolute(x, *this); return x; }
 };
 
 //typedef VuintT<local::VariableBuffer> Vuint;
