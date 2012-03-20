@@ -371,6 +371,20 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 #endif
 		trim();
 	}
+
+	/***
+		If an index refer to the out of valid range,
+		then it returns 0.
+	*/
+	T getAtWithCheck(size_t i) const
+	{
+		if (i >= this->size()) {
+			return 0;
+		} else {
+			return (*this)[i];
+		}
+	}
+
 	void clear() { set((T)0); }
 	std::string toString(int base = 10) const
 	{
