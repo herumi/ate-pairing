@@ -82,6 +82,7 @@ struct ParamT {
 		i0 = 0;
 		i1 = 1;
 
+		init_autoMorphParam();
 		init_twistMapParam();
 	}
 
