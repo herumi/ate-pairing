@@ -289,6 +289,8 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		u^2 = -1
 		xi = 1 + u
 		(a + bu)(1 + u) = (a - b) + (a + b)u
+
+		2 * Fp add/sub
 	*/
 	static inline void mul_xiC(Fp2T& z, const Fp2T& x)
 	{
@@ -348,6 +350,8 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 	/*
 		u^2 = -1
 		(a + b)u = -b + au
+
+		1 * Fp neg
 	*/
 	void mul_x()
 	{
@@ -359,6 +363,9 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 	/*
 		(a + bu)cu = -bc + acu,
 		where u is u^2 = -1.
+
+		2 * Fp mul
+		1 * Fp neg
 	*/
 	static inline void mul_Fp_1(Fp2T &z, const Fp &y_b)
 	{
