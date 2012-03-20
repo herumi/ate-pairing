@@ -19,7 +19,7 @@
 #include <iostream>
 #define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
-#define MIE_ZM_VUINT_BIT_LEN 1024
+#define MIE_ZM_VUINT_BIT_LEN (1024)
 
 #ifdef _MSC_VER
 	#include <intrin.h>
