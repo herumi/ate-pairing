@@ -916,7 +916,7 @@ class VsintT : public local::addsubmul<VsintT<V>,
 public:
 	typedef typename V::value_type value_type;
 	VsintT(int x = 0)
-		: v_(x < 0 ? -x : x) // @note Is it OK?
+		: v_(::abs(x))
 		, isNeg_(x < 0)
 	{
 	}
