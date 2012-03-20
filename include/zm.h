@@ -276,7 +276,7 @@ public:
 
 inline size_t popcnt64(uint64_t x)
 {
-	const uint64_t masks[] = {
+	static const uint64_t masks[] = {
 		0x5555555555555555UL,
 		0x3333333333333333UL,
 		0x0f0f0f0f0f0f0f0fUL,
