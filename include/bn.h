@@ -95,36 +95,89 @@ struct ParamT {
 	}
 
 private:
-	static void init_twistMapParam()
+	static void init_autoMorphParam()
 	{
 		const Fp beta(2);
-		const Fp2 xi(1, 1);
-		mie::Vuint pi;
+
+		// @note definition of twist_tbl3_[i]
+		// twist_tbl3_[i] = mie::power(beta, (p^i-1)/3)
 
 		twist_tbl3_[0] = 1;
-		pi = p;
-		for (int i = 1; i < 3; ++i) {
-			twist_tbl3_[i] = mie::power(beta, (pi-1)/3);
-			pi *= p;
+		const Fp zeta3 = mie::power(beta, (p-1)/3);
+		twist_tbl3_[1] = zeta3;
+		for (int i = 2; i < 3; ++i) {
+			twist_tbl3_[i] = twist_tbl3_[i - 1] * zeta3;
 		}
+#ifndef NDEBUG
+		{
+			for (int i = 0; i < 3; ++i) {
+				PUT(i);
+				PUT(twist_tbl3_[i]);
+			}
+			PUT(twist_tbl3_[2]*zeta3);
+		}
+#endif
 		assert(twist_tbl3_[1] == Z);
-		assert(twist_tbl3_[1]*twist_tbl3_[2] == Fp(1));
+		assert(twist_tbl3_[1]*twist_tbl3_[2] == 1);
+	}
+
+	static void init_twistMapParam()
+	{
+		const Fp2 xi(1, 1);
+		const mie::Vuint p_1 = p - 1;
+		const mie::Vuint p2_1 = p*p - 1;
+		mie::Vuint pi;
+
+		// @note definition of twist_tbl4_[i]
+		// twist_tbl4_[i] = mie::power(xi, (p^i-1)/2)
 
 		twist_tbl4_[0] = 1;
-		pi = p;
+		pi = 1;
 		for (int i = 1; i < 4; ++i) {
-			twist_tbl4_[i] = mie::power(xi, (pi-1)/2);
+			mie::Vuint e = pi * p_1;
+			assert((e % 2) == 0);
+			e /= 2;
+			twist_tbl4_[i] = mie::power(xi, e);
 			pi *= p;
+			pi += 1;
+			pi %= p2_1;
 		}
+		assert(mie::power(xi, (pi * p_1)/2) == 1);
+#ifndef NDEBUG
+		{
+			for (int i = 0; i < 4; ++i) {
+				PUT(i);
+				PUT(twist_tbl4_[i]);
+			}
+		}
+#endif
 		assert(twist_tbl4_[1] == W3p);
+		assert(twist_tbl4_[1]*twist_tbl4_[1] == -Fp2(0, 1));
 		assert(twist_tbl4_[1]*twist_tbl4_[3] == Fp2(0, 1));
 
+		// @note definition of twist_tbl6_[i]
+		// twist_tbl6_[i] = mie::power(xi, (p^i-1)/3)
+
 		twist_tbl6_[0] = 1;
-		pi = p;
+		pi = 1;
 		for (int i = 1; i < 6; ++i) {
-			twist_tbl6_[i] = mie::power(xi, (pi-1)/3);
+			mie::Vuint e = pi * p_1;
+			assert((e % 3) == 0);
+			e /= 3;
+			twist_tbl6_[i] = mie::power(xi, e);
 			pi *= p;
+			pi += 1;
+			pi %= p2_1;
 		}
+		assert(mie::power(xi, (pi * p_1)/3) == 1);
+#ifndef NDEBUG
+		{
+			for (int i = 0; i < 6; ++i) {
+				PUT(i);
+				PUT(twist_tbl6_[i]);
+			}
+		}
+#endif
 		assert(twist_tbl6_[1] == W2p);
 		assert(twist_tbl6_[1]*twist_tbl6_[5] == -Fp2(1, 0));
 		assert(twist_tbl6_[2]*twist_tbl6_[4] == Fp2(1, 0));
