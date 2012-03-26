@@ -32,10 +32,6 @@ struct ParamT {
 	static Fp2 b_invxi; // b/xi of twist E' : Y^2 = X^3 + b/xi
 	static Fp half;
 
-	static Fp  twist_tbl3_[3];
-	static Fp2 twist_tbl4_[4];
-	static Fp2 twist_tbl6_[6];
-
 	static inline void init(int mode)
 	{
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
@@ -81,9 +77,6 @@ struct ParamT {
 		Fp::square(Z, -temp.a_);
 		i0 = 0;
 		i1 = 1;
-
-		init_autoMorphParam();
-		init_twistMapParam();
 	}
 
 	// y = sum_{i=0}^4 c_i x^i
@@ -93,95 +86,6 @@ struct ParamT {
 	{
 		U tmp = (((c[4]*x + c[3])*x + c[2])*x + c[1])*x + c[0];
 		y = tmp.get();
-	}
-
-private:
-	static void init_autoMorphParam()
-	{
-		const Fp beta(2);
-
-		// @note definition of twist_tbl3_[i]
-		// twist_tbl3_[i] = mie::power(beta, (p^i-1)/3)
-
-		twist_tbl3_[0] = 1;
-		const Fp zeta3 = mie::power(beta, (p-1)/3);
-		twist_tbl3_[1] = zeta3;
-		for (int i = 2; i < 3; ++i) {
-			twist_tbl3_[i] = twist_tbl3_[i - 1] * zeta3;
-		}
-#ifndef NDEBUG
-		{
-			for (int i = 0; i < 3; ++i) {
-				PUT(i);
-				PUT(twist_tbl3_[i]);
-			}
-			PUT(twist_tbl3_[2]*zeta3);
-		}
-#endif
-		assert(twist_tbl3_[1] == Z);
-		assert(twist_tbl3_[1]*twist_tbl3_[2] == 1);
-	}
-
-	static void init_twistMapParam()
-	{
-		const Fp2 xi(1, 1);
-		const mie::Vuint p_1 = p - 1;
-		const mie::Vuint p2_1 = p*p - 1;
-		mie::Vuint pi;
-
-		// @note definition of twist_tbl4_[i]
-		// twist_tbl4_[i] = mie::power(xi, (p^i-1)/2)
-
-		twist_tbl4_[0] = 1;
-		pi = 1;
-		for (int i = 1; i < 4; ++i) {
-			mie::Vuint e = pi * p_1;
-			assert((e % 2) == 0);
-			e /= 2;
-			twist_tbl4_[i] = mie::power(xi, e);
-			pi *= p;
-			pi += 1;
-			pi %= p2_1;
-		}
-		assert(mie::power(xi, (pi * p_1)/2) == 1);
-#ifndef NDEBUG
-		{
-			for (int i = 0; i < 4; ++i) {
-				PUT(i);
-				PUT(twist_tbl4_[i]);
-			}
-		}
-#endif
-		assert(twist_tbl4_[1] == W3p);
-		assert(twist_tbl4_[1]*twist_tbl4_[1] == -Fp2(0, 1));
-		assert(twist_tbl4_[1]*twist_tbl4_[3] == Fp2(0, 1));
-
-		// @note definition of twist_tbl6_[i]
-		// twist_tbl6_[i] = mie::power(xi, (p^i-1)/3)
-
-		twist_tbl6_[0] = 1;
-		pi = 1;
-		for (int i = 1; i < 6; ++i) {
-			mie::Vuint e = pi * p_1;
-			assert((e % 3) == 0);
-			e /= 3;
-			twist_tbl6_[i] = mie::power(xi, e);
-			pi *= p;
-			pi += 1;
-			pi %= p2_1;
-		}
-		assert(mie::power(xi, (pi * p_1)/3) == 1);
-#ifndef NDEBUG
-		{
-			for (int i = 0; i < 6; ++i) {
-				PUT(i);
-				PUT(twist_tbl6_[i]);
-			}
-		}
-#endif
-		assert(twist_tbl6_[1] == W2p);
-		assert(twist_tbl6_[1]*twist_tbl6_[5] == -Fp2(1, 0));
-		assert(twist_tbl6_[2]*twist_tbl6_[4] == Fp2(1, 0));
 	}
 };
 
@@ -219,13 +123,6 @@ template<class Fp2>
 Fp2 ParamT<Fp2>::gammar2[5];
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar3[5];
-
-template<class Fp2>
-typename ParamT<Fp2>::Fp ParamT<Fp2>::twist_tbl3_[3];
-template<class Fp2>
-Fp2 ParamT<Fp2>::twist_tbl4_[4];
-template<class Fp2>
-Fp2 ParamT<Fp2>::twist_tbl6_[6];
 
 /*
 	mul_gamma(z, x) + z += y;
@@ -2362,11 +2259,11 @@ void FrobEndOnTwist_1(Fp2T<Fp> (&Q)[2], const Fp2T<Fp> *P)
 
   Q[0].a_ = P[0].a_;
   Fp::neg(Q[0].b_, P[0].b_);
-  Fp2::mul_Fp_1(Q[0], Param::twist_tbl6_[1].b_);
+  Fp2::mul_Fp_1(Q[0], Param::W2p.b_);
 
   Q[1].a_ = P[1].a_;
   Fp::neg(Q[1].b_, P[1].b_);
-  Q[1] *= Param::twist_tbl4_[1];
+  Q[1] *= Param::W3p;
 }
 
 template<class Fp>
@@ -2375,7 +2272,7 @@ void FrobEndOnTwist_2(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
   typedef Fp2T<Fp> Fp2;
   typedef ParamT<Fp2> Param;
 
-  Fp2::mul_Fp_0(Q[0], P[0], Param::twist_tbl3_[1]);
+  Fp2::mul_Fp_0(Q[0], P[0], Param::Z);
   Fp2::neg(Q[1], P[1]);
 }
 
@@ -2386,7 +2283,7 @@ void FrobEndOnTwist_8(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
   typedef Fp2T<Fp> Fp2;
   typedef ParamT<Fp2> Param;
 
-  Fp2::mul_Fp_0(Q[0], P[0], Param::twist_tbl3_[1]);
+  Fp2::mul_Fp_0(Q[0], P[0], Param::Z);
   Q[1] = P[1];
 }
 
