@@ -803,14 +803,14 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_FpDbl_add()
 	{
 		align(16);
-		p_FpDbl_add = (void*)getCurr();
+		p_FpDbl_add = (void*)const_cast<uint8_t*>(getCurr());
 		in_FpDbl_add(gp1, gp2, gp3);
 		ret();
 	}
 	void set_p_FpDbl_addNC()
 	{
 		align(16);
-		p_FpDbl_addNC = (void*)getCurr();
+		p_FpDbl_addNC = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_addNC(gp1, gp2, gp3);
 		in_Fp_adcNC(gp1 + 32, gp2 + 32, gp3 + 32);
 		ret();
@@ -818,7 +818,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_FpDbl_subNC()
 	{
 		align(16);
-		p_FpDbl_subNC = (void*)getCurr();
+		p_FpDbl_subNC = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_subNC(gp1, gp2, gp3);
 		in_Fp_sbbNC(gp1 + 32, gp2 + 32, gp3 + 32);
 		ret();
@@ -835,7 +835,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_FpDbl_sub()
 	{
 		align(16);
-		p_FpDbl_sub = (void*)getCurr();
+		p_FpDbl_sub = (void*)const_cast<uint8_t*>(getCurr());
 		sub_FpDbl_sub(gp1, gp2, gp3);
 		ret();
 	}
@@ -868,7 +868,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2_addNC()
 	{
 		align(16);
-		p_Fp2_addNC = (void*)getCurr();
+		p_Fp2_addNC = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_addNC(gp1, gp2, gp3);
 		in_Fp_addNC(gp1 + 32, gp2 + 32, gp3 + 32);
 		ret();
@@ -876,14 +876,14 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2_add()
 	{
 		align(16);
-		p_Fp2_add = (void*)getCurr();
+		p_Fp2_add = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_add(2, gp1, gp2, gp3);
 		ret();
 	}
 	void set_p_Fp2_sub()
 	{
 		align(16);
-		p_Fp2_sub = (void*)getCurr();
+		p_Fp2_sub = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_sub(2, gp1, gp2, gp3);
 		ret();
 	}
@@ -936,7 +936,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp6_add()
 	{
 		align(16);
-		p_Fp6_add = (void*)getCurr();
+		p_Fp6_add = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_add(6, gp1, gp2, gp3);
 		ret();
 	}
@@ -948,7 +948,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp6_sub()
 	{
 		align(16);
-		p_Fp6_sub = (void*)getCurr();
+		p_Fp6_sub = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_sub(6, gp1, gp2, gp3);
 		ret();
 	}
@@ -1027,7 +1027,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2_divBy2()
 	{
 		align(16);
-		p_Fp2_divBy2 = (void*)getCurr();
+		p_Fp2_divBy2 = (void*)const_cast<uint8_t*>(getCurr());
 		const Reg64& z = gp1;
 		const Reg64& x = gp2;
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
@@ -1183,14 +1183,14 @@ struct PairingCode : Xbyak::CodeGenerator {
 	{
 		align(16);
 		// (gp1, gp2, gp3), destory gp3
-		p_Fp_mul = (void*)getCurr();
+		p_Fp_mul = (void*)const_cast<uint8_t*>(getCurr());
 		Fp_mul();
 		ret();
 	}
 	void set_p_FpDbl_mod()
 	{
 		align(16);
-		p_FpDbl_mod = (void*)getCurr();
+		p_FpDbl_mod = (void*)const_cast<uint8_t*>(getCurr());
 		mont_mod();
 		ret();
 	}
@@ -1536,7 +1536,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2_square()
 	{
 		align(16);
-		p_Fp2_square = (void*)getCurr();
+		p_Fp2_square = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp2_square();
 		ret();
 	}
@@ -1625,7 +1625,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2_mul()
 	{
 		align(16);
-		p_Fp2_mul = (void*)getCurr();
+		p_Fp2_mul = (void*)const_cast<uint8_t*>(getCurr());
 //begin_clock();
 
 		const Ext2<Fp> z(gp1);
@@ -1859,10 +1859,10 @@ struct PairingCode : Xbyak::CodeGenerator {
 		align(16);
 		switch (mode) {
 		case 1:
-			p_Fp2Dbl_mulOpt1 = (void*)getCurr();
+			p_Fp2Dbl_mulOpt1 = (void*)const_cast<uint8_t*>(getCurr());
 			break;
 		case 2:
-			p_Fp2Dbl_mulOpt2 = (void*)getCurr();
+			p_Fp2Dbl_mulOpt2 = (void*)const_cast<uint8_t*>(getCurr());
 			break;
 		default:
 			printf("err set_p_Fp2Dbl_mulOpt mode=%d\n", mode);
@@ -1872,7 +1872,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2Dbl_mul_xi()
 	{
 		align(16);
-		p_Fp2Dbl_mul_xi = (void*)getCurr();
+		p_Fp2Dbl_mul_xi = (void*)const_cast<uint8_t*>(getCurr());
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		sub_FpDbl_sub(gp1, gp2, gp2 + sizeof(FpDbl));
 		in_FpDbl_add(gp1 + 64, gp2 + sizeof(FpDbl), gp2);
@@ -1898,7 +1898,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp6Dbl_mul()
 	{
 		align(16);
-		p_Fp6Dbl_mul = (void*)getCurr();
+		p_Fp6Dbl_mul = (void*)const_cast<uint8_t*>(getCurr());
 
 		// Fp2 t0, t1;
 		// Fp2Dbl T0, T1, T2;
@@ -2066,7 +2066,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp6_mul()
 	{
 		align(16);
-		p_Fp6_mul = (void*)getCurr();
+		p_Fp6_mul = (void*)const_cast<uint8_t*>(getCurr());
 
 		const int SS = sizeof(Fp6Dbl);
 		sub(rsp, SS);
@@ -2342,7 +2342,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2_2z_add_3x()
 	{
 		align(16);
-		p_Fp2_2z_add_3x = (void*)getCurr();
+		p_Fp2_2z_add_3x = (void*)const_cast<uint8_t*>(getCurr());
 		in_Fp_2z_add_3x(gp1, gp2);
 		in_Fp_2z_add_3x(gp1 + sizeof(Fp), gp2 + sizeof(Fp));
 		ret();
@@ -2756,7 +2756,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void set_p_Fp2Dbl_square()
 	{
 		align(16);
-		p_Fp2Dbl_square = (void*)getCurr();
+		p_Fp2Dbl_square = (void*)const_cast<uint8_t*>(getCurr());
 
 		const Ext2<FpDbl> z(gp1);
 		const Ext2<Fp> x(gp2);
