@@ -855,6 +855,46 @@ struct PairingCode : Xbyak::CodeGenerator {
 			in_Fp_add(mz + 32 * i, mx + 32 * i, my + 32 * i);
 		}
 	}
+
+	void in_Fp_neg(const Reg32e& mz, const Reg32e& mx)
+	{
+		load_rm(gt4, gt3, gt2, gt1, mx);
+		mov(rdx, gt1);
+		or(rdx, gt2);
+		or(rdx, gt3);
+		or(rdx, gt4);
+		jz("@f");
+		load_sub_rm(gt4, gt3, gt2, gt1, rax, mx, false);
+L("@@");
+        store_mr(mz, gt4, gt3, gt2, gt1);
+	}
+	void in_Fp_neg(int n, const Reg32e& mz, const Reg32e& mx)
+	{
+		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		for (int i = 0; i < n; i++) {
+			in_Fp_neg(mz + 32 * i, mx + 32 * i);
+		}
+	}
+	void in_Fp2_neg(const Reg32e& mz, const Reg32e& mx)
+	{
+		// smart_set_gp for only two arguments.
+		lea(gp1, ptr [mz]);
+		if (mx == mz) {
+			mov(gp2, gp1);
+		} else {
+			lea(gp2, ptr [mx]);
+		}
+
+		call(p_Fp2_neg);
+	}
+	void set_p_Fp2_neg()
+	{
+		align(16);
+		p_Fp2_neg = (void*)const_cast<uint8_t*>(getCurr());
+		in_Fp_neg(2, gp1, gp2);
+		ret();
+	}
+
 	void in_Fp2_add(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
 	{
 		smart_set_gp(mz, mx, my);
@@ -2964,19 +3004,24 @@ struct PairingCode : Xbyak::CodeGenerator {
 		movq(gp3, Psave);
 		call(p_Fp_mul);
 
-		// Fp2::mul_Fp_0(l.b_, t3, P[2]);
+		// # 17
+		// Fp2::mul_Fp_0(l.b_, t3, P[1]);
 		movq(l.r_, lsave);
 		movq(P, Psave);
 		lea(gp1, ptr [l.b_]);
 		lea(gp2, ptr [t3]);
-		lea(gp3, ptr [P + sizeof(Fp) * 2]);
+		lea(gp3, ptr [P + sizeof(Fp) * 1]);
 		call(p_Fp_mul);
 		movq(l.r_, lsave);
 		movq(P, Psave);
 		lea(gp1, ptr [l.b_.b_]);
 		lea(gp2, ptr [t3.b_]);
-		lea(gp3, ptr [P + sizeof(Fp) * 2]);
+		lea(gp3, ptr [P + sizeof(Fp) * 1]);
 		call(p_Fp_mul);
+
+		// Fp2::neg(t3, t3);
+		movq(l.r_, lsave);
+		in_Fp2_neg(l.b_, l.b_);
 	}
 
 	PairingCode(size_t size, void *userPtr)
@@ -3084,6 +3129,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 
 		// generate code
 		set_p_Fp_mul();
+		set_p_Fp2_neg();
 		set_p_Fp2_add();
 		set_p_Fp2_sub();
 		set_p_Fp2_addNC();
@@ -3377,6 +3423,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	bool isRaxP_; // true if rax is set to a pointer to p
 	uint64_t pp_; // for Fp_mul
 	void *p_Fp_mul;
+	void *p_Fp2_neg;
 	void *p_Fp2_add;
 	void *p_Fp2_sub;
 	void *p_Fp2_square;

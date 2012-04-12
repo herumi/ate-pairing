@@ -679,8 +679,11 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 	/*
 		Algorithm 11 in App.B of Aranha et al. ePrint 2010/526
 
+		NOTE:
+		The original version uses precomputed and stored value of -P[1].
+		But, we do not use that, this algorithm always calculates it.
+
 		input P[0..2], R[0..2]
-		@note assume P[2] = -P[1]
 		R <- [2]R,
 		(l00, 0, l02, 0, l11, 0) = f_{R,R}(P),
 		l = (a,b,c) = (l00, l11, l02)
@@ -757,7 +760,8 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		Fp2::mul_Fp_0(l.c_, l.c_, P[0]);
 
 		// # 17
-		Fp2::mul_Fp_0(l.b_, t3, P[2]); /* RRR P[2] = -P[1]; */
+		Fp2::mul_Fp_0(l.b_, t3, P[1]);
+		Fp2::neg(l.b_, l.b_);
 	}
 	/*
 		Algorithm 12 in App.B of Aranha et al. ePrint 2010/526
@@ -2300,7 +2304,6 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	Fp P[3];
 	P[0] = _P[0];
 	P[1] = _P[1];
-	Fp::neg(P[2], _P[1]);
 	Fp2 T[3];
 	T[0] = Q[0];
 	T[1] = Q[1];
