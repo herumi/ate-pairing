@@ -1,9 +1,9 @@
 # common definition for Makefile
 # for GNU c++
-CCACHE=$(shell eval ls /usr/local/bin/ccache 2>/dev/null)
+#CCACHE=$(shell eval ls /usr/local/bin/ccache 2>/dev/null)
 
-CXX = $(CCACHE) g++ -x c++
-CC = $(CCACHE) gcc
+CXX = g++
+CC = gcc
 LD = g++
 CP = cp -f
 AR = ar r
