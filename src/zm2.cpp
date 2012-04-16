@@ -91,9 +91,9 @@ void detectCpu(int mode)
 	Xbyak::util::Cpu cpu;
 	CpuExt ext;
 	bool isIntel = cpu.has(Xbyak::util::Cpu::tINTEL);
-	printf("cpu vendor=%s, ", isIntel ? "intel" : "amd");
-	printf("family=%d, model=%d, extFamily=%d, extModel=%d, stepping=%d\n", ext.family, ext.model, ext.extFamily, ext.extModel, ext.stepping);
-	if (isIntel) printf("dislpayFamily=%02xh, displayModel=%02xh\n", ext.displayFamily, ext.displayModel);
+//	printf("cpu vendor=%s, ", isIntel ? "intel" : "amd");
+//	printf("family=%d, model=%d, extFamily=%d, extModel=%d, stepping=%d\n", ext.family, ext.model, ext.extFamily, ext.extModel, ext.stepping);
+//	if (isIntel) printf("dislpayFamily=%02xh, displayModel=%02xh\n", ext.displayFamily, ext.displayModel);
 	switch (mode) {
 	case 0:
 		interleaveLoad = false;
@@ -106,10 +106,10 @@ void detectCpu(int mode)
 		if (!isIntel || (ext.family == 6 && ext.displayModel == 0x2a)) {
 			interleaveLoad = false;
 		}
-		printf("-m %d option is selected, but try -m %d to verify the determination.\n", interleaveLoad, 1 - interleaveLoad);
+//		printf("-m %d option is selected, but try -m %d to verify the determination.\n", interleaveLoad, 1 - interleaveLoad);
 		break;
 	}
-	printf("interleaveLoad=%d\n", interleaveLoad);
+//	printf("interleaveLoad=%d\n", interleaveLoad);
 }
 
 /*
@@ -3332,7 +3332,7 @@ L("@@");
 		Fp12Dbl::mul_Fp2_024 = (void (*)(Fp12 &x, const Fp6& y))getCurr();
 		make_Fp12Dbl_mul_Fp2_024();
 
-		printf("jit code size=%d\n", (int)getSize());
+//		printf("jit code size=%d\n", (int)getSize());
 #ifdef USE_VTUNE
 		static const struct {
 			void *f;
@@ -3522,7 +3522,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode)
 		Xbyak::CodeArray::protect(codeAddr, codeSize, true);
 		s_data = (Data*)(codeAddr + codeSize);
 
-		printf("codeAddr=%p, dataAddr=%p\n", codeAddr, s_data);
+//		printf("codeAddr=%p, dataAddr=%p\n", codeAddr, s_data);
 		if ((size_t)codeAddr & 0xffffffff00000000ULL || (size_t)s_data & 0xffffffff00000000ULL) {
 			printf("\naddress of code and data is over 4GB!!!\n");
 		}
