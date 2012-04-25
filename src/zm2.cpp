@@ -3524,7 +3524,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode)
 
 //		printf("codeAddr=%p, dataAddr=%p\n", codeAddr, s_data);
 		if ((size_t)codeAddr & 0xffffffff00000000ULL || (size_t)s_data & 0xffffffff00000000ULL) {
-			printf("\naddress of code and data is over 4GB!!!\n");
+			// printf("\naddress of code and data is over 4GB!!!\n");
 		}
 
 		// setup data
