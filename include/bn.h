@@ -1995,7 +1995,7 @@ void (*CompressT<Fp2>::square_n)(CompressT&, int) = &(CompressT<Fp2>::square_nC)
 namespace ecop {
 
 template<class FF>
-inline void copy(FF (&out)[3], const FF (&in)[3])
+inline void copy(FF *out, const FF *in)
 {
   assert(&out != &in);
   out[0] = in[0];
@@ -2007,7 +2007,7 @@ inline void copy(FF (&out)[3], const FF (&in)[3])
   @memo Jacobian coordinates: Y^2 = X^3 + 2*Z^6
 */
 template<class Fp>
-inline bool isOnECJac3(const Fp (&P)[3])
+inline bool isOnECJac3(const Fp *P)
 {
   if (P[2] == 0) return true;
 
@@ -2025,7 +2025,7 @@ inline bool isOnECJac3(const Fp (&P)[3])
   Homogeneous.
 */
 template<class Fp>
-inline bool isOnECHom2(const Fp (&P)[2])
+inline bool isOnECHom2(const Fp *P)
 {
   return P[1]*P[1] == P[0]*P[0]*P[0] + Fp(2);
 }
@@ -2035,7 +2035,7 @@ inline bool isOnECHom2(const Fp (&P)[2])
   Homogeneous.
 */
 template<class Fp>
-inline bool isOnECHom3(const Fp (&P)[3])
+inline bool isOnECHom3(const Fp *P)
 {
   if (P[2] == 0) return true;
   Fp ZZZ;
@@ -2048,7 +2048,7 @@ inline bool isOnECHom3(const Fp (&P)[3])
   @memo Y^2=X^3+2/xi
 */
 template<class Fp>
-inline bool isOnTwistECJac3(const Fp2T<Fp> (&P)[3])
+inline bool isOnTwistECJac3(const Fp2T<Fp> *P)
 {
   typedef Fp2T<Fp> Fp2;
   typedef ParamT<Fp2> Param;
@@ -2094,7 +2094,7 @@ inline bool isOnTwistECHom3(const Fp2T<Fp> *P)
   For Jacobian coordinates
 */
 template<class FF>
-inline void NormalizeJac(FF (&out)[3], const FF (&in)[3])
+inline void NormalizeJac(FF *out, const FF *in)
 {
   if (in[2] == 0) {
     out[2].clear();
@@ -2114,7 +2114,7 @@ inline void NormalizeJac(FF (&out)[3], const FF (&in)[3])
   For Homogeneous
 */
 template<class FF>
-inline void NormalizeHom(FF (&out)[3], const FF (&in)[3])
+inline void NormalizeHom(FF *out, const FF *in)
 {
   if (in[2] == 0) {
     out[2].clear();
@@ -2128,7 +2128,7 @@ inline void NormalizeHom(FF (&out)[3], const FF (&in)[3])
 }
 
 template<class FF>
-inline void ECDouble(FF (&out)[3], const FF (&in)[3])
+inline void ECDouble(FF *out, const FF *in)
 {
   assert(&out != &in);
 
@@ -2156,7 +2156,7 @@ inline void ECDouble(FF (&out)[3], const FF (&in)[3])
 }
 
 template<class FF>
-inline void ECAdd(FF (&out)[3], const FF (&a)[3], const FF (&b)[3])
+inline void ECAdd(FF *out, const FF *a, const FF *b)
 {
   // assert(&out != &a);
   // assert(&out != &b);
@@ -2199,7 +2199,7 @@ inline void ECAdd(FF (&out)[3], const FF (&a)[3], const FF (&b)[3])
   MSB first binary method.
 */
 template<class FF, class INT>
-inline void ScalarMult(FF (&out)[3], const FF (&in)[3], const INT &m)
+inline void ScalarMult(FF *out, const FF *in, const INT &m)
 {
   typedef typename INT::value_type value_type;
 
@@ -2256,7 +2256,7 @@ inline void ScalarMult(FF (&out)[3], const FF (&in)[3], const INT &m)
 }
 
 template<class Fp>
-void FrobEndOnTwist_1(Fp2T<Fp> (&Q)[2], const Fp2T<Fp> *P)
+void FrobEndOnTwist_1(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
 {
   typedef Fp2T<Fp> Fp2;
   typedef ParamT<Fp2> Param;
