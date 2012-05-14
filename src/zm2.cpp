@@ -6,6 +6,11 @@
 #include "xbyak/xbyak_util.h"
 Xbyak::util::Clock sclk;
 #include "bn.h"
+#if defined(_MSC_VER) && (_MSC_VER <= 1500)
+typedef unsigned char uint8_t;
+#else
+#include <stdint.h>
+#endif
 
 #ifdef _WIN32
 //	#define USE_VTUNE
