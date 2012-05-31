@@ -2299,7 +2299,6 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	typedef Fp2T<Fp> Fp2;
 	typedef Fp6T<Fp2> Fp6;
 	typedef Fp12T<Fp6> Fp12;
-	typedef ParamT<Fp2> Param;
 
 	Fp P[3];
 	P[0] = _P[0];
