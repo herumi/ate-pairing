@@ -79,6 +79,22 @@ static inline void split64(uint32_t *H, uint32_t *L, uint64_t x)
 
 namespace local {
 
+inline std::istream& getDigits(std::istream& is, std::string& str)
+{
+	is >> std::skipws;
+	for (;;) {
+		char c;
+		is >> c;
+		if ('0' <= c && c <= '9') {
+			str.push_back(c);
+		} else {
+			is.unget();
+			return is;
+		}
+	}
+}
+
+
 static inline void errExit(const std::string& msg = "")
 {
 	printf("err %s\n", msg.c_str());
@@ -703,7 +719,7 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 	inline friend std::istream& operator>>(std::istream& is, VuintT& x)
 	{
 		std::string str;
-		is >> str;
+		local::getDigits(is, str);
 		x.set(str);
 		return is;
 	}
@@ -1083,7 +1099,7 @@ public:
 	inline friend std::istream& operator>>(std::istream& is, VsintT& x)
 	{
 		std::string str;
-		is >> str;
+		local::getDigits(is, str);
 		x.set(str);
 		return is;
 	}
