@@ -268,6 +268,14 @@ void testFp2()
 	Fp2::square(x, x);
 	TEST_EQUAL(x, z);
 	TEST_EQUAL(y, z);
+	{
+		std::ostringstream oss;
+		oss << x;
+		std::istringstream iss(oss.str());
+		Fp2 w;
+		iss >> w;
+		TEST_EQUAL(x, w);
+	}
 
 	y = mie::power(x, p * p);
 	TEST_EQUAL(y, x);
@@ -826,6 +834,13 @@ void testFp6()
   y = x; y.inverse();
   x *= y;
   TEST_EQUAL(x, Fp6(1));
+  {
+    std::ostringstream oss;
+    oss << y;
+    std::istringstream iss(oss.str());
+    iss >> x;
+    TEST_EQUAL(x, y);
+  }
 
   {
     Xbyak::util::Clock clk;
@@ -2440,6 +2455,9 @@ int main(int argc, char *argv[]) try
 	return 0;
 } catch (Xbyak::Error err) {
 	fprintf(stderr, "ExpCode ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+	return 1;
+} catch (std::exception& e) {
+	fprintf(stderr, "std::exception %s\n", e.what());
 	return 1;
 }
 

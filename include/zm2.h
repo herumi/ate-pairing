@@ -135,6 +135,13 @@ public:
 	{
 		return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
 	}
+	inline friend std::istream& operator>>(std::istream& is, Fp& x)
+	{
+		std::string str;
+		mie::local::getDigits(is, str);
+		x.set(str);
+		return is;
+	}
 	MIE_FORCE_INLINE bool isZero() const
 	{
 		Unit t = 0;

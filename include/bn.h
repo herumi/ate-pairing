@@ -285,6 +285,15 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 	{ return ("[" + a_.toString(base) + "," + b_.toString(base) + "]"); }
 	friend std::ostream& operator<<(std::ostream& os, const Fp2T& x)
 	{ return os << x.toString(); }
+	friend std::istream& operator>>(std::istream& is, Fp2T& x)
+	{
+		char cl, cm, cr;
+		is >> std::skipws >> cl >> x.a_
+		   >> std::skipws >> cm >> x.b_
+		   >> std::skipws >> cr;
+		if (cl == '[' && cm == ',' && cr == ']') return is;
+		throw std::ios_base::ios_base::failure("bad Fp2");
+	}
 	bool operator==(const Fp2T& rhs) const
 	{
 		return a_ == rhs.a_ && b_ == rhs.b_;
@@ -668,7 +677,18 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 	bool operator!=(const Fp6T& rhs) const { return !operator==(rhs); }
 	friend std::ostream& operator<<(std::ostream& os, const Fp6T& x)
 	{
-		return os << "[" << x.a_ << "],\n[" << x.b_ << "],\n[" << x.c_ << "]";
+		return os << "[" << x.a_ << ",\n " << x.b_ << ",\n " << x.c_ << "]";
+	}
+	friend std::istream& operator>>(std::istream& is, Fp6T& x)
+	{
+		char c1, c2, c3, c4;
+		is >> std::skipws >> c1 >> x.a_
+		   >> std::skipws >> c2 >> x.b_
+		   >> std::skipws >> c3 >> x.c_
+		   >> std::skipws >> c4;
+		if (c1 == '[' && c2 == ',' && c3 == ',' && c4 == ']') return is;
+
+		throw std::ios_base::ios_base::failure("bad Fp6");
 	}
 
 	static void (*add)(Fp6T& z, const Fp6T& x, const Fp6T& y);
