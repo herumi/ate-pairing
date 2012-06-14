@@ -1085,6 +1085,13 @@ void testFp12()
 	y = x; y.inverse();
 	x *= y;
 	TEST_EQUAL(x, Fp12(1));
+	{
+		std::ostringstream oss;
+		oss << y;
+		std::istringstream iss(oss.str());
+		iss >> x;
+		TEST_EQUAL(x, y);
+	}
 }
 
 void test_final_exp()

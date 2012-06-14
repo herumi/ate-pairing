@@ -1124,7 +1124,16 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	bool operator!=(const Fp12T& rhs) const { return !operator==(rhs); }
 	friend std::ostream& operator<<(std::ostream& os, const Fp12T& x)
 	{
-		return os << "[" << x.a_ << "],\n[" << x.b_ << "]";
+		return os << "[" << x.a_ << ",\n " << x.b_ << "]";
+	}
+	friend std::istream& operator>>(std::istream& is, Fp12T& x)
+	{
+		char c1, c2, c3;
+		is >> std::skipws >> c1 >> x.a_
+		   >> std::skipws >> c2 >> x.b_
+		   >> std::skipws >> c3;
+		if (c1 == '[' && c2 == ',' && c3 == ']') return is;
+		throw std::ios_base::failure("bad Fp12");
 	}
 	static inline void add(Fp12T& z, const Fp12T& x, const Fp12T& y)
 	{
