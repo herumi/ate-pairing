@@ -139,9 +139,9 @@ struct shiftable : E {
 
 template<class T, class E = Empty<T> >
 struct inversible : E {
-	MIE_FORCE_INLINE T inverse() const { T out; T::inv(out, static_cast<const T&>(*this)); return out; }
-	MIE_FORCE_INLINE friend T operator/(const T& x, const T& y) { T out = y; out.inverse(); out *= x; return out; }
-	MIE_FORCE_INLINE T& operator/=(const T& x) { T rx = x; rx.inverse(); static_cast<T&>(*this) *= rx; return static_cast<T&>(*this); }
+	MIE_FORCE_INLINE void inverse() { T& self = static_cast<T&>(*this);T out; T::inv(out, self); self = out; }
+	MIE_FORCE_INLINE friend T operator/(const T& x, const T& y) { T out; T::inv(out, y); out *= x; return out; }
+	MIE_FORCE_INLINE T& operator/=(const T& x) { T rx; T::inv(rx, x); T& self = static_cast<T&>(*this); self *= rx; return self; }
 };
 
 struct PrimitiveFunction {

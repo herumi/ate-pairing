@@ -3129,7 +3129,7 @@ L("@@");
 		Z::setModulo(mie::Vuint(1) << N);
 		Z x(p);
 		x = -x;
-		x = x.inverse();
+		x.inverse();
 		pp_ = x[0];
 
 		// generate code
@@ -3500,7 +3500,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode)
 		ZN::setModulo(Vuint(1) << (sizeof(Unit) * 8));
 		ZN t(p);
 		t = -t;
-		t = t.inverse();
+		t.inverse();
 		pp_mont = t[0];
 		pN = p << 256;
 	}

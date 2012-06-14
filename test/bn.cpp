@@ -1597,7 +1597,7 @@ void montgomery(mie::Vuint& z, const mie::Vuint& x, const mie::Vuint& y)
 		ZN::setModulo(mie::Vuint(1) << UnitLen);
 		ZN t(p);
 		t = -t;
-		t = t.inverse();
+		t.inverse();
 		pp = t[0];
 		isFirst = false;
 	}

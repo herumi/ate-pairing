@@ -628,7 +628,7 @@ void testZmZ()
 	const Vuint m = 13;
 	ZmZ<>::setModulo(m);
 	TEST_EQUAL(ZmZ<>::getModulo(), m);
-	ZmZ<> x(2), a(2);
+	ZmZ<> x(2);
 	x *= 10;
 	TEST_EQUAL(x, 7);
 	x -= 10;
@@ -636,8 +636,8 @@ void testZmZ()
 	x = -1;
 	TEST_EQUAL(x, 12);
 	x = 4;
-	a = x.inverse();
-	TEST_EQUAL(a, 10);
+	x.inverse();
+	TEST_EQUAL(x, 10);
 }
 
 void testZmZsub()
@@ -670,7 +670,8 @@ void testInverse()
 	y = x - y;
 	TEST_EQUAL(y, 57);
 	x.set("51309926569953339959415154564163853983901484416");
-	y = x.inverse();
+	y = x;
+	y.inverse();
 	z.set("123456789");
 	TEST_EQUAL(y, z);
 	z = 1 / z;
