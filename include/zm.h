@@ -700,6 +700,13 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 	{
 		return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
 	}
+	inline friend std::istream& operator>>(std::istream& is, VuintT& x)
+	{
+		std::string str;
+		is >> str;
+		x.set(str);
+		return is;
+	}
 
 	/*
 		shift left Unit
@@ -1072,6 +1079,13 @@ public:
 	{
 		if (x.isNeg_) os << "-";
 		return os << x.v_;
+	}
+	inline friend std::istream& operator>>(std::istream& is, VsintT& x)
+	{
+		std::string str;
+		is >> str;
+		x.set(str);
+		return is;
 	}
 	static inline void shl(VsintT& out, const VsintT& x, size_t n)
 	{

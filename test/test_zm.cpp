@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "zm.h"
 #include <iostream>
+#include <sstream>
 #include "xbyak/xbyak_util.h"
 
 using namespace mie;
@@ -1042,6 +1043,32 @@ void testAdd2()
 	TEST_EQUAL(a, d);
 }
 
+void testStream()
+{
+	{
+		Vuint x, y, z, w;
+		x.set("12345678901232342424242423423429922");
+		y.set("23423423452424242343");
+		std::ostringstream oss;
+		oss << x << ' ' << y;
+		std::istringstream iss(oss.str());
+		iss >> z >> w;
+		TEST_EQUAL(x, z);
+		TEST_EQUAL(y, w);
+	}
+	{
+		Vsint x, y, z, w;
+		x.set("12345678901232342424242423423429922");
+		y.set("-23423423452424242343");
+		std::ostringstream oss;
+		oss << x << ' ' << y;
+		std::istringstream iss(oss.str());
+		iss >> z >> w;
+		TEST_EQUAL(x, z);
+		TEST_EQUAL(y, w);
+	}
+}
+
 int main()
 {
 	testAdd2();
@@ -1060,6 +1087,7 @@ int main()
 	testBitLen();
 	testTestBit();
 	testVsint();
+	testStream();
 	sample();
 #ifdef NDEBUG
 	bench();
