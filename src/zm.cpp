@@ -106,7 +106,7 @@ static inline Unit mulUnit(Unit *H, Unit a, Unit b)
 #if defined(_WIN64) && !defined(__INTEL_COMPILER)
 	return _umul128(a, b, H);
 #else
-	fprintf(stderr, "not implemented mulUnit\n"); H = 0; a = b = 0;
+	fprintf(stderr, "not implemented mulUnit %p %d %d\n", H, (int)a, (int)b);
 	exit(1);
 	// use _mm_mul_epu32(a, b)
 #endif
