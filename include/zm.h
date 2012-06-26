@@ -79,19 +79,27 @@ static inline void split64(uint32_t *H, uint32_t *L, uint64_t x)
 
 namespace local {
 
-inline std::istream& getDigits(std::istream& is, std::string& str)
+inline std::istream& getDigits(std::istream& is, std::string& str, bool allowNegative = false)
 {
-	is >> std::skipws;
-	for (;;) {
-		char c;
-		is >> c;
-		if ('0' <= c && c <= '9') {
+	std::ios_base::fmtflags keep = is.flags();
+	size_t pos = 0;
+	char c;
+	while (is >> c) {
+		if (('0' <= c && c <= '9') /* digits */
+		  || (pos == 1 && (str[0] == '0' && c == 'x')) /* 0x.. */
+		  || (allowNegative && pos == 0 && c == '-')) { /* -digits */
 			str.push_back(c);
+			if (pos == 0) {
+				is >> std::noskipws;
+			}
+			pos++;
 		} else {
 			is.unget();
-			return is;
+			break;
 		}
 	}
+	is.flags(keep);
+	return is;
 }
 
 
@@ -471,7 +479,7 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 					size_t remain = std::min((int)t.size(), 8);
 					char *endp;
 					uint32_t v = strtoul(&t[t.size() - remain], &endp, 16);
-					if (*endp) throw std::invalid_argument("bad hex str");
+					if (*endp) goto ERR;
 					x.push_back(v);
 					t = t.substr(0, t.size() - remain);
 				}
@@ -486,7 +494,7 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 					size_t remain = std::min((int)t.size(), 9);
 					char *endp;
 					uint32_t v = strtol(&t[t.size() - remain], &endp, 10);
-					if (*endp) throw std::invalid_argument("bad digit str");
+					if (*endp) goto ERR;
 					x.push_back(v);
 					t = t.substr(0, t.size() - remain);
 				}
@@ -498,6 +506,9 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 			}
 			break;
 		}
+		return;
+	ERR:
+		throw std::invalid_argument(std::string("bad digit `") + str + "`");
 	}
 	static int compare(const VuintT& x, const VuintT& y)
 	{
@@ -1099,7 +1110,7 @@ public:
 	inline friend std::istream& operator>>(std::istream& is, VsintT& x)
 	{
 		std::string str;
-		local::getDigits(is, str);
+		local::getDigits(is, str, true);
 		x.set(str);
 		return is;
 	}

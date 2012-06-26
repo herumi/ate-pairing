@@ -1057,6 +1057,17 @@ void testStream()
 		TEST_EQUAL(y, w);
 	}
 	{
+		Vuint x, y, z, w;
+		x.set("0x100");
+		y.set("123");
+		std::ostringstream oss;
+		oss << x << ' ' << y;
+		std::istringstream iss(oss.str());
+		iss >> z >> w;
+		TEST_EQUAL(x, z);
+		TEST_EQUAL(y, w);
+	}
+	{
 		Vsint x, y, z, w;
 		x.set("12345678901232342424242423423429922");
 		y.set("-23423423452424242343");

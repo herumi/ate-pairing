@@ -288,9 +288,9 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 	friend std::istream& operator>>(std::istream& is, Fp2T& x)
 	{
 		char cl, cm, cr;
-		is >> std::skipws >> cl >> x.a_
-		   >> std::skipws >> cm >> x.b_
-		   >> std::skipws >> cr;
+		is >> cl >> x.a_
+		   >> cm >> x.b_
+		   >> cr;
 		if (cl == '[' && cm == ',' && cr == ']') return is;
 		throw std::ios_base::ios_base::failure("bad Fp2");
 	}
@@ -682,10 +682,10 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 	friend std::istream& operator>>(std::istream& is, Fp6T& x)
 	{
 		char c1, c2, c3, c4;
-		is >> std::skipws >> c1 >> x.a_
-		   >> std::skipws >> c2 >> x.b_
-		   >> std::skipws >> c3 >> x.c_
-		   >> std::skipws >> c4;
+		is >> c1 >> x.a_
+		   >> c2 >> x.b_
+		   >> c3 >> x.c_
+		   >> c4;
 		if (c1 == '[' && c2 == ',' && c3 == ',' && c4 == ']') return is;
 
 		throw std::ios_base::ios_base::failure("bad Fp6");
@@ -1129,9 +1129,9 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	friend std::istream& operator>>(std::istream& is, Fp12T& x)
 	{
 		char c1, c2, c3;
-		is >> std::skipws >> c1 >> x.a_
-		   >> std::skipws >> c2 >> x.b_
-		   >> std::skipws >> c3;
+		is >> c1 >> x.a_
+		   >> c2 >> x.b_
+		   >> c3;
 		if (c1 == '[' && c2 == ',' && c3 == ']') return is;
 		throw std::ios_base::failure("bad Fp12");
 	}
