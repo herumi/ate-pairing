@@ -864,6 +864,14 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		// # 19
 		Fp2::mul_Fp_0(l.b_, t1, P[1]);
 	}
+	static void mul_Fp_b(Fp6T& z, const Fp& x)
+	{
+		Fp2::mul_Fp_0(z.b_, z.b_, x);
+	}
+	static void mul_Fp_c(Fp6T& z, const Fp& x)
+	{
+		Fp2::mul_Fp_0(z.c_, z.c_, x);
+	}
 
 	struct Dbl : public mie::local::addsubmul<Dbl, mie::local::hasNegative<Dbl> > {
 		typedef typename Fp::Dbl FpDbl;
