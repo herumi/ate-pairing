@@ -32,6 +32,9 @@ struct ParamT {
 	static Fp2 b_invxi; // b/xi of twist E' : Y^2 = X^3 + b/xi
 	static Fp half;
 
+	// Loop parameter for the Miller loop part of opt. ate pairing.
+	static const int siTbl[];
+
 	static inline void init(int mode)
 	{
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
@@ -123,6 +126,18 @@ template<class Fp2>
 Fp2 ParamT<Fp2>::gammar2[5];
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar3[5];
+
+// Loop parameter for ate pairing.
+template<class Fp2>
+const int ParamT<Fp2>::siTbl[] = {
+	1,1,0,0,0,
+	0,0,1,1,0, 0,0,0,0,0,
+	0,0,0,0,0, 0,0,0,0,0,
+	0,0,0,0,0, 0,0,0,0,0,
+	0,0,0,0,0, 0,0,0,0,0,
+	0,0,0,0,0, 0,0,0,0,0,
+	0,0,0,0,0, 0,0,1,0,0,
+};
 
 /*
 	mul_gamma(z, x) + z += y;
@@ -2317,7 +2332,6 @@ void FrobEndOnTwist_2(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
   Fp2::neg(Q[1], P[1]);
 }
 
-
 template<class Fp>
 void FrobEndOnTwist_8(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
 {
@@ -2334,6 +2348,7 @@ template<class Fp>
 void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 {
 	typedef Fp2T<Fp> Fp2;
+	typedef ParamT<Fp2> Param;
 	typedef Fp6T<Fp2> Fp6;
 	typedef Fp12T<Fp6> Fp12;
 
@@ -2345,28 +2360,18 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	T[1] = Q[1];
 	T[2] = Fp2(1);
 
-	const int siTbl[] = {
-		1,1,0,0,0,
-		0,0,1,1,0, 0,0,0,0,0,
-		0,0,0,0,0, 0,0,0,0,0,
-		0,0,0,0,0, 0,0,0,0,0,
-		0,0,0,0,0, 0,0,0,0,0,
-		0,0,0,0,0, 0,0,0,0,0,
-		0,0,0,0,0, 0,0,1,0,0,
-	};
-
 	// at 1.
 	Fp6 d;
 	Fp6::pointDblLineEval(d, T, P);
 	Fp6 e;
-	assert(siTbl[1]);
+	assert(Param::siTbl[1] == 1);
 	Fp6::pointAddLineEval(e, T, Q, P);
 	Fp12::Dbl::mul_Fp2_024_Fp2_024(f, d, e);
 
 	// loop from 2.
 	Fp6 l;
 	// 844kclk
-	for (size_t i = 2; i < sizeof(siTbl) / sizeof(*siTbl); i++) {
+	for (size_t i = 2; i < sizeof(Param::siTbl) / sizeof(*Param::siTbl); i++) {
 		// 3.6k x 63
 		Fp6::pointDblLineEval(l, T, P);
 		// 4.7k x 63
@@ -2374,7 +2379,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 		// 4.48k x 63
 		Fp12::Dbl::mul_Fp2_024(f, l);
 
-		if (siTbl[i]) {
+		if (Param::siTbl[i]) {
 			// 9.8k x 3
 			// 5.1k
 			Fp6::pointAddLineEval(l, T, Q, P);
@@ -2416,10 +2421,10 @@ typedef CompressT<Fp2> Compress;
 
 } // bn
 
-/*
-  Local Variables:
-  c-basic-offset: 4
-  indent-tabs-mode: t
-  tab-width: 4
-  End:
+/***
+	Local Variables:
+	c-basic-offset: 4
+	indent-tabs-mode: t
+	tab-width: 4
+	End:
 */
