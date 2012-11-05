@@ -1,8 +1,8 @@
 all:
-	make -C src
-	make -C test
+	$(MAKE) -C src
+	$(MAKE) -C test
 
 clean:
-	make -C src clean
-	make -C test clean
+	$(MAKE) -C src clean
+	$(MAKE) -C test clean
 

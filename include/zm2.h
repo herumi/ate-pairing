@@ -234,7 +234,7 @@ public:
 		shr2(z, x);
 		addNC(z, z, quarterTbl_[i]);
 	}
-    
+
     /* z <- z mod p for z in [0, 6p] */
 	static inline void fast_modp(Fp &z)
 	{

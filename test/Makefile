@@ -12,20 +12,20 @@ all:$(TARGET)
 .SUFFIXES: .cpp
 
 test_zm: test_zm.o ../lib/libzm.a
-	$(LD) -o $@ $< $(LDFLAGS) $(BIT)
+	$(CXX) -o $@ $< $(LDFLAGS) #$(BIT)
 
 bn: bn.o ../lib/libzm.a
-	$(LD) -o $@ $< $(LDFLAGS) $(BIT)
+	$(CXX) -o $@ $< $(LDFLAGS) #$(BIT)
 
 bench_test: bench.o ../lib/libzm.a
-	$(LD) -o $@ $< $(LDFLAGS) $(BIT) 
+	$(CXX) -o $@ $< $(LDFLAGS) #$(BIT)
 
 ../lib/libzm.a:
-	make -C ../src ../lib/libzm.a
+	$(MAKE) -C ../src ../lib/libzm.a
 
 clean:
 	$(RM) *.o $(TARGET)
-	make -C ../src clean
+	$(MAKE) -C ../src clean
 
 test: $(TARGET)
 	./test_zm && ./bn
