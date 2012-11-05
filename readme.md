@@ -32,7 +32,7 @@ then you can get the binary in ate/x64/Release/test_bn.exe .
 * Install mingw64-x86_64-gcc-g++ (run cygwin setup and search mingw64)
 * PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/bin/:$PATH
 * make -j
-* tset/bn.exe
+* test/bn.exe
 
 ### Linux
 
