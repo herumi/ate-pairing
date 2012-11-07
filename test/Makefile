@@ -4,7 +4,7 @@ HEADER= ../include/zm.h ../include/bn.h
 TARGET=test_zm bn ../lib/libzm.a
 
 ifeq ($(BIT),-m64)
-TARGET += bench_test
+TARGET += bench_test sample
 endif
 
 all:$(TARGET)
@@ -12,13 +12,16 @@ all:$(TARGET)
 .SUFFIXES: .cpp
 
 test_zm: test_zm.o ../lib/libzm.a
-	$(CXX) -o $@ $< $(LDFLAGS) #$(BIT)
+	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
 
 bn: bn.o ../lib/libzm.a
-	$(CXX) -o $@ $< $(LDFLAGS) #$(BIT)
+	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
+
+sample: sample.o ../lib/libzm.a
+	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
 
 bench_test: bench.o ../lib/libzm.a
-	$(CXX) -o $@ $< $(LDFLAGS) #$(BIT)
+	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
 
 ../lib/libzm.a:
 	$(MAKE) -C ../src ../lib/libzm.a
