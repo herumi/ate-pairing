@@ -2248,7 +2248,11 @@ inline void ECAdd(FF *out, const FF *a, const FF *b)
 }
 
 /*
-  MSB first binary method.
+	out = in * m
+	@param out [out] Jacobi coord (out[0], out[1], out[2])
+	@param in [in] Jacobi coord (in[0], in[1], in[2])
+	@param m [in] scalar
+	@note MSB first binary method.
 */
 template<class FF, class INT>
 inline void ScalarMult(FF *out, const FF *in, const INT &m)
@@ -2344,6 +2348,12 @@ void FrobEndOnTwist_8(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
 
 } // namespace ecop
 
+/*
+	calc optimal ate pairing
+	@param f [out] e(Q, P)
+	@param Q [in] affine coord. (Q[0], Q[1])
+	@param _P [in] affine coord. (_P[0], _P[1])
+*/
 template<class Fp>
 void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 {
