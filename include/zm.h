@@ -1143,7 +1143,7 @@ public:
 	{
 		VsintT out; shl(out, *this, n); return out;
 	}
-	VsintT& operator<<=(size_t n) const
+	VsintT& operator<<=(size_t n)
 	{
 		shl(*this, *this, n); return *this;
 	}
