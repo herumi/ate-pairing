@@ -35,8 +35,9 @@ struct ParamT {
 	// Loop parameter for the Miller loop part of opt. ate pairing.
 	static const int siTbl[];
 
-	static inline void init(int mode)
+	static inline void init(int mode = -1)
 	{
+		mie::zmInit();
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
 		const int pCoff[] = { 1, 6, 24, 36, 36 };
 		const int rCoff[] = { 1, 6, 18, 36, 36 };

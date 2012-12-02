@@ -1363,14 +1363,6 @@ V ZmZ<V, Tag>::m_;
 
 void zmInit();
 
-namespace local { namespace zm {
-
-static struct InitVar {
-	InitVar() { mie::zmInit(); }
-} s_init;
-
-} }
-
 } // mie
 
 #endif
