@@ -3564,9 +3564,9 @@ void Fp::setModulo(const mie::Vuint& p, int mode)
 		}
 		return;
 	} catch (Xbyak::Error err) {
-		fprintf(stderr, "ExpCode ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+		fprintf(stderr, "setModulo ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
 	} catch (...) {
-		fprintf(stderr, "ExpCode ERR:unknown error\n");
+		fprintf(stderr, "setModulo ERR:unknown error\n");
 	}
 	::exit(1);
 }
