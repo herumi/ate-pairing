@@ -1139,6 +1139,14 @@ public:
 	}
 
 	inline V abs() const { V x; absolute(x, *this); return x; }
+	VsintT operator<<(size_t n) const
+	{
+		VsintT out; shl(out, *this, n); return out;
+	}
+	VsintT& operator<<=(size_t n) const
+	{
+		shl(*this, *this, n); return *this;
+	}
 };
 
 //typedef VuintT<local::VariableBuffer> Vuint;
