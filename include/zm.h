@@ -332,9 +332,9 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 	{
 		set(x);
 	}
-	explicit VuintT(const std::string& str, int base = 0)
+	explicit VuintT(const std::string& str)
 	{
-		set(str, base);
+		set(str);
 	}
 	VuintT(const uint32_t *x, size_t size)
 	{
