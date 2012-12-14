@@ -332,9 +332,9 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 	{
 		set(x);
 	}
-	explicit VuintT(const std::string& str)
+	explicit VuintT(const std::string& str, int base = 0)
 	{
-		set(str);
+		set(str, base);
 	}
 	VuintT(const uint32_t *x, size_t size)
 	{
@@ -455,21 +455,24 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 		      "0b..."   => base = 2
 		      otherwise => base = 10
 	*/
-	void set(const std::string& str)
+	void set(const std::string& str, int base = 0)
 	{
-		std::string t = str;
-		int base = 10;
+		std::string t;
 		if (str.size() >= 2 && str[0] == '0') {
 			switch (str[1]) {
 			case 'x':
+				if (base != 0 && base != 16) local::errExit("bad base in set(str)");
 				base = 16;
 				t = str.substr(2);
 				break;
 			default:
-				local::errExit("not support base in set(str)");
-				break;
+				local::errExit("not support base in set(str) 0x");
 			}
 		}
+		if (base == 0) {
+			base = 10;
+		}
+		if (t.empty()) t = str;
 
 		switch (base) {
 		case 16:
