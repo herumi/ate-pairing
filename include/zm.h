@@ -1330,17 +1330,62 @@ public:
 	}
 };
 
+namespace util {
+/*
+	dispatch Uint, int, size_t, and so on
+*/
+template<class T>
+struct IntTag {
+	typedef typename T::value_type value_type;
+	static inline value_type getBlock(const T& x, size_t i)
+	{
+		return x[i];
+	}
+	static inline size_t getSize(const T& x)
+	{
+		return x.size();
+	}
+};
+
+template<>
+struct IntTag<int> {
+	typedef int value_type;
+	static inline value_type getBlock(const int& x, size_t)
+	{
+		return x;
+	}
+	static inline size_t getSize(const int&)
+	{
+		return 1;
+	}
+};
+template<>
+struct IntTag<size_t> {
+	typedef size_t value_type;
+	static inline value_type getBlock(const size_t& x, size_t)
+	{
+		return x;
+	}
+	static inline size_t getSize(const size_t&)
+	{
+		return 1;
+	}
+};
+
+} // util
+
 /**
 	return pow(x, y)
 */
 template<class T, class S>
 T power(const T& x, const S& y)
 {
-	typedef typename S::value_type value_type;
+	typedef typename mie::util::IntTag<S> Tag;
+	typedef typename Tag::value_type value_type;
 	T t(x);
 	T out = 1;
-	for (size_t i = 0, n = y.size(); i < n; i++) {
-		value_type v = y[i];
+	for (size_t i = 0, n = Tag::getSize(y); i < n; i++) {
+		value_type v = Tag::getBlock(y, i);
 		int m = (int)sizeof(value_type) * 8;
 		if (i == n - 1) {
 			// avoid unused multiplication

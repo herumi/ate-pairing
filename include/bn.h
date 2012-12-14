@@ -2258,14 +2258,15 @@ inline void ECAdd(FF *out, const FF *a, const FF *b)
 template<class FF, class INT>
 inline void ScalarMult(FF *out, const FF *in, const INT &m)
 {
-  typedef typename INT::value_type value_type;
+  typedef typename mie::util::IntTag<INT> Tag;
+  typedef typename Tag::value_type value_type;
 
   if (m == 0) {
     out[2] = 0;
     return;
   }
 
-  const int mSize = (int)m.size();
+  const int mSize = (int)Tag::getSize(m);
   const int vSize = (int)sizeof(value_type) * 8;
   const value_type mask = value_type(1) << (vSize - 1);
   assert(mSize > 0); // if mSize == 0, it had been returned.
@@ -2273,7 +2274,7 @@ inline void ScalarMult(FF *out, const FF *in, const INT &m)
   /*
     Extract and process for MSB of most significant word.
   */
-  value_type v = m[mSize - 1];
+  value_type v = Tag::getBlock(m, mSize - 1);
   int j = 0;
   while ((v != 0) && (!(v & mask))) {
     v <<= 1;
@@ -2300,7 +2301,7 @@ inline void ScalarMult(FF *out, const FF *in, const INT &m)
     Process for non most significant words.
   */
   for (int i = mSize - 2; i >= 0; --i) {
-    v = m[i];
+    v = Tag::getBlock(m, i);
     for (j = 0; j != vSize; ++j, v <<= 1) {
       ecop::copy(temp, out);
       ECDouble(out, temp);
