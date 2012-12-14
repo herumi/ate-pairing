@@ -19,7 +19,7 @@
 #include <iostream>
 #define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
-#define MIE_ZM_VUINT_BIT_LEN (1024)
+#define MIE_ZM_VUINT_BIT_LEN (512)
 
 #ifdef _MSC_VER
 	#include <intrin.h>
@@ -994,8 +994,9 @@ public:
 		v_  = x;
 		isNeg_ = false;
 	}
-  void set(const uint64_t *ptr, size_t size) { v_.set(ptr, size); }
+	void set(const uint64_t *ptr, size_t size) { v_.set(ptr, size); }
 	const V& get() const { return v_; }
+	V& get() { return v_; }
 	void clear() { v_.set((value_type)0); isNeg_ = false; }
 	std::string toString(int base = 10) const
 	{
