@@ -2266,7 +2266,7 @@ inline void ScalarMult(FF *out, const FF *in, const INT &m)
     return;
   }
 
-  const int mSize = (int)Tag::getSize(m);
+  const int mSize = (int)Tag::getBlockSize(m);
   const int vSize = (int)sizeof(value_type) * 8;
   const value_type mask = value_type(1) << (vSize - 1);
   assert(mSize > 0); // if mSize == 0, it had been returned.

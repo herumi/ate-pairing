@@ -1341,7 +1341,7 @@ struct IntTag {
 	{
 		return x[i];
 	}
-	static inline size_t getSize(const T& x)
+	static inline size_t getBlockSize(const T& x)
 	{
 		return x.size();
 	}
@@ -1354,7 +1354,7 @@ struct IntTag<int> {
 	{
 		return x;
 	}
-	static inline size_t getSize(const int&)
+	static inline size_t getBlockSize(const int&)
 	{
 		return 1;
 	}
@@ -1366,7 +1366,7 @@ struct IntTag<size_t> {
 	{
 		return x;
 	}
-	static inline size_t getSize(const size_t&)
+	static inline size_t getBlockSize(const size_t&)
 	{
 		return 1;
 	}
@@ -1384,7 +1384,7 @@ T power(const T& x, const S& y)
 	typedef typename Tag::value_type value_type;
 	T t(x);
 	T out = 1;
-	for (size_t i = 0, n = Tag::getSize(y); i < n; i++) {
+	for (size_t i = 0, n = Tag::getBlockSize(y); i < n; i++) {
 		value_type v = Tag::getBlock(y, i);
 		int m = (int)sizeof(value_type) * 8;
 		if (i == n - 1) {
