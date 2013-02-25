@@ -141,7 +141,7 @@ bn::FpDbl *bn::FpDbl::pNTbl_;
 
 // for debug
 static Xbyak::util::Cpu s_cpu;
-uint64 debug_buf[128];
+uint64_t debug_buf[128];
 int debug_counter;
 struct PutDebugCounter {
 	~PutDebugCounter()

@@ -9,7 +9,7 @@
 */
 #include "zm2.h"
 
-extern unsigned long long debug_buf[128]; // for debug
+extern uint64_t debug_buf[128]; // for debug
 
 namespace bn {
 
