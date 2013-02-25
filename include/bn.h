@@ -308,7 +308,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		   >> cm >> x.b_
 		   >> cr;
 		if (cl == '[' && cm == ',' && cr == ']') return is;
-		throw std::ios_base::ios_base::failure("bad Fp2");
+		throw std::ios_base::failure("bad Fp2");
 	}
 	bool operator==(const Fp2T& rhs) const
 	{
@@ -704,7 +704,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		   >> c4;
 		if (c1 == '[' && c2 == ',' && c3 == ',' && c4 == ']') return is;
 
-		throw std::ios_base::ios_base::failure("bad Fp6");
+		throw std::ios_base::failure("bad Fp6");
 	}
 
 	static void (*add)(Fp6T& z, const Fp6T& x, const Fp6T& y);
@@ -2383,7 +2383,11 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	// loop from 2.
 	Fp6 l;
 	// 844kclk
+#if defined(_MSC_VER)
+	for (size_t i = 2; i < 65; i++) {
+#else
 	for (size_t i = 2; i < sizeof(Param::siTbl) / sizeof(*Param::siTbl); i++) {
+#endif
 		// 3.6k x 63
 		Fp6::pointDblLineEval(l, T, P);
 		// 4.7k x 63
