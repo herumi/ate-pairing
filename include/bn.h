@@ -2545,7 +2545,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	Fp12::Dbl::mul_Fp2_024_Fp2_024(ft, d, e); // 2.7k
 	Fp12::mul(f, f, ft); // 6.4k
 	// final exponentiation
-	f.final_exp();
+	f.final_exp_faster();
 }
 
 typedef mie::Fp Fp;
