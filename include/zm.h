@@ -19,7 +19,7 @@
 #include <iostream>
 #define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
-#define MIE_ZM_VUINT_BIT_LEN (1024)
+#define MIE_ZM_VUINT_BIT_LEN (512)
 
 #ifdef _MSC_VER
 	#include <intrin.h>
@@ -455,21 +455,24 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 		      "0b..."   => base = 2
 		      otherwise => base = 10
 	*/
-	void set(const std::string& str)
+	void set(const std::string& str, int base = 0)
 	{
-		std::string t = str;
-		int base = 10;
+		std::string t;
 		if (str.size() >= 2 && str[0] == '0') {
 			switch (str[1]) {
 			case 'x':
+				if (base != 0 && base != 16) local::errExit("bad base in set(str)");
 				base = 16;
 				t = str.substr(2);
 				break;
 			default:
-				local::errExit("not support base in set(str)");
-				break;
+				local::errExit("not support base in set(str) 0x");
 			}
 		}
+		if (base == 0) {
+			base = 10;
+		}
+		if (t.empty()) t = str;
 
 		switch (base) {
 		case 16:
@@ -991,8 +994,9 @@ public:
 		v_  = x;
 		isNeg_ = false;
 	}
-  void set(const uint64_t *ptr, size_t size) { v_.set(ptr, size); }
+	void set(const uint64_t *ptr, size_t size) { v_.set(ptr, size); }
 	const V& get() const { return v_; }
+	V& get() { return v_; }
 	void clear() { v_.set((value_type)0); isNeg_ = false; }
 	std::string toString(int base = 10) const
 	{
@@ -1330,17 +1334,62 @@ public:
 	}
 };
 
+namespace util {
+/*
+	dispatch Uint, int, size_t, and so on
+*/
+template<class T>
+struct IntTag {
+	typedef typename T::value_type value_type;
+	static inline value_type getBlock(const T& x, size_t i)
+	{
+		return x[i];
+	}
+	static inline size_t getBlockSize(const T& x)
+	{
+		return x.size();
+	}
+};
+
+template<>
+struct IntTag<int> {
+	typedef int value_type;
+	static inline value_type getBlock(const int& x, size_t)
+	{
+		return x;
+	}
+	static inline size_t getBlockSize(const int&)
+	{
+		return 1;
+	}
+};
+template<>
+struct IntTag<size_t> {
+	typedef size_t value_type;
+	static inline value_type getBlock(const size_t& x, size_t)
+	{
+		return x;
+	}
+	static inline size_t getBlockSize(const size_t&)
+	{
+		return 1;
+	}
+};
+
+} // util
+
 /**
 	return pow(x, y)
 */
 template<class T, class S>
 T power(const T& x, const S& y)
 {
-	typedef typename S::value_type value_type;
+	typedef typename mie::util::IntTag<S> Tag;
+	typedef typename Tag::value_type value_type;
 	T t(x);
 	T out = 1;
-	for (size_t i = 0, n = y.size(); i < n; i++) {
-		value_type v = y[i];
+	for (size_t i = 0, n = Tag::getBlockSize(y); i < n; i++) {
+		value_type v = Tag::getBlock(y, i);
 		int m = (int)sizeof(value_type) * 8;
 		if (i == n - 1) {
 			// avoid unused multiplication
@@ -1362,14 +1411,6 @@ template<class V, class Tag>
 V ZmZ<V, Tag>::m_;
 
 void zmInit();
-
-namespace local { namespace zm {
-
-static struct InitVar {
-	InitVar() { mie::zmInit(); }
-} s_init;
-
-} }
 
 } // mie
 

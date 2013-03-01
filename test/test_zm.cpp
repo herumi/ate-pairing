@@ -1082,6 +1082,7 @@ void testStream()
 
 int main()
 {
+	mie::zmInit();
 	testAdd2();
 	testAddSub();
 	testMul1();

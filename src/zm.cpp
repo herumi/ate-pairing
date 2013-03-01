@@ -648,9 +648,9 @@ void mie::zmInit()
 		static Code code;
 		return;
 	} catch (Xbyak::Error err) {
-		fprintf(stderr, "ExpCode ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
+		fprintf(stderr, "zmInit ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
 	} catch (...) {
-		fprintf(stderr, "ExpCode ERR:unknown error\n");
+		fprintf(stderr, "zmInit ERR:unknown error\n");
 	}
 	::exit(1);
 }

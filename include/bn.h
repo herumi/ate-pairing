@@ -9,7 +9,7 @@
 */
 #include "zm2.h"
 
-extern unsigned long long debug_buf[128]; // for debug
+extern uint64_t debug_buf[128]; // for debug
 
 namespace bn {
 
@@ -35,8 +35,9 @@ struct ParamT {
 	// Loop parameter for the Miller loop part of opt. ate pairing.
 	static const int siTbl[];
 
-	static inline void init(int mode)
+	static inline void init(int mode = -1)
 	{
+		mie::zmInit();
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
 		const int pCoff[] = { 1, 6, 24, 36, 36 };
 		const int rCoff[] = { 1, 6, 18, 36, 36 };
@@ -307,7 +308,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		   >> cm >> x.b_
 		   >> cr;
 		if (cl == '[' && cm == ',' && cr == ']') return is;
-		throw std::ios_base::ios_base::failure("bad Fp2");
+		throw std::ios_base::failure("bad Fp2");
 	}
 	bool operator==(const Fp2T& rhs) const
 	{
@@ -703,7 +704,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		   >> c4;
 		if (c1 == '[' && c2 == ',' && c3 == ',' && c4 == ']') return is;
 
-		throw std::ios_base::ios_base::failure("bad Fp6");
+		throw std::ios_base::failure("bad Fp6");
 	}
 
 	static void (*add)(Fp6T& z, const Fp6T& x, const Fp6T& y);
@@ -2257,14 +2258,15 @@ inline void ECAdd(FF *out, const FF *a, const FF *b)
 template<class FF, class INT>
 inline void ScalarMult(FF *out, const FF *in, const INT &m)
 {
-  typedef typename INT::value_type value_type;
+  typedef typename mie::util::IntTag<INT> Tag;
+  typedef typename Tag::value_type value_type;
 
   if (m == 0) {
     out[2] = 0;
     return;
   }
 
-  const int mSize = (int)m.size();
+  const int mSize = (int)Tag::getBlockSize(m);
   const int vSize = (int)sizeof(value_type) * 8;
   const value_type mask = value_type(1) << (vSize - 1);
   assert(mSize > 0); // if mSize == 0, it had been returned.
@@ -2272,7 +2274,7 @@ inline void ScalarMult(FF *out, const FF *in, const INT &m)
   /*
     Extract and process for MSB of most significant word.
   */
-  value_type v = m[mSize - 1];
+  value_type v = Tag::getBlock(m, mSize - 1);
   int j = 0;
   while ((v != 0) && (!(v & mask))) {
     v <<= 1;
@@ -2299,7 +2301,7 @@ inline void ScalarMult(FF *out, const FF *in, const INT &m)
     Process for non most significant words.
   */
   for (int i = mSize - 2; i >= 0; --i) {
-    v = m[i];
+    v = Tag::getBlock(m, i);
     for (j = 0; j != vSize; ++j, v <<= 1) {
       ecop::copy(temp, out);
       ECDouble(out, temp);
@@ -2381,7 +2383,11 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	// loop from 2.
 	Fp6 l;
 	// 844kclk
+#if defined(_MSC_VER)
+	for (size_t i = 2; i < 65; i++) {
+#else
 	for (size_t i = 2; i < sizeof(Param::siTbl) / sizeof(*Param::siTbl); i++) {
+#endif
 		// 3.6k x 63
 		Fp6::pointDblLineEval(l, T, P);
 		// 4.7k x 63
