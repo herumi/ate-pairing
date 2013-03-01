@@ -1140,7 +1140,9 @@ void test_final_exp()
 	  mie::Vuint d_abs;
 	  mie::Vsint::absolute(d_abs, d_prime);
 	  x = mie::power(x, d_abs);
-	  x.inverse();
+	  if (d_prime.isNegative()) {
+		  x.inverse();
+	  }
 
 	  for (size_t i = 0; i < 12; i++) {
 		  TEST_EQUAL(x1.get()[i], x.get()[i]);
