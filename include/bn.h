@@ -1581,6 +1581,49 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		z *= ff;
 	}
 
+	void final_exp_faster()
+	{
+		Fp12T f, f2z, f6z, f6z2, f12z3;
+		Fp12T a, b;
+		Fp12T& z = *this;
+
+		mapToCyclo(f); // 32k
+
+		// Hard part starts from here.
+
+		// Computes addition chain.
+		typedef CompressT<Fp2> Compress;
+		// 431k
+		Compress::fixed_power(f2z, f);
+		f2z.sqru();
+		f2z.sqru(f6z);
+		f6z *= f2z;
+		Compress::fixed_power(f6z2, f6z);
+		f6z2.sqru(f12z3);
+		Compress::fixed_power(f12z3, f12z3);
+		// It will compute inversion of f2z, thus, conjugation free.
+		Fp6::neg(f6z.b_, f6z.b_);
+		Fp6::neg(f12z3.b_, f12z3.b_);
+
+		// Computes a and b.
+		Fp12T::mul(a, f12z3, f6z2);
+		a *= f6z;
+		Fp12T::mul(b, a, f2z);
+		// @note f2z, f6z, and f12z are unnecessary from here.
+
+		// Last part.
+		Fp12T::mul(z, a, f6z2);
+		z *= f;
+		b.Frobenius(f2z);
+		z *= f2z;
+		a.Frobenius2(f2z);
+		z *= f2z;
+		Fp6::neg(f.b_, f.b_);
+		b *= f;
+		b.Frobenius3(f2z);
+		z *= f2z;
+	}
+
 	struct Dbl : public mie::local::addsubmul<Dbl, mie::local::hasNegative<Dbl> > {
 		typedef typename Fp2::Dbl Fp2Dbl;
 		typedef typename Fp6::Dbl Fp6Dbl;
@@ -2494,7 +2537,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	Fp12::Dbl::mul_Fp2_024_Fp2_024(ft, d, e); // 2.7k
 	Fp12::mul(f, f, ft); // 6.4k
 	// final exponentiation
-	f.final_exp(); // 579k
+	f.final_exp_faster();
 }
 
 typedef mie::Fp Fp;

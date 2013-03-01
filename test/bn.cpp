@@ -1147,6 +1147,18 @@ void test_final_exp()
     clk.end();
     printf("final_exp:\t%6.2fMclk\n", clk.getClock() / double(N) / 1e6);
   }
+
+  {
+	  // @todo check correctness by comparing sample values.
+	  Xbyak::util::Clock clk;
+	  clk.begin();
+	  const size_t N = 10000;
+	  for (size_t i = 0; i < N; i++) {
+		  x.final_exp_faster();
+	  }
+	  clk.end();
+	  printf("final_exp_faster:\t%6.2fMclk\n", clk.getClock() / double(N) / 1e6);
+  }
 }
 
 void test_pointDblLineEval()
