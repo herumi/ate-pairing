@@ -1270,9 +1270,10 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
        z_ = x_^2
        output to z_
 
-	   - Granger, R. & Scott, M. Nguyen, P. Q. & Pointcheval, D. (ed.)
-	   Faster Squaring in the Cyclotomic Subgroup of Sixth Degree
-	   Extensions Public Key Cryptography, Springer, 2010, 6056, 209-223.
+	   It is based on:
+	   - Robert Granger and Michael Scott.
+	   Faster squaring in the cyclotomic subgroup of sixth degree extensions.
+	   PKC2010, pp. 209--223. doi:10.1007/978-3-642-13013-7_13.
 	*/
     /*
      * Operation Count:
@@ -1581,19 +1582,25 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		z *= ff;
 	}
 
+	/*
+	  Final exponentiation based on:
+	  - Laura Fuentes-Casta{\~n}eda, Edward Knapp, and Francisco
+	  Rodr\'{\i}guez-Henr\'{\i}quez.
+	  Faster hashing to $\mathbb{G}_2$.
+	  SAC 2011, pp. 412--430. doi:10.1007/978-3-642-28496-0_25.
+	*/
 	void final_exp_faster()
 	{
 		Fp12T f, f2z, f6z, f6z2, f12z3;
 		Fp12T a, b;
 		Fp12T& z = *this;
 
-		mapToCyclo(f); // 32k
+		mapToCyclo(f);
 
 		// Hard part starts from here.
 
 		// Computes addition chain.
 		typedef CompressT<Fp2> Compress;
-		// 431k
 		Compress::fixed_power(f2z, f);
 		f2z.sqru();
 		f2z.sqru(f6z);

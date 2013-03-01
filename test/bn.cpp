@@ -1120,14 +1120,31 @@ void test_final_exp()
     z.get()[i] = Fp(x_ok[i]);
   }
 
-  Fp12 x;
+  Fp12 x, x1;
   for (int i = 0; i < 12; i++) {
     x.get()[i] = i + 3;
+    x1.get()[i] = x.get()[i];
   }
   x.final_exp();
 
   for (size_t i = 0; i < 12; i++) {
     TEST_EQUAL(x.get()[i], z.get()[i]);
+  }
+
+  {
+	  // This part tests for final_exp_faster.
+	  x1.final_exp_faster();
+
+	  const mie::Vsint& zi = bn::Param::z;
+	  mie::Vsint d_prime = (2*zi)*(6*zi*zi + 3*zi + 1);
+	  mie::Vuint d_abs;
+	  mie::Vsint::absolute(d_abs, d_prime);
+	  x = mie::power(x, d_abs);
+	  x.inverse();
+
+	  for (size_t i = 0; i < 12; i++) {
+		  TEST_EQUAL(x1.get()[i], x.get()[i]);
+	  }
   }
 
   {
@@ -1149,7 +1166,6 @@ void test_final_exp()
   }
 
   {
-	  // @todo check correctness by comparing sample values.
 	  Xbyak::util::Clock clk;
 	  clk.begin();
 	  const size_t N = 10000;
