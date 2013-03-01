@@ -1269,7 +1269,11 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
        square over only cyclotomic subgroup
        z_ = x_^2
        output to z_
-    */
+
+	   - Granger, R. & Scott, M. Nguyen, P. Q. & Pointcheval, D. (ed.)
+	   Faster Squaring in the Cyclotomic Subgroup of Sixth Degree
+	   Extensions Public Key Cryptography, Springer, 2010, 6056, 209-223.
+	*/
     /*
      * Operation Count:
      *
@@ -1351,6 +1355,75 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		Fp2::sub(z3, t2, z3);
 		z3 += z3;
 		z3 += t2;
+	}
+
+	/*
+	  This is same as sqru, but output given reference.
+	*/
+	void sqru(Fp12T& zz)
+	{
+		Fp2& x0(a_.a_);
+		Fp2& x4(a_.b_);
+		Fp2& x3(a_.c_);
+		Fp2& x2(b_.a_);
+		Fp2& x1(b_.b_);
+		Fp2& x5(b_.c_);
+
+		Fp2& zz0(zz.a_.a_);
+		Fp2& zz4(zz.a_.b_);
+		Fp2& zz3(zz.a_.c_);
+		Fp2& zz2(zz.b_.a_);
+		Fp2& zz1(zz.b_.b_);
+		Fp2& zz5(zz.b_.c_);
+
+		Fp2 t0, t1;
+
+		sq_Fp4UseDbl(t0, t1, x0, x1); // a^2 = t0 + t1*y
+
+		// For A
+		Fp2::sub(zz0, t0, x0);
+		zz0 += zz0;
+		zz0 += t0;
+#if 0
+		// @note maybe, this does not work.
+		Fp2_2z_add_3x(zz1, t1);
+#else
+		Fp2::add(zz1, t1, x1);
+		zz1 += zz1;
+		zz1 += t1;
+#endif
+		// t0 and t1 are unnecessary from here.
+
+		Fp2 t2, t3;
+		sq_Fp4UseDbl(t0, t1, x2, x3); // b^2 = t0 + t1*y
+		sq_Fp4UseDbl(t2, t3, x4, x5); // c^2 = t2 + t3*y
+
+		// For C
+		Fp2::sub(zz4, t0, x4);
+		zz4 += zz4;
+		zz4 += t0;
+#if 0
+		// @note maybe, this does not work.
+		Fp2_2z_add_3x(zz5, t1);
+#else
+		Fp2::add(zz5, t1, x5);
+		zz5 += zz5;
+		zz5 += t1;
+#endif
+
+		// For B
+		Fp2::mul_xi(t0, t3);
+#if 0
+		// @note maybe, this does not work.
+		Fp2_2z_add_3x(zz2, t0);
+#else
+		Fp2::add(zz2, t0, x2);
+		zz2 += zz2;
+		zz2 += t0;
+#endif
+		Fp2::sub(zz3, t2, x3);
+		zz3 += zz3;
+		zz3 += t2;
 	}
 
 	void inverse()
