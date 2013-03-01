@@ -1606,8 +1606,9 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		f2z.sqru(f6z);
 		f6z *= f2z;
 		Compress::fixed_power(f6z2, f6z);
-		f6z2.sqru(f12z3);
-		Compress::fixed_power(f12z3, f12z3);
+		// A variable a is unnecessary only here.
+		f6z2.sqru(a);
+		Compress::fixed_power(f12z3, a);
 		// It will compute inversion of f2z, thus, conjugation free.
 		Fp6::neg(f6z.b_, f6z.b_);
 		Fp6::neg(f12z3.b_, f12z3.b_);
@@ -2132,10 +2133,10 @@ public:
 	static void fixed_power(Fp12 &z, const Fp12 &d00)
 	{
 		assert(&z != &d00);
-		Fp12 d55, d62;
+		Fp12 d62;
 		Fp2 c55nume, c55denomi, c62nume, c62denomi;
 
-		CompressT c55(d55, d00);
+		CompressT c55(z, d00);
 		CompressT::square_n(c55, 55); // 106k
 		c55.decompressBeforeInv(c55nume, c55denomi);
 
@@ -2156,7 +2157,7 @@ public:
 		Fp2::mul(c62.g1_, c62nume, t);
 		c62.decompressAfterInv();
 
-		Fp12::mul(z, d55, d00);
+		z *= d00; // 6.5k
 		z *= d62;
 	}
 	static void (*square_n)(CompressT& z, int n);
