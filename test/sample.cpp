@@ -31,10 +31,26 @@ int main()
 	// verify g2 and g1 on curve
 	printf("g1 is on EC : %s\n", ecop::isOnECJac3(g1) ? "ok" : "ng");
 	printf("g2 is on twist EC : %s\n", ecop::isOnTwistECJac3(g2) ? "ok" : "ng");
+	puts("order of group");
+	PUT(Param::r);
+	{
+		Fp t[3];
+		ecop::ScalarMult(t, g1, Param::r);
+		printf("order of g1 == r :%s\n", t[2] == 0 ? "ok" : "ng"); // (x, y, 0) means 0 at Jacobi coordinate
+	}
+	{
+		Fp2 t[3];
+		ecop::ScalarMult(t, g2, Param::r);
+		printf("order of g2 == r :%s\n", t[2] == 0 ? "ok" : "ng"); // (x, y, 0) means 0 at Jacobi coordinate
+	}
 	Fp12 e;
 	// calc e : G2 x G1 -> G3 pairing
 	opt_atePairing<Fp>(e, g2, g1); // e = e(g2, g1)
 	PUT(e);
+	{
+		Fp12 t = power(e, Param::r);
+		printf("order of e == r :%s\n", t == 1 ? "ok" : "ng");
+	}
 	const Fp a("123456789012345");
 	Fp2 g2a[3];
 	ecop::ScalarMult(g2a, g2, a); // g2a = g2 * a
