@@ -2335,9 +2335,6 @@ inline void ECDouble(FF *out, const FF *in)
 template<class FF>
 inline void ECAdd(FF *out, const FF *a, const FF *b)
 {
-  // assert(&out != &a);
-  // assert(&out != &b);
-
   FF Z1Z1, Z2Z2, U1, U2, t0, S1, t1, S2, H, t2, I, J, t3, r, V, t4, t5;
   FF t6, t7, t8, t9, t10, t11, t12, t13, t14;
 
