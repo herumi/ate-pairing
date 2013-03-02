@@ -2304,6 +2304,12 @@ inline void NormalizeHom(FF *out, const FF *in)
   }
 }
 
+/*
+  NOTE: This operation is partial domain function.
+  It is not defined for a point at infinity,
+  or if order of input point is 2, and input arguments are
+  referencing to same object.
+*/
 template<class FF>
 inline void ECDouble(FF *out, const FF *in)
 {
@@ -2332,6 +2338,12 @@ inline void ECDouble(FF *out, const FF *in)
   FF::add(out[2], t8, t8);
 }
 
+/*
+  NOTE: This operation is partial domain function.
+  It is not defined if either of two
+  arguments a and b is a point at infinity, or points a and b
+  are related to inversion each other.
+*/
 template<class FF>
 inline void ECAdd(FF *out, const FF *a, const FF *b)
 {
@@ -2375,6 +2387,10 @@ inline void ECAdd(FF *out, const FF *a, const FF *b)
 	@param in [in] Jacobi coord (in[0], in[1], in[2])
 	@param m [in] scalar
 	@note MSB first binary method.
+
+	NOTE: This operation is partial domain function.
+	It is only defined over finite points and scalars in [1, n-1]
+	where n is the order of given point.
 */
 template<class FF, class INT>
 inline void ScalarMult(FF *out, const FF *in, const INT &m)
