@@ -2307,14 +2307,11 @@ inline void NormalizeHom(FF *out, const FF *in)
 /*
   NOTE: This operation is partial domain function.
   It is not defined for a point at infinity,
-  or if order of input point is 2, and input arguments are
-  referencing to same object.
+  or if order of input point is 2.
 */
 template<class FF>
 inline void ECDouble(FF *out, const FF *in)
 {
-  assert(&out != &in);
-
   FF A, B, C, D, E, F, t0, t1, t2, t3, t4, t5, t6, t7, t8;
 
   FF::square(A, in[0]);
@@ -2333,8 +2330,8 @@ inline void ECDouble(FF *out, const FF *in)
   FF::sub(t5, D, out[0]);
   t6 = C; t6 += t6; t6 += t6; t6 += t6; // t6 = 8*C
   FF::mul(t7, E, t5);
-  FF::sub(out[1], t7, t6);
   FF::mul(t8, in[1], in[2]);
+  FF::sub(out[1], t7, t6);
   FF::add(out[2], t8, t8);
 }
 
