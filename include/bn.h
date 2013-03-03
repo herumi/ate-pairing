@@ -2306,8 +2306,7 @@ inline void NormalizeHom(FF *out, const FF *in)
 
 /*
   NOTE: This operation is partial domain function.
-  It is not defined for a point at infinity,
-  or if order of input point is 2.
+  It is not defined for input points which the order is 2.
 */
 template<class FF>
 inline void ECDouble(FF *out, const FF *in)

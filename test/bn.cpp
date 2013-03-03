@@ -65,6 +65,50 @@ const Fp genP2y()
   return P2y;
 }
 
+void testECDouble()
+{
+	puts(__FUNCTION__);
+
+	const Fp P[] = { genPx(), genPy(), Fp(1) };
+	const Fp P2_ok[] = { genP2x(), genP2y(), Fp(1) };
+	const Fp Zero[] = { 1, 1, 0 };
+
+	const struct {
+		const Fp *in;
+		const Fp *out;
+	} tbl[] = {
+		{ P, P2_ok },
+		{ Zero, Zero },
+	};
+	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+		const Fp *in = tbl[i].in;
+		const Fp *out = tbl[i].out;
+
+		for (int m = 0; m < 2; m++) {
+			Fp P2[3];
+			if (m == 0) {
+				// dst != src
+				ECDouble(P2, in);
+			} else {
+				// dst != src
+				P2[0] = in[0];
+				P2[1] = in[1];
+				P2[2] = in[2];
+				ECDouble(P2, P2);
+			}
+			TEST_ASSERT(isOnECJac3(P2));
+			NormalizeJac(P2, P2);
+			TEST_ASSERT(isOnECJac3(P2));
+
+			if (out[2] != 0) {
+				TEST_EQUAL(P2[0], out[0]);
+				TEST_EQUAL(P2[1], out[1]);
+			}
+			TEST_EQUAL(P2[2], out[2]);
+		}
+	}
+}
+
 void testECOperationsG1()
 {
 	puts(__FUNCTION__);
@@ -2472,6 +2516,7 @@ int main(int argc, char *argv[]) try
   test_FrobEndOnTwist_1();
   test_FrobEndOnTwist_2();
 
+  testECDouble();
   testECOperationsG1();
   testECOperationsG2();
 #endif
