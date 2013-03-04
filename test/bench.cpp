@@ -105,8 +105,8 @@ void bench(int mode)
 	code.makeBench(N, mode);
 	int (*p)(uint64_t*, const uint64_t*, const uint64_t*) = (int (*)(uint64_t*, const uint64_t*, const uint64_t*))code.getCode();
 
-	uint64_t a[4] = { -1, -2, -3, 544443221 };
-	uint64_t b[4] = { -123, -3, -4, 222222222 };
+	uint64_t a[4] = { uint64_t(-1), uint64_t(-2), uint64_t(-3), 544443221 };
+	uint64_t b[4] = { uint64_t(-123), uint64_t(-3), uint64_t(-4), 222222222 };
 	uint64_t c[5] = { 0, 0, 0, 0, 0 };
 
 	const int M = 100;
