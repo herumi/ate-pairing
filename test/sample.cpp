@@ -51,7 +51,7 @@ int main()
 		Fp12 t = power(e, Param::r);
 		printf("order of e == r :%s\n", t == 1 ? "ok" : "ng");
 	}
-	const Fp a("123456789012345");
+	const mie::Vuint a("123456789012345");
 	Fp2 g2a[3];
 	ecop::ScalarMult(g2a, g2, a); // g2a = g2 * a
 	ecop::NormalizeJac(g2a, g2a); // Jacobi to Affine
@@ -62,7 +62,7 @@ int main()
 	PUT(ea2);
 	printf("verify e(g2 * a, g1) = e(g2, g1)^a : %s\n", ea1 == ea2 ? "ok" : "ng");
 
-	const Fp b("998752342342342342424242421");
+	const mie::Vuint b("998752342342342342424242421");
 	Fp g1b[3];
 	ecop::ScalarMult(g1b, g1, b); // g1b = g1 * b
 	ecop::NormalizeJac(g1b, g1b); // Jacobi to Affine
@@ -87,5 +87,25 @@ int main()
 	ecop::NormalizeJac(q2, q2);
 	opt_atePairing<Fp>(e, g2, q2); // e = e(g2, q2)
 	printf("verify e = e1 * e2 : %s\n", e == e1 * e2 ? "ok" : "ng");
-}
 
+	// scalar-multiplication sample
+	{
+		Fp Pa[3];
+		Fp Pb[3];
+		Fp Pc[3];
+		Fp out[3];
+		const mie::Vuint c = a + b;
+
+		ecop::ScalarMult(Pa, g1, a); // Pa = g1 * a
+		ecop::ScalarMult(Pb, g1, b); // Pb = g1 * b
+		ecop::ScalarMult(Pc, g1, c); // Pc = g1 * (a + b)
+
+		ecop::ECAdd(out, Pa, Pb); // g1 * a + g1 * b
+		ecop::NormalizeJac(Pc, Pc);
+		ecop::NormalizeJac(out, out);
+		puts("check g1 * c = g1 * a + g1 * b");
+		PUT(Pc[0] - out[0]);
+		PUT(Pc[1] - out[1]);
+		PUT(Pc[2] - out[2]);
+	}
+}

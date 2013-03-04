@@ -396,6 +396,28 @@ public:
 	};
 };
 
+namespace util {
+template<>
+struct IntTag<mie::Fp> {
+	typedef size_t value_type;
+	static inline value_type getBlock(const mie::Fp&, size_t)
+	{
+		err();
+		return 0;
+	}
+	static inline size_t getBlockSize(const mie::Fp&)
+	{
+		err();
+		return 0;
+	}
+	static inline void err()
+	{
+		printf("Use mie::Vuint intead of Fp for the 3rd parameter for ScalarMulti\n");
+		exit(1);
+	}
+};
+} // mie::util
+
 } // mie
 
 /*

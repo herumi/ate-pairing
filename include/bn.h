@@ -2397,9 +2397,8 @@ inline void ECAdd(FF *out, const FF *a, const FF *b)
 	@param m [in] scalar
 	@note MSB first binary method.
 
-	NOTE: This operation is partial domain function.
-	It is only defined over finite points and scalars in [1, n-1]
-	where n is the order of given point.
+	@note don't use Fp as INT
+	the inner format of Fp is not compatible with mie::Vuint
 */
 template<class FF, class INT>
 inline void ScalarMult(FF *out, const FF *in, const INT &m)
