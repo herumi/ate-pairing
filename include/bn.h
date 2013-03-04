@@ -2174,7 +2174,6 @@ namespace ecop {
 template<class FF>
 inline void copy(FF *out, const FF *in)
 {
-  assert(&out != &in);
   out[0] = in[0];
   out[1] = in[1];
   out[2] = in[2];
@@ -2306,8 +2305,7 @@ inline void NormalizeHom(FF *out, const FF *in)
 
 /*
 	Jacobi coordinate
-	(X, Y, Z) = (in[0], in[1], in[2])
-	out[] = in[] * 2
+	(out[0], out[1], out[2]) = 2(in[0], in[1], in[2])
 */
 template<class FF>
 inline void ECDouble(FF *out, const FF *in)
@@ -2336,14 +2334,20 @@ inline void ECDouble(FF *out, const FF *in)
 }
 
 /*
-  NOTE: This operation is partial domain function.
-  It is not defined if either of two
-  arguments a and b is a point at infinity, or points a and b
-  are related to inversion each other.
+	Jacobi coordinate
+	(out[0], out[1], out[2]) = (a[0], a[1], a[2]) + (b[0], b[1], b[2])
 */
 template<class FF>
 inline void ECAdd(FF *out, const FF *a, const FF *b)
 {
+  if (a[2].isZero()) {
+    copy(out, b);
+    return;
+  }
+  if (b[2].isZero()) {
+    copy(out, a);
+    return;
+  }
   FF Z1Z1, Z2Z2, U1, U2, t0, S1, t1, S2, H, t2, I, J, t3, r, V, t4, t5;
   FF t6, t7, t8, t9, t10, t11, t12, t13, t14;
 
@@ -2356,10 +2360,18 @@ inline void ECAdd(FF *out, const FF *a, const FF *b)
   FF::mul(t1, a[2], Z1Z1);
   FF::mul(S2, b[1], t1);
   FF::sub(H, U2, U1);
+  FF::sub(t3, S2, S1);
+  if (H.isZero()) {
+    if (t3.isZero()) {
+      ECDouble(out, a);
+    } else {
+      out[2].clear();
+    }
+    return;
+  }
   FF::add(t2, H, H);
   FF::square(I, t2);
   FF::mul(J, H, I);
-  FF::sub(t3, S2, S1);
   FF::add(r, t3, t3);
   FF::mul(V, U1, I);
   FF::square(t4, r);

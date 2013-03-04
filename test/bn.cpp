@@ -65,46 +65,150 @@ const Fp genP2y()
   return P2y;
 }
 
+template<class F>
+void SetJacobi(F out[3], const F *in)
+{
+	copy(out, in);
+	const int z = 123;
+	out[0] *= z * z;
+	out[1] *= z * z * z;
+	out[2] *= z;
+}
+
 void testECDouble()
 {
 	puts(__FUNCTION__);
 
 	const Fp P[] = { genPx(), genPy(), Fp(1) };
-	const Fp P2_ok[] = { genP2x(), genP2y(), Fp(1) };
+	const Fp P2[] = { genP2x(), genP2y(), Fp(1) };
 	const Fp Zero[] = { 1, 1, 0 };
 
 	const struct {
-		const Fp *in;
-		const Fp *out;
+		const Fp *ok; // ok = 2x
+		const Fp *x;
 	} tbl[] = {
-		{ P, P2_ok },
+		{ P2, P },
 		{ Zero, Zero },
 	};
 	for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
-		const Fp *in = tbl[i].in;
-		const Fp *out = tbl[i].out;
+		Fp x[3];
+		SetJacobi(x, tbl[i].x);
+		const Fp *ok = tbl[i].ok;
 
 		for (int m = 0; m < 2; m++) {
-			Fp P2[3];
+			Fp out[3];
 			if (m == 0) {
 				// dst != src
-				ECDouble(P2, in);
+				ECDouble(out, x);
 			} else {
+				out[0] = x[0];
+				out[1] = x[1];
+				out[2] = x[2];
 				// dst != src
-				P2[0] = in[0];
-				P2[1] = in[1];
-				P2[2] = in[2];
-				ECDouble(P2, P2);
+				ECDouble(out, out);
 			}
-			TEST_ASSERT(isOnECJac3(P2));
-			NormalizeJac(P2, P2);
-			TEST_ASSERT(isOnECJac3(P2));
+			TEST_ASSERT(isOnECJac3(out));
+			NormalizeJac(out, out);
+			TEST_ASSERT(isOnECJac3(out));
 
-			if (out[2] != 0) {
-				TEST_EQUAL(P2[0], out[0]);
-				TEST_EQUAL(P2[1], out[1]);
+			if (ok[2] != 0) {
+				TEST_EQUAL(out[0], ok[0]);
+				TEST_EQUAL(out[1], ok[1]);
 			}
-			TEST_EQUAL(P2[2], out[2]);
+			TEST_EQUAL(out[2], ok[2]);
+		}
+	}
+}
+
+void testECAdd()
+{
+	puts(__FUNCTION__);
+
+	const Fp P[] = { genPx(), genPy(), Fp(1) };
+	const Fp negP[] = { genPx(), -genPy(), Fp(1) };
+	const Fp P2[] = { genP2x(), genP2y(), Fp(1) };
+	const Fp P3[] = {
+		Fp("933228262834212904718933563457318550549399284524392769385206412559597436928"),
+		Fp("13081617668227268048378253503661144166646030151223471427486357073175298320248"),
+		Fp(1),
+	};
+	const Fp Zero[] = { 1, 1, 0 };
+
+	{
+		const struct {
+			const Fp *ok; // ok = x + y
+			const Fp *x;
+			const Fp *y;
+		} tbl[] = {
+			{ P3, P, P2 },
+			{ P3, P2, P },
+			{ P2, P, P },
+			{ Zero, P, negP },
+			{ Zero, negP, P },
+
+			{ P, P, Zero },
+			{ P, Zero, P },
+			{ Zero, Zero, Zero },
+		};
+
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			Fp x[3]; SetJacobi(x, tbl[i].x);
+			Fp y[3]; SetJacobi(y, tbl[i].y);
+			const Fp *ok = tbl[i].ok;
+
+			for (int m = 0; m < 3; m++) {
+				Fp out[3];
+				if (m == 0) { // z <- (x, y)
+					ECAdd(out, x, y);
+				} else if (m == 1) { // x <- (x, y)
+					copy(out, x);
+					ECAdd(out, out, y);
+				} else { // y <- (x, y)
+					copy(out, y);
+					ECAdd(out, x, out);
+				}
+				TEST_ASSERT(isOnECJac3(out));
+				NormalizeJac(out, out);
+				TEST_ASSERT(isOnECJac3(out));
+
+				if (ok[2] != 0) {
+					TEST_EQUAL(out[0], ok[0]);
+					TEST_EQUAL(out[1], ok[1]);
+				}
+				TEST_EQUAL(out[2], ok[2]);
+			}
+		}
+	}
+
+	{
+		const struct {
+			const Fp *ok; // ok = 2x
+			const Fp *x;
+		} tbl[] = {
+			{ P2, P },
+			{ Zero, Zero },
+		};
+		for (size_t i = 0; i < NUM_OF_ARRAY(tbl); i++) {
+			Fp x[3]; SetJacobi(x, tbl[i].x);
+			const Fp *ok = tbl[i].ok;
+			for (int m = 0; m < 2; m++) {
+				Fp out[3];
+				if (m == 0) { // z <- (x, x)
+					ECAdd(out, x, x);
+				} else {
+					copy(out, x);
+					ECAdd(out, out, out); // x <- (x, x)
+				}
+				TEST_ASSERT(isOnECJac3(out));
+				NormalizeJac(out, out);
+				TEST_ASSERT(isOnECJac3(out));
+
+				if (ok[2] != 0) {
+					TEST_EQUAL(out[0], ok[0]);
+					TEST_EQUAL(out[1], ok[1]);
+				}
+				TEST_EQUAL(out[2], ok[2]);
+			}
 		}
 	}
 }
@@ -2517,6 +2621,7 @@ int main(int argc, char *argv[]) try
   test_FrobEndOnTwist_2();
 
   testECDouble();
+  testECAdd();
   testECOperationsG1();
   testECOperationsG2();
 #endif
