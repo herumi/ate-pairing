@@ -2305,8 +2305,9 @@ inline void NormalizeHom(FF *out, const FF *in)
 }
 
 /*
-  NOTE: This operation is partial domain function.
-  It is not defined for input points which the order is 2.
+	Jacobi coordinate
+	(X, Y, Z) = (in[0], in[1], in[2])
+	out[] = in[] * 2
 */
 template<class FF>
 inline void ECDouble(FF *out, const FF *in)
