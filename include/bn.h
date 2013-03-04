@@ -2273,6 +2273,8 @@ template<class FF>
 inline void NormalizeJac(FF *out, const FF *in)
 {
   if (in[2] == 0) {
+    out[0].clear();
+    out[1].clear();
     out[2].clear();
   } else {
     FF A, AA, t0;
@@ -2293,6 +2295,8 @@ template<class FF>
 inline void NormalizeHom(FF *out, const FF *in)
 {
   if (in[2] == 0) {
+    out[0].clear();
+    out[1].clear();
     out[2].clear();
   } else {
     FF A = in[2];
@@ -2407,7 +2411,9 @@ inline void ScalarMult(FF *out, const FF *in, const INT &m)
   typedef typename Tag::value_type value_type;
 
   if (m == 0) {
-    out[2] = 0;
+    out[0].clear();
+    out[1].clear();
+    out[2].clear();
     return;
   }
 
