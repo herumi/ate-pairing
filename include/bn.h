@@ -2472,11 +2472,11 @@ void opt_atePairingJac(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> _Q[3], const F
 		return;
 	}
 
-	bn::Fp2 Q[3];
-	bn::Fp P[3];
-	bn::ecop::NormalizeJac(Q, _Q);
-	bn::ecop::NormalizeJac(P, _P);
-	bn::opt_atePairing(f, Q, P);
+	Fp2T<Fp> Q[3];
+	Fp P[3];
+	ecop::NormalizeJac(Q, _Q);
+	ecop::NormalizeJac(P, _P);
+	opt_atePairing(f, Q, P);
 }
 
 typedef mie::Fp Fp;

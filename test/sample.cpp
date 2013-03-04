@@ -43,50 +43,8 @@ int main()
 		ecop::ScalarMult(t, g2, Param::r);
 		printf("order of g2 == r :%s\n", t[2] == 0 ? "ok" : "ng"); // (x, y, 0) means 0 at Jacobi coordinate
 	}
-	Fp12 e;
-	// calc e : G2 x G1 -> G3 pairing
-	opt_atePairing<Fp>(e, g2, g1); // e = e(g2, g1)
-	PUT(e);
-	{
-		Fp12 t = power(e, Param::r);
-		printf("order of e == r :%s\n", t == 1 ? "ok" : "ng");
-	}
 	const mie::Vuint a("123456789012345");
-	Fp2 g2a[3];
-	ecop::ScalarMult(g2a, g2, a); // g2a = g2 * a
-	ecop::NormalizeJac(g2a, g2a); // Jacobi to Affine
-	Fp12 ea1;
-	opt_atePairing<Fp>(ea1, g2a, g1); // ea1 = e(g2a, g1)
-	PUT(ea1);
-	Fp12 ea2 = power(e, a); // ea2 = e^a
-	PUT(ea2);
-	printf("verify e(g2 * a, g1) = e(g2, g1)^a : %s\n", ea1 == ea2 ? "ok" : "ng");
-
 	const mie::Vuint b("998752342342342342424242421");
-	Fp g1b[3];
-	ecop::ScalarMult(g1b, g1, b); // g1b = g1 * b
-	ecop::NormalizeJac(g1b, g1b); // Jacobi to Affine
-	Fp12 eb1;
-	opt_atePairing<Fp>(eb1, g2, g1b); // eb1 = e(g2, g1b)
-	PUT(eb1);
-	Fp12 eb2 = power(e, b); // eb2 = e^b
-	PUT(eb2);
-	printf("verify e(g2a, g1 * b) = e(g2, g1)^b : %s\n", eb1 == eb2 ? "ok" : "ng");
-
-	const Fp q1[3] = {
-		Fp("2"),
-		Fp("16740896641879863340107777353588575149660814923656713498672603551465628253431"),
-		Fp("1")
-	};
-	printf("q1 is on EC : %s\n", ecop::isOnECJac3(q1) ? "ok" : "ng");
-	Fp12 e1, e2;
-	opt_atePairing<Fp>(e1, g2, g1); // e1 = e(g2, g1)
-	opt_atePairing<Fp>(e2, g2, q1); // e2 = e(g2, q1)
-	Fp q2[3];
-	ecop::ECAdd(q2, g1, q1); // q2 = g1 + q1
-	ecop::NormalizeJac(q2, q2);
-	opt_atePairing<Fp>(e, g2, q2); // e = e(g2, q2)
-	printf("verify e = e1 * e2 : %s\n", e == e1 * e2 ? "ok" : "ng");
 
 	// scalar-multiplication sample
 	{
@@ -108,4 +66,44 @@ int main()
 		PUT(Pc[1] - out[1]);
 		PUT(Pc[2] - out[2]);
 	}
+
+	Fp12 e;
+	// calc e : G2 x G1 -> G3 pairing
+	opt_atePairingJac<Fp>(e, g2, g1); // e = e(g2, g1)
+	PUT(e);
+	{
+		Fp12 t = power(e, Param::r);
+		printf("order of e == r :%s\n", t == 1 ? "ok" : "ng");
+	}
+	Fp2 g2a[3];
+	ecop::ScalarMult(g2a, g2, a); // g2a = g2 * a
+	Fp12 ea1;
+	opt_atePairingJac<Fp>(ea1, g2a, g1); // ea1 = e(g2a, g1)
+//	PUT(ea1);
+	Fp12 ea2 = power(e, a); // ea2 = e^a
+//	PUT(ea2);
+	printf("verify e(g2 * a, g1) = e(g2, g1)^a : %s\n", ea1 == ea2 ? "ok" : "ng");
+
+	Fp g1b[3];
+	ecop::ScalarMult(g1b, g1, b); // g1b = g1 * b
+	Fp12 eb1;
+	opt_atePairingJac<Fp>(eb1, g2, g1b); // eb1 = e(g2, g1b)
+//	PUT(eb1);
+	Fp12 eb2 = power(e, b); // eb2 = e^b
+//	PUT(eb2);
+	printf("verify e(g2a, g1 * b) = e(g2, g1)^b : %s\n", eb1 == eb2 ? "ok" : "ng");
+
+	const Fp q1[3] = {
+		Fp("2"),
+		Fp("16740896641879863340107777353588575149660814923656713498672603551465628253431"),
+		Fp("1")
+	};
+	printf("q1 is on EC : %s\n", ecop::isOnECJac3(q1) ? "ok" : "ng");
+	Fp12 e1, e2;
+	opt_atePairingJac<Fp>(e1, g2, g1); // e1 = e(g2, g1)
+	opt_atePairingJac<Fp>(e2, g2, q1); // e2 = e(g2, q1)
+	Fp q2[3];
+	ecop::ECAdd(q2, g1, q1); // q2 = g1 + q1
+	opt_atePairingJac<Fp>(e, g2, q2); // e = e(g2, q2)
+	printf("verify e = e1 * e2 : %s\n", e == e1 * e2 ? "ok" : "ng");
 }
