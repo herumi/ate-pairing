@@ -12,28 +12,6 @@ typedef unsigned char uint8_t;
 #include <stdint.h>
 #endif
 
-#ifdef _WIN32
-//	#define USE_VTUNE
-#endif
-#ifdef USE_VTUNE
-#include "jitprofiling.h"
-void SetJitCode(void *ptr, size_t size, const char *name)
-{
-	iJIT_Method_Load jmethod = {0};
-	jmethod.method_id = iJIT_GetNewMethodID();
-	jmethod.class_file_name = "";
-	jmethod.source_file_name = __FILE__;
-
-	jmethod.method_load_address = ptr;
-	jmethod.method_size = (unsigned int)size;
-	jmethod.line_number_size = 0;
-
-	jmethod.method_name = const_cast<char*>(name);
-	int ret = iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, (void*)&jmethod);
-	printf("SetJitCode : name=%s, f=%p, size=%d : ret=%d\n", name, ptr, (int)size, ret);
-}
-#endif
-
 using namespace bn;
 using namespace Xbyak;
 
@@ -3338,92 +3316,6 @@ L("@@");
 		make_Fp12Dbl_mul_Fp2_024();
 
 //		printf("jit code size=%d\n", (int)getSize());
-#ifdef USE_VTUNE
-		static const struct {
-			void *f;
-			const char *name;
-		} funcTbl[] = {
-			{ p_Fp_mul, "p_Fp_mul" },
-			{ p_Fp2_add, "p_Fp2_add" },
-			{ p_Fp2_sub, "p_Fp2_sub" },
-			{ p_Fp2_addNC, "p_Fp2_addNC" },
-			{ p_FpDbl_mod, "p_FpDbl_mod" },
-			{ p_Fp2_square, "p_Fp2_square" },
-			{ p_Fp2_mul, "p_Fp2_mul" },
-			{ p_Fp2_divBy2, "p_Fp2_divBy2" },
-			{ p_Fp2_2z_add_3x, "p_Fp2_2z_add_3x" },
-
-			{ p_FpDbl_add, "p_FpDbl_add" },
-			{ p_FpDbl_sub, "p_FpDbl_sub" },
-			{ p_FpDbl_addNC, "p_FpDbl_addNC" },
-			{ p_FpDbl_subNC, "p_FpDbl_subNC" },
-
-			{ p_Fp2Dbl_mul_xi, "p_Fp2Dbl_mul_xi" },
-			{ p_Fp2Dbl_mulOpt1, "p_Fp2Dbl_mulOpt1" },
-			{ p_Fp2Dbl_mulOpt2, "p_Fp2Dbl_mulOpt2" },
-			{ p_Fp2Dbl_square, "p_Fp2Dbl_square" },
-
-			{ p_Fp6_add, "p_Fp6_add" },
-			{ p_Fp6_sub, "p_Fp6_sub" },
-			{ p_Fp6Dbl_mul, "p_Fp6Dbl_mul" },
-			{ p_Fp6_mul, "p_Fp6_mul" },
-
-			{ (void*)Fp::add, "Fp::add" },
-			{ (void*)Fp::sub, "Fp::sub" },
-			{ (void*)Fp::addNC, "Fp::addNC" },
-			{ (void*)Fp::subNC, "Fp::subNC" },
-			{ (void*)Fp::neg, "Fp::neg" },
-			{ (void*)Fp::shr1, "Fp::shr1" },
-			{ (void*)Fp::shr2, "Fp::shr2" },
-			{ (void*)Fp::mul, "Fp::mul" },
-			{ (void*)Fp::preInv, "Fp::preInv" },
-
-			{ (void*)FpDbl::add, "FpDbl::add" },
-			{ (void*)FpDbl::addNC, "FpDbl::addNC" },
-			{ (void*)FpDbl::neg, "FpDbl::neg" },
-			{ (void*)FpDbl::sub, "FpDbl::sub" },
-			{ (void*)FpDbl::subNC, "FpDbl::subNC" },
-			{ (void*)FpDbl::mul, "FpDbl::mul" },
-			{ (void*)Fp::Dbl::mod, "Fp::Dbl::mod" },
-
-
-			{ (void*)Fp2::add, "Fp2::add" },
-			{ (void*)Fp2::addNC, "Fp2::addNC" },
-			{ (void*)Fp2::sub, "Fp2::sub" },
-			{ (void*)Fp2::mul, "Fp2::mul" },
-			{ (void*)Fp2::mul_xi, "Fp2::mul_xi" },
-			{ (void*)Fp2::square, "Fp2::square" },
-			{ (void*)Fp2::mul_Fp_0, "Fp2::mul_Fp_0" },
-			{ (void*)Fp2::divBy2, "Fp2::divBy2" },
-
-			{ (void*)Fp2Dbl::add, "Fp2Dbl::add" },
-			{ (void*)Fp2Dbl::addNC, "Fp2Dbl::addNC" },
-			{ (void*)Fp2Dbl::neg, "Fp2Dbl::neg" },
-			{ (void*)Fp2Dbl::sub, "Fp2Dbl::sub" },
-			{ (void*)Fp2Dbl::subNC, "Fp2Dbl::subNC" },
-			{ (void*)Fp2Dbl::mulOpt1, "Fp2Dbl::mulOpt1" },
-			{ (void*)Fp2Dbl::mulOpt2, "Fp2Dbl::mulOpt2" },
-			{ (void*)Fp2Dbl::square, "Fp2Dbl::square" },
-			{ (void*)Fp2Dbl::mod, "Fp2Dbl::mod" },
-			{ (void*)Fp2Dbl::mul_xi, "Fp2Dbl::mul_xi" },
-
-			{ (void*)Fp6::add, "Fp6::add" },
-			{ (void*)Fp6::sub, "Fp6::sub" },
-			{ (void*)Fp6::pointDblLineEval, "Fp6::pointDblLineEval" },
-
-			{ (void*)Fp6Dbl::mul, "Fp6Dbl::mul" },
-			{ (void*)Fp6::mul, "Fp6::mul" },
-			{ (void*)Compress::square_n, "Compress::square_n" },
-			{ (void*)Fp12::square, "Fp12::square" },
-			{ (void*)Fp12::mul, "Fp12::mul" },
-			{ (void*)Fp12Dbl::mul_Fp2_024, "Fp12Dbl::mul_Fp2_024" },
-		};
-		const size_t funcTblN = sizeof(funcTbl) / sizeof(*funcTbl);
-		for (size_t i = 0; i < funcTblN - 1; i++) {
-			SetJitCode(funcTbl[i].f, (char*)funcTbl[i + 1].f - (char*)funcTbl[i].f, funcTbl[i].name);
-		}
-		SetJitCode(funcTbl[funcTblN - 1].f, (char*)getCurr() - (char*)funcTbl[funcTblN - 1].f, funcTbl[funcTblN - 1].name);
-#endif
 	}
 	bool isRaxP_; // true if rax is set to a pointer to p
 	uint64_t pp_; // for Fp_mul
