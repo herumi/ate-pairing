@@ -2575,6 +2575,64 @@ void testParameters()
   }
 }
 
+void testPairingJac()
+{
+	Fp2 g2[3] = {
+		Fp2(
+			Fp("12723517038133731887338407189719511622662176727675373276651903807414909099441"),
+			Fp("4168783608814932154536427934509895782246573715297911553964171371032945126671")
+		),
+		Fp2(
+			Fp("13891744915211034074451795021214165905772212241412891944830863846330766296736"),
+			Fp("7937318970632701341203597196594272556916396164729705624521405069090520231616")
+		),
+		Fp2(
+			Fp("1"),
+			Fp("0")
+		)
+	};
+	Fp g1[3] = {
+		Fp("1674578968009266105367653690721407808692458796109485353026408377634195183292"),
+		Fp("8299158460239932124995104248858950945965255982743525836869552923398581964065"),
+		Fp("1")
+	};
+
+	Fp12 e;
+	// opt_atePairingJac sample
+	{
+		Fp Zero[3];
+		Zero[2] = 0;
+		opt_atePairingJac<Fp>(e, g2, Zero);
+		printf(" e(g2, 0) = 1 : %s\n", e == 1 ? "ok" : "ng");
+	}
+	{
+		Fp2 Zero[3];
+		Zero[2] = 0;
+		opt_atePairingJac<Fp>(e, Zero, g1);
+		printf(" e(0, g1) = 1 : %s\n", e == 1 ? "ok" : "ng");
+	}
+	{
+		opt_atePairingJac<Fp>(e, g2, g1);
+
+		// make unnormalized Jacobi
+		{
+			const int z = 17;
+			g2[0] *= z * z;
+			g2[1] *= z * z * z;
+			g2[2] *= z;
+		}
+		{
+			const int z = 13;
+			g1[0] *= z * z;
+			g1[1] *= z * z * z;
+			g1[2] *= z;
+		}
+		Fp12 e1;
+		opt_atePairingJac<Fp>(e1, g2, g1);
+		printf(" e(g2, g1) : %s\n", e1 == e ? "ok" : "ng");
+	}
+}
+
 int main(int argc, char *argv[]) try
 {
 	argc--, argv++;
@@ -2628,6 +2686,7 @@ int main(int argc, char *argv[]) try
   test_final_exp();
 #endif
   testFpDbl_mul_mod();
+  testPairingJac();
   testPairing();
 
   // ToDo:QQQ: follow new xi

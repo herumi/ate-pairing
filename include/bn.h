@@ -2506,9 +2506,10 @@ void FrobEndOnTwist_8(Fp2T<Fp> *Q, const Fp2T<Fp> *P)
 	@param f [out] e(Q, P)
 	@param Q [in] affine coord. (Q[0], Q[1])
 	@param _P [in] affine coord. (_P[0], _P[1])
+	@note not defined for infinity point
 */
 template<class Fp>
-void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
+void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> Q[2], const Fp _P[2])
 {
 	typedef Fp2T<Fp> Fp2;
 	typedef ParamT<Fp2> Param;
@@ -2573,6 +2574,27 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> *Q, const Fp *_P)
 	Fp12::mul(f, f, ft); // 6.4k
 	// final exponentiation
 	f.final_exp_faster();
+}
+
+/*
+	opt_atePairingJac is a wrapper function of opt_atePairing
+	@param f [out] e(Q, P)
+	@param Q [in] Jacobi coord. (_Q[0], _Q[1], _Q[2])
+	@param _P [in] Jacobi coord. (_P[0], _P[1], _P[2])
+	output : e(Q, P)
+*/
+template<class Fp>
+void opt_atePairingJac(Fp12T<Fp6T<Fp2T<Fp> > > &f, const Fp2T<Fp> _Q[3], const Fp _P[3])
+{
+	if (_Q[2] == 0 || _P[2] == 0) {
+		f = 1;
+		return;
+	}
+	bn::Fp2 Q[3];
+	bn::Fp P[3];
+	bn::ecop::NormalizeJac(Q, _Q);
+	bn::ecop::NormalizeJac(P, _P);
+	bn::opt_atePairing(f, Q, P);
 }
 
 typedef mie::Fp Fp;

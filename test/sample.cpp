@@ -109,4 +109,3 @@ int main()
 		PUT(Pc[2] - out[2]);
 	}
 }
-
