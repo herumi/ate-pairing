@@ -2322,14 +2322,12 @@ inline void ScalarMult(FF* out, const FF* in, const INT& m)
 	++j;
 	ecop::copy(out, in);
 	/*
-	  Process for most significant word.
+		Process for most significant word.
 	*/
 	FF temp[3];
-
 	for (; j != vSize; ++j, v <<= 1) {
 		ecop::copy(temp, out);
 		ECDouble(out, temp);
-
 		if (v & mask) {
 			ecop::copy(temp, out);
 			ECAdd(out, temp, in);
@@ -2341,11 +2339,9 @@ inline void ScalarMult(FF* out, const FF* in, const INT& m)
 	*/
 	for (int i = mSize - 2; i >= 0; --i) {
 		v = Tag::getBlock(m, i);
-
 		for (j = 0; j != vSize; ++j, v <<= 1) {
 			ecop::copy(temp, out);
 			ECDouble(out, temp);
-
 			if (v & mask) {
 				ecop::copy(temp, out);
 				ECAdd(out, temp, in);
@@ -2418,13 +2414,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 	// loop from 2.
 	Fp6 l;
 	// 844kclk
-#if defined(_MSC_VER)
-
-	for (size_t i = 2; i < 65; i++) {
-#else
-
-	for (size_t i = 2; i < sizeof(Param::siTbl) / sizeof(*Param::siTbl); i++) {
-#endif
+	for (size_t i = 2; i < 65 /*sizeof(Param::siTbl) / sizeof(*Param::siTbl)*/; i++) {
 		// 3.6k x 63
 		Fp6::pointDblLineEval(l, T, P);
 		// 4.7k x 63
