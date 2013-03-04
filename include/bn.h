@@ -2140,8 +2140,8 @@ inline bool isOnTwistECHom2(const Fp2T<Fp>* P)
 }
 
 /*
-  @memo Y^2=X^3+2/xi
-  Homogeneous.
+	@memo Y^2=X^3+2/xi
+	Homogeneous.
 */
 template<class Fp>
 inline bool isOnTwistECHom3(const Fp2T<Fp>* P)
@@ -2153,7 +2153,7 @@ inline bool isOnTwistECHom3(const Fp2T<Fp>* P)
 }
 
 /*
-  For Jacobian coordinates
+	For Jacobian coordinates
 */
 template<class FF>
 inline void NormalizeJac(FF* out, const FF* in)
@@ -2162,6 +2162,8 @@ inline void NormalizeJac(FF* out, const FF* in)
 		out[0].clear();
 		out[1].clear();
 		out[2].clear();
+	} else if (in[2] == 1) {
+		copy(out, in);
 	} else {
 		FF A, AA, t0;
 		A = in[2];
@@ -2175,7 +2177,7 @@ inline void NormalizeJac(FF* out, const FF* in)
 }
 
 /*
-  For Homogeneous
+	For Homogeneous
 */
 template<class FF>
 inline void NormalizeHom(FF* out, const FF* in)
@@ -2184,6 +2186,8 @@ inline void NormalizeHom(FF* out, const FF* in)
 		out[0].clear();
 		out[1].clear();
 		out[2].clear();
+	} else if (in[2] == 1) {
+		copy(out, in);
 	} else {
 		FF A = in[2];
 		A.inverse();
