@@ -7,7 +7,7 @@ int main()
 {
 	using namespace bn;
 	// init my library
-	Param::init(-1);
+	Param::init();
 	// prepair a generator
 	const Fp2 g2[3] = {
 		Fp2(
