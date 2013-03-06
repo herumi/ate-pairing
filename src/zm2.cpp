@@ -12,8 +12,16 @@ typedef unsigned char uint8_t;
 #include <stdint.h>
 #endif
 
+//#define DEBUG_COUNT
+
 using namespace bn;
 using namespace Xbyak;
+
+#ifdef DEBUG_COUNT
+int ccc1 = 0;
+int ccc2 = 0;
+int ccc3 = 0;
+#endif
 
 struct CpuExt {
 	int type;
@@ -456,6 +464,29 @@ struct PairingCode : Xbyak::CodeGenerator {
 		adc(z2, ptr [m + 8 * 2]);
 		adc(z3, ptr [m + 8 * 3]);
 	}
+#ifdef DEBUG_COUNT
+	void upCCC1()
+	{
+		push(rax);
+		mov(rax, (size_t)&ccc1);
+		inc(qword[rax]);
+		pop(rax);
+	}
+	void upCCC2()
+	{
+		push(rax);
+		mov(rax, (size_t)&ccc2);
+		inc(qword[rax]);
+		pop(rax);
+	}
+	void upCCC3()
+	{
+		push(rax);
+		mov(rax, (size_t)&ccc3);
+		inc(qword[rax]);
+		pop(rax);
+	}
+#endif
 	/*
 		[z3:z2:z1:z0] += [m3:m2:m1:m0] with carry
 	*/
@@ -470,6 +501,9 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void load_add_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
 		const Reg32e& mx, const Reg32e& my, bool withCarry)
 	{
+#ifdef DEBUG_COUNT
+		upCCC3();
+#endif
 		if (interleaveLoad) {
 			mov(z0, ptr [mx + 8 * 0]);
 			if (withCarry) {
@@ -495,6 +529,9 @@ struct PairingCode : Xbyak::CodeGenerator {
 	void load_sub_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
 		const Reg32e& mx, const Reg32e& my, bool withCarry)
 	{
+#ifdef DEBUG_COUNT
+		upCCC3();
+#endif
 		if (interleaveLoad) {
 			mov(z0, ptr [mx + 8 * 0]);
 			if (withCarry) {
@@ -1170,6 +1207,10 @@ L("@@");
 	*/
 	void Fp_mul()
 	{
+#ifdef DEBUG_COUNT
+		upCCC1();
+		upCCC2();
+#endif
 		movq(xm0, gp1); // save gp1
 		mov32c(gp1, (uint64_t)&s_pTbl[1]);
 		movq(xm1, gp3);
@@ -1241,6 +1282,9 @@ L("@@");
 	void mul4x4(const Reg32e& pz, const Reg32e& px, const Reg32e& py,
 		const Reg64& t9, const Reg64& t8, const Reg64& t7, const Reg64& t6, const Reg64& t5, const Reg64& t4, const Reg64& t3, const Reg64& t2, const Reg64& t1, const Reg64& t0)
 	{
+#ifdef DEBUG_COUNT
+		upCCC1();
+#endif
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
 
@@ -1303,6 +1347,9 @@ L("@@");
 	*/
 	void mont_mod()
 	{
+#ifdef DEBUG_COUNT
+		upCCC2();
+#endif
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
 
@@ -1414,11 +1461,19 @@ L("@@");
 		or(rdx, gt3);
 		or(rdx, gt2);
 		or(rdx, gp1);
+#ifdef DEBUG_COUNT
+		jnz(".neg", T_NEAR);
+#else
 		jnz(".neg");
+#endif
 		// all zero
 		store_mr(mz, rdx, rdx, rdx, rdx);
 		store_mr(mz + 32, rdx, rdx, rdx, rdx);
+#ifdef DEBUG_COUNT
+		jmp(".exit", T_NEAR);
+#else
 		jmp(".exit");
+#endif
 	L(".neg");
 		mov(rax, (uint64)&s_pTbl[0]); // rax refers to pN, lower 256-bits are zero.
 		in_Fp_subNC(mz, rax, mx);
