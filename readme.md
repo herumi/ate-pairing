@@ -51,7 +51,7 @@ then you can get ate/test/bn .
 Benchmark
 -------------
 
-Core i7 2620 3.4GHz Windows 7 1.385M clock cycles(0.409msec).
+1.35M clock cycles(0.399msec) on Core i7 2620 3.4GHz Windows 7 with turbo boost.
 
 Xbyak
 -------------
@@ -79,7 +79,7 @@ http://homepage1.nifty.com/herumi/crypt/ate-pairing.html
 
 History
 -------------
-
+* 2013/Mar/08 add elliptic curve class
 * 2012/Jan/30 rewrite ate pairing according to
   "Faster explicit formulas for computing pairings over ordinary curves.
   see http://www.patricklonga.bravehost.com/speed_pairing.html
