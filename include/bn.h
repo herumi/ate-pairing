@@ -8,6 +8,44 @@
 	http://opensource.org/licenses/BSD-3-Clause
 */
 #include "zm2.h"
+#ifdef MIE_ATE_USE_GMP
+#include <gmpxx.h>
+
+namespace mie {
+
+template<class T>
+inline size_t M_bitLen(const T& x)
+{
+	return mpz_sizeinbase(x.get_mpz_t(), 2);
+}
+inline size_t M_blockSize(const mpz_class& x)
+{
+	return x.get_mpz_t()->_mp_size;
+}
+static inline mp_limb_t M_block(const mpz_class& x, size_t i)
+{
+	return x.get_mpz_t()->_mp_d[i];
+}
+static inline uint32_t M_low32bit(const mpz_class& x)
+{
+	return (uint32_t)M_block(x, 0);
+}
+
+namespace util {
+template<>
+struct IntTag<mpz_class> {
+	typedef mp_limb_t value_type;
+	static inline value_type getBlock(const mpz_class& x, size_t i)
+	{
+		return M_block(x, i);
+	}
+	static inline size_t getBlockSize(const mpz_class& x)
+	{
+		return M_blockSize(x);
+	}
+};
+} } // mie::util
+#endif
 
 extern uint64_t debug_buf[128]; // for debug
 

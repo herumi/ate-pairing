@@ -1,6 +1,9 @@
 /*
 	a tiny sample of optimal ate pairing
 */
+#ifdef __linux__
+	#define MIE_ATE_USE_GMP
+#endif
 #include "bn.h"
 
 template<class T, class S>
@@ -56,8 +59,10 @@ int main()
 		ecop::ScalarMult(t, g2, Param::r);
 		verify("order of g2 == r", t[2], 0);
 	}
-	const mie::Vuint a("123456789012345");
-	const mie::Vuint b("998752342342342342424242421");
+	const char *aStr = "123456789012345";
+	const char *bStr = "998752342342342342424242421";
+	const mie::Vuint a(aStr);
+	const mie::Vuint b(bStr);
 
 	// scalar-multiplication sample
 	{
@@ -70,6 +75,22 @@ int main()
 		ecop::ScalarMult(Pa, g1, a); // Pa = g1 * a
 		ecop::ScalarMult(Pb, g1, b); // Pb = g1 * b
 		ecop::ScalarMult(Pc, g1, c); // Pc = g1 * (a + b)
+#ifdef MIE_ATE_USE_GMP
+		{
+			mpz_class aa(aStr);
+			mpz_class bb(bStr);
+			mpz_class cc = aa + bb;
+			Fp Paa[3];
+			Fp Pbb[3];
+			Fp Pcc[3];
+			ecop::ScalarMult(Paa, g1, aa); // Pa = g1 * a
+			ecop::ScalarMult(Pbb, g1, bb); // Pb = g1 * b
+			ecop::ScalarMult(Pcc, g1, cc); // Pc = g1 * (a + b)
+			verify("gmp Paa == Pa", Paa[0] == Pa[0] && Paa[1] == Pa[1] && Paa[2] == Pa[2], true);
+			verify("gmp Pbb == Pb", Pbb[0] == Pb[0] && Pbb[1] == Pb[1] && Pbb[2] == Pb[2], true);
+			verify("gmp Pcc == Pc", Pcc[0] == Pc[0] && Pcc[1] == Pc[1] && Pcc[2] == Pc[2], true);
+		}
+#endif
 
 		ecop::ECAdd(out, Pa, Pb); // g1 * a + g1 * b
 		ecop::NormalizeJac(Pc, Pc);
