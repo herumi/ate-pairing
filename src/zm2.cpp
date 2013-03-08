@@ -12,15 +12,14 @@ typedef unsigned char uint8_t;
 #include <stdint.h>
 #endif
 
-//#define DEBUG_COUNT
-
 using namespace bn;
 using namespace Xbyak;
 
+//#define DEBUG_COUNT
 #ifdef DEBUG_COUNT
-int ccc1 = 0;
-int ccc2 = 0;
-int ccc3 = 0;
+extern int g_count_m256;
+extern int g_count_r512;
+extern int g_count_add256;
 #endif
 
 struct CpuExt {
@@ -465,24 +464,10 @@ struct PairingCode : Xbyak::CodeGenerator {
 		adc(z3, ptr [m + 8 * 3]);
 	}
 #ifdef DEBUG_COUNT
-	void upCCC1()
+	void upCount(int *count)
 	{
 		push(rax);
-		mov(rax, (size_t)&ccc1);
-		inc(qword[rax]);
-		pop(rax);
-	}
-	void upCCC2()
-	{
-		push(rax);
-		mov(rax, (size_t)&ccc2);
-		inc(qword[rax]);
-		pop(rax);
-	}
-	void upCCC3()
-	{
-		push(rax);
-		mov(rax, (size_t)&ccc3);
+		mov(rax, (size_t)count);
 		inc(qword[rax]);
 		pop(rax);
 	}
@@ -502,7 +487,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		const Reg32e& mx, const Reg32e& my, bool withCarry)
 	{
 #ifdef DEBUG_COUNT
-		upCCC3();
+		upCount(&g_count_add256);
 #endif
 		if (interleaveLoad) {
 			mov(z0, ptr [mx + 8 * 0]);
@@ -530,7 +515,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		const Reg32e& mx, const Reg32e& my, bool withCarry)
 	{
 #ifdef DEBUG_COUNT
-		upCCC3();
+		upCount(&g_count_add256);
 #endif
 		if (interleaveLoad) {
 			mov(z0, ptr [mx + 8 * 0]);
@@ -1208,8 +1193,8 @@ L("@@");
 	void Fp_mul()
 	{
 #ifdef DEBUG_COUNT
-		upCCC1();
-		upCCC2();
+		upCount(&g_count_m256);
+		upCount(&g_count_r512);
 #endif
 		movq(xm0, gp1); // save gp1
 		mov32c(gp1, (uint64_t)&s_pTbl[1]);
@@ -1283,7 +1268,7 @@ L("@@");
 		const Reg64& t9, const Reg64& t8, const Reg64& t7, const Reg64& t6, const Reg64& t5, const Reg64& t4, const Reg64& t3, const Reg64& t2, const Reg64& t1, const Reg64& t0)
 	{
 #ifdef DEBUG_COUNT
-		upCCC1();
+		upCount(&g_count_m256);
 #endif
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
@@ -1348,7 +1333,7 @@ L("@@");
 	void mont_mod()
 	{
 #ifdef DEBUG_COUNT
-		upCCC2();
+		upCount(&g_count_r512);
 #endif
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
