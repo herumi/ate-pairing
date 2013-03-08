@@ -13,8 +13,7 @@
 
 namespace mie {
 
-template<class T>
-inline size_t M_bitLen(const T& x)
+inline size_t M_bitLen(const mpz_class& x)
 {
 	return mpz_sizeinbase(x.get_mpz_t(), 2);
 }
@@ -22,11 +21,11 @@ inline size_t M_blockSize(const mpz_class& x)
 {
 	return x.get_mpz_t()->_mp_size;
 }
-static inline mp_limb_t M_block(const mpz_class& x, size_t i)
+inline mp_limb_t M_block(const mpz_class& x, size_t i)
 {
 	return x.get_mpz_t()->_mp_d[i];
 }
-static inline uint32_t M_low32bit(const mpz_class& x)
+inline uint32_t M_low32bit(const mpz_class& x)
 {
 	return (uint32_t)M_block(x, 0);
 }
@@ -2513,6 +2512,162 @@ void opt_atePairingJac(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> _Q[3], const F
 	opt_atePairing(f, Q, P);
 }
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable : 4127) /* const condition */
+#endif
+
+template<class T>
+class EcT {
+public:
+	mutable T p[3];
+	EcT() {}
+	EcT(const T& x, const T& y, bool verify = true)
+	{
+		set(x, y, verify);
+	}
+	EcT(const T& x, const T& y, const T& z, bool verify = true)
+	{
+		set(x, y, z, verify);
+	}
+	void normalize() const
+	{
+		if (isZero() || p[2] == 1) return;
+		T r;
+		r = p[2];
+		r.inverse();
+		T::square(p[2], r);
+		p[0] *= p[2];
+		r *= p[2];
+		p[1] *= r;
+		p[2] = 1;
+	}
+
+	bool isValid() const;
+
+	void set(const T& x, const T& y, bool verify = true)
+	{
+		p[0] = x;
+		p[1] = y;
+		p[2] = 1;
+		if (verify && !isValid()) {
+			// QQQ
+			return;
+		}
+	}
+	void set(const T& x, const T& y, const T& z, bool verify = true)
+	{
+		p[0] = x;
+		p[1] = y;
+		p[2] = z;
+		if (verify && !isValid()) {
+			// QQQ
+			return;
+		}
+	}
+	void clear()
+	{
+		p[0].clear();
+		p[1].clear();
+		p[2].clear();
+	}
+
+	static inline void dbl(EcT& R, const EcT& P)
+	{
+		ecop::ECDouble(R.p, P.p);
+	}
+	static inline void add(EcT& R, const EcT& P, const EcT& Q)
+	{
+		ecop::ECAdd(R.p, P.p, Q.p);
+	}
+	static inline void sub(EcT& R, const EcT& P, const EcT& Q)
+	{
+		EcT negQ[3];
+		neg(negQ, Q);
+		add(R, P, negQ);
+	}
+	static inline void neg(EcT& R, const EcT& P)
+	{
+		R.x = P.x;
+		T::neg(R.y, P.y);
+		R.z = P.z;
+	}
+	template<class N>
+	static inline void mul(EcT& R, const EcT& P, const N& y)
+	{
+		ecop::ScalarMult(R.p, P.p, y);
+	}
+	template<class N>
+	EcT operator*(const N& y) const
+	{
+		EcT ret;
+		mul(ret, *this, y);
+		return ret;
+	}
+	template<class N>
+	EcT& operator*=(const N& y)
+	{
+		mul(*this, *this, y);
+		return *this;
+	}
+	bool operator==(const EcT& rhs) const
+	{
+		normalize();
+		rhs.normalize();
+		if (isZero()) {
+			if (rhs.isZero()) return true;
+			return false;
+		}
+		if (rhs.isZero()) return false;
+		return p[0] == rhs.p[0] && p[1] == rhs.p[1];
+	}
+	bool operator!=(const EcT& rhs) const
+	{
+		return !operator==(rhs);
+	}
+	bool isZero() const
+	{
+		return p[2].isZero();
+	}
+	friend inline std::ostream& operator<<(std::ostream& os, const EcT& self)
+	{
+		if (self.isZero()) {
+			return os << '0';
+		} else {
+			self.normalize();
+			return os << self.p[0].toString(16) << '_' << self.p[1].toString(16);
+		}
+	}
+	friend inline std::istream& operator>>(std::istream& is, EcT& self)
+	{
+		std::string str;
+		is >> str;
+		if (str == "0") {
+			self.clear();
+		} else {
+			self.p[2] = 1;
+			size_t pos = str.find('_');
+			if (pos == std::string::npos) {
+				/// QQQ
+				puts("err");
+				exit(1);
+			}
+			str[pos] = '\0';
+			self.p[0].set(&str[0]);
+			self.p[1].set(&str[pos + 1]);
+		}
+		return is;
+	}
+	EcT& operator+=(const EcT& rhs) { EcT::add(static_cast<EcT&>(*this), static_cast<EcT&>(*this), rhs); return static_cast<EcT&>(*this); }
+	EcT& operator-=(const EcT& rhs) { EcT::sub(static_cast<EcT&>(*this), static_cast<EcT&>(*this), rhs); return static_cast<EcT&>(*this); }
+	friend EcT operator+(const EcT& a, const EcT& b) { EcT c; EcT::add(c, a, b); return c; }
+	friend EcT operator-(const EcT& a, const EcT& b) { EcT c; EcT::sub(c, a, b); return c; }
+};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
+
 typedef mie::Fp Fp;
 typedef Fp::Dbl FpDbl;
 typedef Fp2T<Fp> Fp2;
@@ -2523,6 +2678,32 @@ typedef Fp6::Dbl Fp6Dbl;
 typedef Fp12T<Fp6> Fp12;
 typedef Fp12::Dbl Fp12Dbl;
 typedef CompressT<Fp2> Compress;
+
+typedef EcT<Fp2> Ec2;
+typedef EcT<Fp> Ec1;
+
+inline void opt_atePairing(Fp12& f, const Ec2& Q, const Ec1& P)
+{
+	Q.normalize();
+	P.normalize();
+	if (Q.isZero() || P.isZero()) {
+		f = 1;
+		return;
+	}
+	opt_atePairing<Fp>(f, Q.p, P.p);
+}
+
+template<>
+inline bool EcT<Fp2>::isValid() const
+{
+	return ecop::isOnTwistECJac3(p);
+}
+
+template<>
+inline bool EcT<Fp>::isValid() const
+{
+	return ecop::isOnECJac3(p);
+}
 
 } // bn
 
