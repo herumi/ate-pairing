@@ -34,6 +34,8 @@ struct ParamT {
 
 	// Loop parameter for the Miller loop part of opt. ate pairing.
 	static const int siTbl[];
+	// avoid to a bug of VC that sizeof can't be applied to siTbl[]
+	static const size_t siTblNum = 65; // sizeof(siTbl) / sizeof(siTbl[0]);
 
 	static inline void init(int mode = -1)
 	{
@@ -2418,7 +2420,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 	// loop from 2.
 	Fp6 l;
 	// 844kclk
-	for (size_t i = 2; i < 65 /*sizeof(Param::siTbl) / sizeof(*Param::siTbl)*/; i++) {
+	for (size_t i = 2; i < Param::siTblNum; i++) {
 		// 3.6k x 63
 		Fp6::pointDblLineEval(l, T, P);
 		// 4.7k x 63
