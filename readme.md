@@ -53,6 +53,11 @@ Benchmark
 
 1.35M clock cycles(0.399msec) on Core i7 2620 3.4GHz Windows 7 with turbo boost.
 
+How to use
+-------------
+
+see sample2() in https://github.com/herumi/ate-pairing/blob/master/test/sample.cpp
+
 Xbyak
 -------------
 
