@@ -6,6 +6,14 @@ extern Xbyak::util::Clock sclk;
 #include "bn-multi.h"
 #include <iostream>
 #include "util.h"
+/*
+	define DEBUG_COUNT in zm2.cpp
+
+	EXP = 3526m + 1932r + 18328a
+	single                     = (6785m + 3022r + 31752a) * N + EXP
+	opt_ateMultiPairingJ       = (4604m + 2301r + 18858a) * N + EXP + 2268m +  758r + 13215a
+	opt_atePairingKnownG2Mixed = (3011m + 1125r + 13324a) * N + EXP + 6872m + 3059r + 32073a
+*/
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(*x))
 
@@ -112,7 +120,7 @@ void testPairing()
 			g_count_m256 = 0;
 			g_count_r512 = 0;
 			g_count_add256 = 0;
-//			opt_ateMultiPairingJ(e, i, Qn, Pn);
+//			bn::opt_ateMultiPairingJ(e, i, Qn, Pn);
 			bn::opt_atePairingKnownG2Mixed(e, i, l_T, 1, Qn, Pn);
 			c1[i] = g_count_m256;
 			c2[i] = g_count_r512;
@@ -126,9 +134,9 @@ void testPairing()
 		int m = c1[3] - c1[2];
 		int r = c2[3] - c2[2];
 		int a = c3[3] - c3[2];
-		int em = 3526;
-		int er = 1932;
-		int ea = 18328;
+		int em;
+		int er;
+		int ea;
 		{
 			g_count_m256 = 0;
 			g_count_r512 = 0;
@@ -138,10 +146,23 @@ void testPairing()
 			er = g_count_r512;
 			ea = g_count_add256;
 		}
+		int sm;
+		int sr;
+		int sa;
+		{
+			g_count_m256 = 0;
+			g_count_r512 = 0;
+			g_count_add256 = 0;
+			bn::opt_atePairing(e, Qn[0], Pn[0]);
+			sm = g_count_m256;
+			sr = g_count_r512;
+			sa = g_count_add256;
+		}
 		printf("(%dm + %dr + %da) * N + EXP + %dm + %dr + %da\n"
 			, m, r, a
 			, c1[2] - 2 * m - em, c2[2] - 2 * r - er, c3[2] - 2 * a - ea);
 		printf("EXP = %dm + %dr + %da\n", em, er, ea);
+		printf("single = (%dm + %dr + %da) + EXP\n", sm - em, sr - er, sa - ea);
 	}
 #endif
 }
