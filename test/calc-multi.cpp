@@ -126,9 +126,18 @@ void testPairing()
 		int m = c1[3] - c1[2];
 		int r = c2[3] - c2[2];
 		int a = c3[3] - c3[2];
-		const int em = 3532;
-		const int er = 1944;
-		const int ea = 18412;
+		int em = 3526;
+		int er = 1932;
+		int ea = 18328;
+		{
+			g_count_m256 = 0;
+			g_count_r512 = 0;
+			g_count_add256 = 0;
+			e.final_exp();
+			em = g_count_m256;
+			er = g_count_r512;
+			ea = g_count_add256;
+		}
 		printf("(%dm + %dr + %da) * N + EXP + %dm + %dr + %da\n"
 			, m, r, a
 			, c1[2] - 2 * m - em, c2[2] - 2 * r - er, c3[2] - 2 * a - ea);
