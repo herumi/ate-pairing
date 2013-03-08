@@ -3,6 +3,18 @@
 */
 #include "bn.h"
 
+template<class T, class S>
+void verify(const char *msg, const T& a, const S& b)
+{
+	if (a == b) {
+		printf("%s : ok\n", msg);
+	} else {
+		printf("%s : ng\n", msg);
+		PUT(a);
+		PUT(b);
+	}
+}
+
 int main()
 {
 	using namespace bn;
@@ -29,19 +41,20 @@ int main()
 		Fp("1")
 	};
 	// verify g2 and g1 on curve
-	printf("g1 is on EC : %s\n", ecop::isOnECJac3(g1) ? "ok" : "ng");
-	printf("g2 is on twist EC : %s\n", ecop::isOnTwistECJac3(g2) ? "ok" : "ng");
+	verify("g1 is on EC", ecop::isOnECJac3(g1), true);
+	verify("g2 is on twist EC", ecop::isOnTwistECJac3(g2), true);
 	puts("order of group");
 	PUT(Param::r);
 	{
 		Fp t[3];
 		ecop::ScalarMult(t, g1, Param::r);
-		printf("order of g1 == r :%s\n", t[2] == 0 ? "ok" : "ng"); // (x, y, 0) means 0 at Jacobi coordinate
+		// (x, y, 0) means 0 at Jacobi coordinate
+		verify("orgder of g1 == r", t[2], 0);
 	}
 	{
 		Fp2 t[3];
 		ecop::ScalarMult(t, g2, Param::r);
-		printf("order of g2 == r :%s\n", t[2] == 0 ? "ok" : "ng"); // (x, y, 0) means 0 at Jacobi coordinate
+		verify("order of g2 == r", t[2], 0);
 	}
 	const mie::Vuint a("123456789012345");
 	const mie::Vuint b("998752342342342342424242421");
@@ -73,7 +86,7 @@ int main()
 	PUT(e);
 	{
 		Fp12 t = power(e, Param::r);
-		printf("order of e == r :%s\n", t == 1 ? "ok" : "ng");
+		verify("order of e == r", t, 1);
 	}
 	Fp2 g2a[3];
 	ecop::ScalarMult(g2a, g2, a); // g2a = g2 * a
@@ -82,7 +95,7 @@ int main()
 //	PUT(ea1);
 	Fp12 ea2 = power(e, a); // ea2 = e^a
 //	PUT(ea2);
-	printf("verify e(g2 * a, g1) = e(g2, g1)^a : %s\n", ea1 == ea2 ? "ok" : "ng");
+	verify("e(g2 * a, g1) = e(g2, g1)^a", ea1, ea2);
 
 	Fp g1b[3];
 	ecop::ScalarMult(g1b, g1, b); // g1b = g1 * b
@@ -91,19 +104,20 @@ int main()
 //	PUT(eb1);
 	Fp12 eb2 = power(e, b); // eb2 = e^b
 //	PUT(eb2);
-	printf("verify e(g2a, g1 * b) = e(g2, g1)^b : %s\n", eb1 == eb2 ? "ok" : "ng");
+	verify("e(g2a, g1 * b) = e(g2, g1)^b", eb1, eb2);
 
 	const Fp q1[3] = {
 		Fp("2"),
 		Fp("16740896641879863340107777353588575149660814923656713498672603551465628253431"),
 		Fp("1")
 	};
-	printf("q1 is on EC : %s\n", ecop::isOnECJac3(q1) ? "ok" : "ng");
+	verify("q1 is on EC", ecop::isOnECJac3(q1), true);
 	Fp12 e1, e2;
 	opt_atePairingJac<Fp>(e1, g2, g1); // e1 = e(g2, g1)
 	opt_atePairingJac<Fp>(e2, g2, q1); // e2 = e(g2, q1)
 	Fp q2[3];
 	ecop::ECAdd(q2, g1, q1); // q2 = g1 + q1
 	opt_atePairingJac<Fp>(e, g2, q2); // e = e(g2, q2)
-	printf("verify e = e1 * e2 : %s\n", e == e1 * e2 ? "ok" : "ng");
+	verify("e = e1 * e2", e, e1 * e2);
 }
+
