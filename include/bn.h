@@ -1508,61 +1508,15 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	}
 
 	/*
-		*this = final_exp(*this)
-		579k
-	*/
-	void final_exp()
-	{
-		Fp12T ff, ft1, ft2, ft3;
-		Fp12T t0, y0, y2, y4;
-		Fp12T& z = *this;
-		mapToCyclo(ff); // 32k
-		typedef CompressT<Fp2> Compress;
-		// 431k
-		Compress::fixed_power(ft1, ff);
-		Compress::fixed_power(ft2, ft1);
-		Compress::fixed_power(ft3, ft2);
-		Fp6::neg(ft1.b_, ft1.b_);
-		Fp6::neg(ft3.b_, ft3.b_);
-		ff.Frobenius(y0); // 1.7k
-		ff.Frobenius2(y2); // 1.3k
-		y0 *= y2;
-		ff.Frobenius3(y2);
-		y0 *= y2;
-		Fp6::neg(ff.b_, ff.b_);
-		ft2.Frobenius2(y2);
-		ft2.Frobenius(y4);
-		y4 *= ft1;
-		Fp6::neg(y4.b_, y4.b_);
-		Fp6::neg(ft2.b_, ft2.b_);
-		ft3.Frobenius(z);
-		z *= ft3;
-		Fp6::neg(z.b_, z.b_);
-		z.sqru(); // 3.3k
-		Fp12T::mul(t0, z, y4); // 6.5k
-		t0 *= ft2;
-		ft1.Frobenius(y4);
-		Fp6::neg(y4.b_, y4.b_);
-		Fp12T::mul(z, y4, ft2);
-		z *= t0;
-		t0 *= y2;
-		z.sqru();
-		z *= t0;
-		z.sqru();
-		ff *= z;
-		ff.sqru();
-		z *= y0;
-		z *= ff;
-	}
-
-	/*
 		Final exponentiation based on:
 		- Laura Fuentes-Casta{\~n}eda, Edward Knapp, and Francisco
 		Rodr\'{\i}guez-Henr\'{\i}quez.
 		Faster hashing to $\mathbb{G}_2$.
 		SAC 2011, pp. 412--430. doi:10.1007/978-3-642-28496-0_25.
+
+		*this = final_exp(*this)
 	*/
-	void final_exp_faster()
+	void final_exp()
 	{
 		Fp12T f, f2z, f6z, f6z2, f12z3;
 		Fp12T a, b;
@@ -2487,7 +2441,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 	Fp12::Dbl::mul_Fp2_024_Fp2_024(ft, d, e); // 2.7k
 	Fp12::mul(f, f, ft); // 6.4k
 	// final exponentiation
-	f.final_exp_faster();
+	f.final_exp();
 }
 
 /*

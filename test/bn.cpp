@@ -1268,32 +1268,25 @@ void test_final_exp()
     z.get()[i] = Fp(x_ok[i]);
   }
 
-  Fp12 x, x1;
+  Fp12 x;
   for (int i = 0; i < 12; i++) {
     x.get()[i] = i + 3;
-    x1.get()[i] = x.get()[i];
-  }
-  x.final_exp();
-
-  for (size_t i = 0; i < 12; i++) {
-    TEST_EQUAL(x.get()[i], z.get()[i]);
   }
 
   {
-	  // This part tests for final_exp_faster.
-	  x1.final_exp_faster();
+	  x.final_exp();
 
 	  const mie::Vsint& zi = bn::Param::z;
 	  mie::Vsint d_prime = (2*zi)*(6*zi*zi + 3*zi + 1);
 	  mie::Vuint d_abs;
 	  mie::Vsint::absolute(d_abs, d_prime);
-	  x = mie::power(x, d_abs);
+	  z = mie::power(z, d_abs);
 	  if (d_prime.isNegative()) {
-		  x.inverse();
+		  z.inverse();
 	  }
 
 	  for (size_t i = 0; i < 12; i++) {
-		  TEST_EQUAL(x1.get()[i], x.get()[i]);
+		  TEST_EQUAL(x.get()[i], z.get()[i]);
 	  }
   }
 
@@ -1305,25 +1298,14 @@ void test_final_exp()
   }
 
   {
-    Xbyak::util::Clock clk;
-    clk.begin();
-    const size_t N = 10000;
-    for (size_t i = 0; i < N; i++) {
-      x.final_exp();
-    }
-    clk.end();
-    printf("final_exp:\t%6.2fMclk\n", clk.getClock() / double(N) / 1e6);
-  }
-
-  {
 	  Xbyak::util::Clock clk;
 	  clk.begin();
 	  const size_t N = 10000;
 	  for (size_t i = 0; i < N; i++) {
-		  x.final_exp_faster();
+		  x.final_exp();
 	  }
 	  clk.end();
-	  printf("final_exp_faster:\t%6.2fMclk\n", clk.getClock() / double(N) / 1e6);
+	  printf("final_exp:\t%6.2fMclk\n", clk.getClock() / double(N) / 1e6);
   }
 }
 
