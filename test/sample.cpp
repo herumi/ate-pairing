@@ -166,12 +166,12 @@ void sample2()
 	PUT(Param::r);
 	{
 		Ec1 t = g1 * Param::r;
-		// Ec1::power(t, g1, Param::r);
+		// Ec1::mul(t, g1, Param::r);
 		verify("orgder of g1 == r", t.isZero(), true);
 	}
 	{
 		Ec2 t = g2 * Param::r;
-		// Ec2::power(t, g2, Param::r);
+		// Ec2::mul(t, g2, Param::r);
 		verify("order of g2 == r", t.isZero(), true);
 	}
 	const char *aStr = "123456789012345";
@@ -212,14 +212,14 @@ void sample2()
 		verify("order of e == r", t, 1);
 	}
 	Ec2 g2a = g2 * a;
-	// Ec2::power(g2a, g2, a);
+	// Ec2::mul(g2a, g2, a);
 	Fp12 ea1;
 	opt_atePairing(ea1, g2a, g1); // ea1 = e(g2a, g1)
 	Fp12 ea2 = power(e, a); // ea2 = e^a
 	verify("e(g2 * a, g1) = e(g2, g1)^a", ea1, ea2);
 
 	Ec1 g1b = g1 * b;
-	// Ec1::power(g1b, g1, b);
+	// Ec1::mul(g1b, g1, b);
 	Fp12 eb1;
 	opt_atePairing(eb1, g2, g1b); // eb1 = e(g2, g1b)
 	Fp12 eb2 = power(e, b); // eb2 = e^b
@@ -240,8 +240,8 @@ void sample2()
 	/*
 		reduce one copy as the following
 	*/
-	Ec2::power(g2a, g2, a); // g2a = g2 * a
-	Ec1::power(g1b, g1, b);
+	Ec2::mul(g2a, g2, a); // g2a = g2 * a
+	Ec1::mul(g1b, g1, b);
 	verify("g2a == g2 * a", g2a, g2 * a);
 	verify("g1b == g1 * b", g1b, g1 * b);
 }
