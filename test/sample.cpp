@@ -240,8 +240,8 @@ void sample2()
 	/*
 		reduce one copy as the following
 	*/
-	Ec2::mul(g2a, g2, a); // g2a = g2 * a
-	Ec1::mul(g1b, g1, b);
+	Ec2::power(g2a, g2, a); // g2a = g2 * a
+	Ec1::power(g1b, g1, b);
 	verify("g2a == g2 * a", g2a, g2 * a);
 	verify("g1b == g1 * b", g1b, g1 * b);
 }

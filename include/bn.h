@@ -2593,7 +2593,7 @@ public:
 		R.z = P.z;
 	}
 	template<class N>
-	static inline void mul(EcT& R, const EcT& P, const N& y)
+	static inline void power(EcT& R, const EcT& P, const N& y)
 	{
 		ecop::ScalarMult(R.p, P.p, y);
 	}
@@ -2601,7 +2601,7 @@ public:
 	EcT operator*(const N& y) const
 	{
 		EcT ret;
-		mul(ret, *this, y);
+		power(ret, *this, y);
 		return ret;
 	}
 	template<class N>
