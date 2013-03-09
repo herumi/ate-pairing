@@ -7,6 +7,7 @@
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
+#include <stdexcept>
 #include "zm2.h"
 #ifdef MIE_ATE_USE_GMP
 #include <gmpxx.h>
@@ -2505,8 +2506,7 @@ public:
 		p[1] = y;
 		p[2] = 1;
 		if (verify && !isValid()) {
-			// QQQ
-			return;
+			throw std::runtime_error("set(x, y) : bad point");
 		}
 	}
 	void set(const T& x, const T& y, const T& z, bool verify = true)
@@ -2515,8 +2515,7 @@ public:
 		p[1] = y;
 		p[2] = z;
 		if (verify && !isValid()) {
-			// QQQ
-			return;
+			throw std::runtime_error("set(x, y, z) : bad point");
 		}
 	}
 	void clear()
@@ -2552,18 +2551,9 @@ public:
 		ecop::ScalarMult(R.p, P.p, y);
 	}
 	template<class N>
-	EcT operator*(const N& y) const
-	{
-		EcT ret;
-		mul(ret, *this, y);
-		return ret;
-	}
+	EcT& operator*=(const N& y) { mul(*this, *this, y); return *this; }
 	template<class N>
-	EcT& operator*=(const N& y)
-	{
-		mul(*this, *this, y);
-		return *this;
-	}
+	EcT operator*(const N& y) const { EcT c; mul(c, *this, y); return c; }
 	bool operator==(const EcT& rhs) const
 	{
 		normalize();
@@ -2602,9 +2592,7 @@ public:
 			self.p[2] = 1;
 			size_t pos = str.find('_');
 			if (pos == std::string::npos) {
-				/// QQQ
-				puts("err");
-				exit(1);
+				throw std::runtime_error("operator>>:bad format");
 			}
 			str[pos] = '\0';
 			self.p[0].set(&str[0]);
@@ -2612,8 +2600,8 @@ public:
 		}
 		return is;
 	}
-	EcT& operator+=(const EcT& rhs) { EcT::add(static_cast<EcT&>(*this), static_cast<EcT&>(*this), rhs); return static_cast<EcT&>(*this); }
-	EcT& operator-=(const EcT& rhs) { EcT::sub(static_cast<EcT&>(*this), static_cast<EcT&>(*this), rhs); return static_cast<EcT&>(*this); }
+	EcT& operator+=(const EcT& rhs) { add(*this, *this, rhs); return *this; }
+	EcT& operator-=(const EcT& rhs) { sub(*this, *this, rhs); return *this; }
 	friend EcT operator+(const EcT& a, const EcT& b) { EcT c; EcT::add(c, a, b); return c; }
 	friend EcT operator-(const EcT& a, const EcT& b) { EcT c; EcT::sub(c, a, b); return c; }
 };
