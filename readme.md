@@ -8,10 +8,6 @@ Abstruct
 The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
 where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = -(2^62 + 2^55 + 1).
 
-> old version:
->The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
->where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = 2^62 - 2^54 + 2^44.
-
 Requirements
 -------------
 
@@ -57,6 +53,22 @@ How to use
 -------------
 
 see sample2() in https://github.com/herumi/ate-pairing/blob/master/test/sample.cpp
+
+Class
+-------------
+* elliptic curve : y^2 = x^3 + 2
+* Fp : an finite field of characteristic p = 16798108731015832284940804142231733909889187121439069848933715426072753864723
+* Fp2 : Fp[u] / (u^2 + 1)
+* Fp6 = Fp2[v] / (v^3 - Xi), Xi = -u - 1
+* Fp12 : Fp6[w] / (w^2 - v)
+* Ec1 : E(Fp)[n]
+* Ec2 : inverse image of E'(Fp^2)[n] under twisting iso E' to E.
+* opt_atePairing : Ec2 x Ec1 to Fp12
+
+gmp
+-------------
+You can use mpz_class for scalar multiplication of points on the elliptic curves,
+if MIE_ATE_USE_GMP is defined.
 
 Xbyak
 -------------
