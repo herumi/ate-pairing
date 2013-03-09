@@ -3418,6 +3418,9 @@ void Fp::setTablesForDiv(const mie::Vuint& p)
 
 void Fp::setModulo(const mie::Vuint& p, int mode)
 {
+#ifdef DEBUG_COUNT
+	puts("DEBUG_COUNT mode on!!!");
+#endif
 	static bool init = false;
 	if (init) return;
 	init = true;
