@@ -47,7 +47,7 @@ then you can get ate/test/bn .
 Benchmark
 -------------
 
-1.35M clock cycles(0.399msec) on Core i7 2620 3.4GHz Windows 7 with turbo boost.
+1.35M clock cycles(0.399msec) on Core i7 2600 3.4GHz Windows 7 with turbo boost.
 
 Operation costs
 -------------
