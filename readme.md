@@ -8,6 +8,31 @@ Abstruct
 The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
 where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = -(2^62 + 2^55 + 1).
 
+Benchmark
+-------------
+
+1.35M clock cycles(0.399msec) on Core i7 2600 3.4GHz Windows 7 with turbo boost.
+
+Operation costs
+-------------
+
+We compare our library with Aranha et al.(http://eprint.iacr.org/2010/526).
+
+* mu ; unreduced multiplication producing double-precision result(256-bit int x 256-bit int to 512-bit int).
+* r : modular reduction of double-precision integers(512-bit int to 256-bit int in Fp).
+* Fp:mul = mu + r
+* Fp2:mul = 3mu + 2r
+* Fp2:square = 2mu + 2r
+
+Phase               | Aranha et al. | This work
+--------------------|---------------|---------------
+Miller Loop         | 6792mu + 3022r| 6785mu + 3022r
+Final Exponentiation| 3753mu + 2006r| 3526mu + 1932r
+Optimal Ate Pairing |10545mu + 5028r|10311mu + 4954r
+
+Remark : Their Table 2 in p.17 does not contain the cost of (m, r) so
+I add the costs of (282m + 6mu + 4r), (30m + 75mu + 50r) for ML and FE respectively.
+
 Requirements
 -------------
 
@@ -44,37 +69,7 @@ then you can get ate/test/bn .
 
 >Remark:The other binaries except bn are for only test.
 
-Benchmark
--------------
-
-1.35M clock cycles(0.399msec) on Core i7 2600 3.4GHz Windows 7 with turbo boost.
-
-Operation costs
--------------
-
-We compare our library with Aranha et al.(http://eprint.iacr.org/2010/526).
-
-* mu ; unreduced multiplication producing double-precision result(256-bit int x 256-bit int to 512-bit int).
-* r : modular reduction of double-precision integers(512-bit int to 256-bit int in Fp).
-* Fp:mul = mu + r
-* Fp2:mul = 3mu + 2r
-* Fp2:square = 2mu + 2r
-
-Phase               | Aranha et al. | This work
---------------------|---------------|---------------
-Miller Loop         | 6792mu + 3022r| 6785mu + 3022r
-Final Exponentiation| 3753mu + 2006r| 3526mu + 1932r
-Optimal Ate Pairing |10545mu + 5028r|10311mu + 4954r
-
-Remark : Their Table 2 in p.17 does not contain the cost of (m, r) so
-I add the costs of (282m + 6mu + 4r), (30m + 75mu + 50r) for ML and FE respectively.
-
-How to use
--------------
-
-see sample2() in https://github.com/herumi/ate-pairing/blob/master/test/sample.cpp
-
-Class
+Parameter
 -------------
 * elliptic curve : y^2 = x^3 + 2
 * Fp : an finite field of characteristic p = 16798108731015832284940804142231733909889187121439069848933715426072753864723
@@ -85,10 +80,28 @@ Class
 * Ec2 : inverse image of E'(Fp^2)[n] under twisting iso E' to E.
 * opt_atePairing : Ec2 x Ec1 to Fp12
 
+How to use
+-------------
+
+see sample2() in https://github.com/herumi/ate-pairing/blob/master/test/sample.cpp
+
 gmp
 -------------
 You can use mpz_class for scalar multiplication of points on the elliptic curves,
 if MIE_ATE_USE_GMP is defined.
+
+    using namespace bn;
+    Param::init();
+    const Ec2 g2(...);
+    const Ec1 g1(...);
+    mpz_class a("123456789");
+    mpz_class b("98765432");
+    Ec1 g1a = g1 * a;
+	Ec2 g2b = g2 * b;
+    Fp12 e;
+	// calc e : G2 x G1 -> G3 pairing
+    opt_atePairing(e, g2b, g1a);
+
 
 Xbyak
 -------------
