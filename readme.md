@@ -66,6 +66,9 @@ Miller Loop         | 6792mu + 3022r| 6785mu + 3022r
 Final Exponentiation| 3753mu + 2006r| 3526mu + 1932r
 Optimal Ate Pairing |10545mu + 5028r|10311mu + 4954r
 
+Remark : Their Table 2 in p.17 does not contain the cost of (m, r) so
+I add the costs of (282m + 6mu + 4r), (30m + 75mu + 50r) for ML and FE respectively.
+
 How to use
 -------------
 
