@@ -49,6 +49,23 @@ Benchmark
 
 1.35M clock cycles(0.399msec) on Core i7 2620 3.4GHz Windows 7 with turbo boost.
 
+Operation costs
+-------------
+
+We compare our library with Aranha et al.(http://eprint.iacr.org/2010/526).
+
+* mu ; unreduced multiplication producing double-precision result(256-bit int x 256-bit int to 512-bit int).
+* r : modular reduction of double-precision integers(512-bit int to 256-bit int in Fp).
+* Fp:mul = mu + r
+* Fp2:mul = 3mu + 2r
+* Fp2:square = 2mu + 2r
+
+Phase               | Aranha et al. | This work
+--------------------|---------------|---------------
+Miller Loop         | 6792mu + 3022r| 6785mu + 3022r
+Final Exponentiation| 3753mu + 2006r| 3526mu + 1932r
+Optimal Ate Pairing |10545mu + 5028r|10311mu + 4954r
+
 How to use
 -------------
 
