@@ -8,9 +8,14 @@ extern Xbyak::util::Clock sclk;
 #include "util.h"
 /*
 	define DEBUG_COUNT in zm2.cpp
+	m = mul256 ; ~50clk@i7-2600
+	r = r512   ; ~75clk@i7-2600
+	Fp::mul = m + r
+	Fp2::mul = 3m + 2r
+	Fp2::square = 2m + 2r
 
 	EXP = 3526m + 1932r + 18328a
-	single                     = (6785m + 3022r + 31752a) * N + EXP
+	single                     = (6785m + 3022r + 31752a) * N + EXP = (10311m + 4954r + 50080a) * N
 	opt_ateMultiPairingJ       = (4604m + 2301r + 18858a) * N + EXP + 2268m +  758r + 13215a
 	opt_atePairingKnownG2Mixed = (3011m + 1125r + 13324a) * N + EXP + 6872m + 3059r + 32073a
 */
@@ -163,6 +168,23 @@ void testPairing()
 			, c1[2] - 2 * m - em, c2[2] - 2 * r - er, c3[2] - 2 * a - ea);
 		printf("EXP = %dm + %dr + %da\n", em, er, ea);
 		printf("single = (%dm + %dr + %da) + EXP\n", sm - em, sr - er, sa - ea);
+		printf("       = %dm + %dr + %da\n", sm, sr, sa);
+#if 0
+		{
+			Fp12 f;
+			Fp6 l;
+			g_count_m256 = 0;
+			g_count_r512 = 0;
+			g_count_add256 = 0;
+//			Fp6::pointDblLineEval(e.a_, Qn[0], Pn[0]); // 25m + 20r + 76a
+//			e *= e; // 54m + 12r + 316a
+//			Fp6::pointAddLineEval(e.a_, Qn[0], Qn[0], Pn[0]); // 41m + 26r + 102a
+//			Fp12::Dbl::mul_Fp2_024(f, l); // 39m + 12r + 190a
+//			Fp12::square(f); // 36m + 12r + 210a
+			Fp12::Dbl::mul_Fp2_024_Fp2_024(e, l, l); // 18m + 10r + 88a
+			printf("op = %dm + %dr + %da\n", g_count_m256, g_count_r512, g_count_add256);
+		}
+#endif
 	}
 #endif
 }
