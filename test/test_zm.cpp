@@ -697,10 +697,10 @@ void testPow()
 	m += 7;
 	ZmZ<>::setModulo(m);
 	TEST_EQUAL(m, Vuint("1461501637330902918203684832716283019655932542983"));
-	
+
 	ZmZ<> x, y = ZmZ<>(m) - 1;
 	Xbyak::util::Clock clk;
-	
+
 	for (size_t i = 0; i < n; i++) {
 		x = 3;
 		clk.begin();
@@ -798,7 +798,7 @@ void testBitLen()
     zero <<= (sizeof(Vuint::T)*8);
     TEST_EQUAL(zero.bitLen(), 0);
   }
-  
+
   {
     Vuint a = 1;
     TEST_EQUAL(a.bitLen(), 1);
@@ -809,7 +809,7 @@ void testBitLen()
     a = 4;
     TEST_EQUAL(a.bitLen(), 3);
   }
-  
+
   {
     Vuint a = 5;
     const size_t msbindex = a.bitLen();
@@ -819,7 +819,7 @@ void testBitLen()
       a <<= width;
       TEST_EQUAL(a.bitLen(), msbindex + width*(i + 1));
     }
-    
+
     for (size_t i = 0; i < time*2; ++i) {
       a >>= width/2;
       TEST_EQUAL(a.bitLen(), msbindex + width*time - (width/2)*(i + 1));
@@ -827,7 +827,7 @@ void testBitLen()
     a >>= width;
     TEST_EQUAL(a.bitLen(), 0);
   }
-  
+
   {
     Vuint b("12"), c("345"), d("67890");
     size_t bl = b.bitLen(), cl = c.bitLen(), dl = d.bitLen();
@@ -1038,7 +1038,7 @@ void testAdd2()
 	a.set("-2416089439321382744001761632872637936198961520379024187947524965775137204955564426500438089001375107581766516460437532995850581062940399321788596606850");
 	c.set("2416089439321382743300544243711595219403446085161565705825288050160594425031420687263897209379984490503106207071010949258995096347962762372787916800000");
 	a = a + c;
-	
+
 	d.set("-701217389161042716795515435217458482122236915614542779924143739236540879621390617078660309389426583736855484714977636949000679806850");
 	TEST_EQUAL(a, d);
 }
