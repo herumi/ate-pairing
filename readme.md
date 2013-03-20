@@ -149,7 +149,7 @@ Reference
 -------------
 
 * http://eprint.iacr.org/2010/354
-* [http://dl.acm.org/citation.cfm?id=1948969](High-speed software implementation of the optimal ate pairing over Barreto-Naehrig curves)
+* [High-speed software implementation of the optimal ate pairing over Barreto-Naehrig curves](http://dl.acm.org/citation.cfm?id=1948969)
 * http://homepage1.nifty.com/herumi/crypt/ate-pairing.html
 
 History
