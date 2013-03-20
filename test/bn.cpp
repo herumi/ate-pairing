@@ -451,6 +451,32 @@ void testFp2()
 		printf("Fp::mul      %6.2fclk\n", clk.getClock() / double(N));
 	}
 	{
+		Xbyak::util::Clock clk;
+		clk.begin();
+		const size_t N = 10000;
+
+		Fp::Dbl d;
+		for (size_t i = 0; i < N; i++) {
+			Fp::Dbl::mul(d, x.a_, x.b_);
+		}
+
+		clk.end();
+		printf("mul256       %6.2fclk\n", clk.getClock() / double(N));
+	}
+	{
+		Xbyak::util::Clock clk;
+		clk.begin();
+		const size_t N = 10000;
+
+		Fp::Dbl d;
+		for (size_t i = 0; i < N; i++) {
+			Fp::Dbl::mod(x.a_, d);
+		}
+
+		clk.end();
+		printf("mod512       %6.2fclk\n", clk.getClock() / double(N));
+	}
+	{
 		Fp c1 = x.a_ / Fp(2);
 		Fp c2 = x.a_;
 		Fp::divBy2(c2, c2);
@@ -1557,6 +1583,18 @@ void test_sqru()
 
 			clk.end();
 			printf("Fp12::square:\t% 10.2fclk\n", clk.getClock() / double(N));
+		}
+		{
+			Xbyak::util::Clock clk;
+			const size_t N = 10000;
+			clk.begin();
+
+			for (size_t i = 0; i < N; i++) {
+				a *= b;
+			}
+
+			clk.end();
+			printf("Fp12::mul:\t% 10.2fclk\n", clk.getClock() / double(N));
 		}
 	}
 }
