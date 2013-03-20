@@ -148,7 +148,9 @@ If you have any questions or problems, just let me know, then I'm happy.
 Reference
 -------------
 
-http://homepage1.nifty.com/herumi/crypt/ate-pairing.html
+* http://eprint.iacr.org/2010/354
+* [http://dl.acm.org/citation.cfm?id=1948969](High-speed software implementation of the optimal ate pairing over Barreto-Naehrig curves)
+* http://homepage1.nifty.com/herumi/crypt/ate-pairing.html
 
 History
 -------------
