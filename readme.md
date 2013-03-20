@@ -8,11 +8,6 @@ Abstruct
 The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
 where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = -(2^62 + 2^55 + 1).
 
-Benchmark
--------------
-
-1.35M clock cycles(0.399msec) on Core i7 2600 3.4GHz Windows 7 with turbo boost.
-
 Operation costs
 -------------
 
@@ -24,6 +19,7 @@ We compare our library with Aranha et al.(http://eprint.iacr.org/2010/526).
 * Fp2:mul = 3mu + 2r
 * Fp2:square = 2mu + 2r
 
+
 Phase               | Aranha et al. | This work
 --------------------|---------------|---------------
 Miller Loop         | 6792mu + 3022r| 6785mu + 3022r
@@ -32,6 +28,33 @@ Optimal Ate Pairing |10545mu + 5028r|10311mu + 4954r
 
 Remark : Their Table 2 in p.17 does not contain the cost of (m, r) so
 I add the costs of (282m + 6mu + 4r), (30m + 75mu + 50r) for ML and FE respectively.
+
+Benchmark
+-------------
+
+1.36M clock cycles(0.4msec) on Core i7 2600 3.4GHz Windows 7 with turbo boost.
+
+Clock cycle counts of operations on Core i7 2600 3.4GHz/Xeon X5650 2.6GHz.
+
+operation   | i7 2600|Xeon X5650
+------------|--------|----------
+mu          | 50     |60
+r           | 80     |98
+Fp:mul      |124     |146
+Fp2:mul     |360     |412
+Fp2:square  |288     |335
+--------------------------------
+G1::double  |1150    |1300
+G1::add     |2200    |2600
+G2::double  |2500    |2900
+G2::add     |5650    |6500
+Fp12::square|4500    |5150
+Fp12::mul   |6150    |7000
+--------------------------------
+Miller loop |0.83M   |0.97M
+final_exp   |0.53M   |0.63M
+--------------------------------
+pairing     |1.36M   |1.60M
 
 Requirements
 -------------
@@ -97,9 +120,9 @@ if MIE_ATE_USE_GMP is defined.
     mpz_class a("123456789");
     mpz_class b("98765432");
     Ec1 g1a = g1 * a;
-	Ec2 g2b = g2 * b;
+    Ec2 g2b = g2 * b;
     Fp12 e;
-	// calc e : G2 x G1 -> G3 pairing
+    // calc e : G2 x G1 -> G3 pairing
     opt_atePairing(e, g2b, g1a);
 
 
