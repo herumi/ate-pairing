@@ -84,10 +84,6 @@ Type:
 
     $ make
 
-or, if you have OMake:
-
-    $ omake
-
 then you can get ate/test/bn .
 
 >Remark:The other binaries except bn are for only test.
