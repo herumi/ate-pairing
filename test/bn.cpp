@@ -247,7 +247,7 @@ void run(const char *msg, int N, Func& func)
 	clk.end();
 	double t = clk.getClock() / double(N);
 	printf("%s\t", msg);
-	if (t > 1000) {
+	if (t > 1000 * 100) {
 		printf("%10.2fKclk\n", t / 1000);
 	} else {
 		printf("%10.2fclk\n", t);
@@ -756,66 +756,6 @@ void testFp6()
 		TEST_EQUAL(x, y);
 	}
 	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6::addC(z, x, y);
-		}
-
-		clk.end();
-		printf("Fp6::addC\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6::add(z, x, y);
-		}
-
-		clk.end();
-		printf("Fp6::add\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6::neg(z, x);
-		}
-
-		clk.end();
-		printf("Fp6::neg\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6::sub(z, x, y);
-		}
-
-		clk.end();
-		printf("Fp6::sub\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6::mul(z, x, y);
-		}
-
-		clk.end();
-		printf("Fp6::mul\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
 		Fp2 t(Fp("50"), Fp("25"));
 		Fp6 x(t, t, t);
 		Fp6 inv_x = x; inv_x.inverse();
@@ -882,50 +822,11 @@ void testFp6Dbl()
 		TEST_EQUAL(t, c);
 	}
 	{
-		Fp6Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6Dbl::add(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp6Dbl::add\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp6Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6Dbl::addNC(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp6Dbl::addNC\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
 		const Fp6 c = -a;
 		const Fp6Dbl cd = -ad;
 		Fp6 t;
 		Fp6Dbl::mod(t, cd);
 		TEST_EQUAL(t, c);
-	}
-	{
-		Fp6Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6Dbl::neg(cd, ad);
-		}
-
-		clk.end();
-		printf("Fp6Dbl::neg\t%6.2fclk\n", clk.getClock() / double(N));
 	}
 	{
 		const Fp6 c = a - b;
@@ -935,64 +836,12 @@ void testFp6Dbl()
 		TEST_EQUAL(t, c);
 	}
 	{
-		Fp6Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6Dbl::sub(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp6Dbl::sub\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp6Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6Dbl::subNC(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp6Dbl::subNC\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
 		const Fp6 c = a * b;
 		Fp6Dbl cd;
 		Fp6Dbl::mul(cd, a, b);
 		Fp6 t;
 		Fp6Dbl::mod(t, cd);
 		TEST_EQUAL(t, c);
-	}
-	{
-		Fp6Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6Dbl::mul(cd, a, b);
-		}
-
-		clk.end();
-		printf("Fp6Dbl::mul\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp6 c;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6Dbl::mod(c, ad);
-		}
-
-		clk.end();
-		printf("Fp6Dbl::mod\t%6.2fclk\n", clk.getClock() / double(N));
 	}
 }
 
@@ -2385,40 +2234,51 @@ void benchFp()
 {
 	Fp x("1234566239428049280498203948209482039482");
 	Fp y("999999999999999999999999999999999999999");
-	Fp z;
 	Fp::Dbl d;
 	const int N = 100000;
-	bench("Fp::add", N, Fp::add, &z, &x, &y);
-	bench("Fp::sub", N, Fp::sub, &z, &x, &y);
-	bench("Fp::neg", N, Fp::neg, &z, &x);
-	bench("Fp::mul", N, Fp::mul, &z, &x, &y);
-	bench("Fp::inv", N, Fp::inv, &z, &x);
+	bench("Fp::add", N, Fp::add, &x, &x, &y);
+	bench("Fp::sub", N, Fp::sub, &x, &x, &y);
+	bench("Fp::neg", N, Fp::neg, &x, &x);
+	bench("Fp::mul", N, Fp::mul, &x, &x, &y);
+	bench("Fp::inv", N, Fp::inv, &x, &x);
 	bench("mul256", N, Fp::Dbl::mul, &d, &x, &y);
-	bench("mod512", N, Fp::Dbl::mod, &z, &d);
-	bench("Fp::divBy2", N, Fp::divBy2, &z, &x);
-	bench("Fp::divBy4", N, Fp::divBy4, &z, &x);
+	bench("mod512", N, Fp::Dbl::mod, &x, &d);
+	bench("Fp::divBy2", N, Fp::divBy2, &x, &x);
+	bench("Fp::divBy4", N, Fp::divBy4, &x, &x);
 }
 void benchFp2()
 {
-	Fp2 x, y, z;
+	Fp2 x, y;
 	x.a_.set("4");
 	x.b_.set("464652165165");
-	z.a_.set("16798108731015832284940804142231733909889187121439069633032080833550314387514");
-	z.b_.set("3717217321320");
 	y = x * x;
 	const int N = 100000;
-	bench("Fp2::add", N, Fp2::add, &z, &x, &y);
-	bench("Fp2::sub", N, Fp2::sub, &z, &x, &y);
-	bench("Fp2::neg", N, Fp2::neg, &z, &x);
-	bench("Fp2::mul", N, Fp2::mul, &z, &x, &y);
+	bench("Fp2::add", N, Fp2::add, &x, &x, &y);
+	bench("Fp2::sub", N, Fp2::sub, &x, &x, &y);
+	bench("Fp2::neg", N, Fp2::neg, &x, &x);
+	bench("Fp2::mul", N, Fp2::mul, &x, &x, &y);
 //	bench("Fp2::inv", N, Fp2::inv, &z, &x);
-	bench("Fp2::square", N, Fp2::square, &z, &x);
-	bench("Fp2::mul_xi", N, Fp2::mul_xi, &z, &x);
-	bench("Fp2::addNC", N, Fp2::addNC, &z, &x, &y);
+	bench("Fp2::square", N, Fp2::square, &x, &x);
+	bench("Fp2::mul_xi", N, Fp2::mul_xi, &x, &x);
+	bench("Fp2::addNC", N, Fp2::addNC, &x, &x, &y);
 	bench("Fp2::mul_Fp_0", N, Fp2::mul_Fp_0, &x, &x, &Param::half);
 	bench("Fp2::mul_Fp_1", N, Fp2::mul_Fp_1, &x, &Param::half);
-	bench("Fp2::divBy2", N, Fp2::divBy2, &z, &x);
-	bench("Fp2::divBy4", N, Fp2::divBy4, &z, &x);
+	bench("Fp2::divBy2", N, Fp2::divBy2, &x, &x);
+	bench("Fp2::divBy4", N, Fp2::divBy4, &x, &x);
+}
+void benchFp6()
+{
+	Fp6 x, y;
+
+	for (int i = 0; i < 6; i++) {
+		x.get()[i] = i * i + 3;
+	}
+	const int N = 100000;
+	bench("Fp6::addC", N, Fp6::addC, &x, &x, &y);
+	bench("Fp6::subC", N, Fp6::subC, &x, &x, &y);
+	bench("Fp6::add", N, Fp6::add, &x, &x, &y);
+	bench("Fp6::sub", N, Fp6::sub, &x, &x, &y);
+	bench("Fp6::mul", N, Fp6::mul, &x, &x, &y);
 }
 void benchEcFp()
 {
@@ -2442,10 +2302,29 @@ void benchEcFp2()
 	bench("G2:ECAdd", N, ECAdd<Fp2>, &Q, &P, &Q);
 	bench("G2:ScalarMult", 5000, ScalarMult<Fp2, mie::Vuint>, &Q, &P, &m);
 }
+void benchFp6Dbl()
+{
+	Fp6Dbl x("999111", "999222", "999333", "999444", "999555", "999666");
+	Fp6Dbl y("1999111", "9919222", "9199333", "9919444", "9919555", "9919666");
+	Fp6 a;
+	for (int i = 0; i < 6; i++) {
+		a.get()[i] = i * i + 3;
+	}
+	const int N = 10000;
+	bench("Fp6Dbl::add", N, Fp6Dbl::add, &x, &x, &x);
+	bench("Fp6Dbl::sub", N, Fp6Dbl::sub, &x, &x, &y);
+	bench("Fp6Dbl::mul", N, Fp6Dbl::mul, &x, &a, &a);
+	bench("Fp6Dbl::mod", N, Fp6Dbl::mod, &a, &x);
+	bench("Fp6Dbl::addNC", N, Fp6Dbl::addNC, &x, &x, &x);
+	bench("Fp6Dbl::subNC", N, Fp6Dbl::subNC, &x, &x, &y);
+	bench("Fp6Dbl::neg", N, Fp6Dbl::neg, &x, &x);
+}
 void benchAll()
 {
 	benchFp();
 	benchFp2();
+	benchFp6();
+	benchFp6Dbl();
 	benchEcFp();
 	benchEcFp2();
 }
