@@ -211,15 +211,23 @@ void testECAdd()
 	}
 }
 
+template<class T>
+struct noncopyable {
+	noncopyable() {}
+private:
+	noncopyable(const noncopyable&);
+	void operator=(const noncopyable&);
+};
+
 template<class F, class Z>
-struct Func1 {
+struct Func1 : noncopyable<Func1<F, Z> > {
 	const F& f_;
 	Z* z_;
 	Func1(const F& f, Z* z) : f_(f), z_(z) {}
 	void operator()() { f_(z_); }
 };
 template<class F, class Z, class X>
-struct Func2 {
+struct Func2 : noncopyable<Func2<F, Z, X> > {
 	const F& f_;
 	Z* z_;
 	const X* x_;
@@ -227,7 +235,7 @@ struct Func2 {
 	void operator()() { f_(*z_, *x_); }
 };
 template<class F, class Z, class X, class Y>
-struct Func3 {
+struct Func3 : noncopyable<Func3<F, Z, X, Y> > {
 	const F& f_;
 	Z* z_;
 	const X* x_;
