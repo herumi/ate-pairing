@@ -211,6 +211,67 @@ void testECAdd()
 	}
 }
 
+template<class F, class Z>
+struct Func1 {
+	const F& f_;
+	Z* z_;
+	Func1(const F& f, Z* z) : f_(f), z_(z) {}
+	void operator()() { f_(z_); }
+};
+template<class F, class Z, class X>
+struct Func2 {
+	const F& f_;
+	Z* z_;
+	const X* x_;
+	Func2(const F& f, Z* z, const X* x) : f_(f), z_(z), x_(x) {}
+	void operator()() { f_(*z_, *x_); }
+};
+template<class F, class Z, class X, class Y>
+struct Func3 {
+	const F& f_;
+	Z* z_;
+	const X* x_;
+	const Y* y_;
+	Func3(const F& f, Z* z, const X* x, const Y* y) : f_(f), z_(z), x_(x), y_(y) {}
+	void operator()() { f_(*z_, *x_, *y_); }
+};
+
+template<class Func>
+void run(const char *msg, int N, Func& func)
+{
+	Xbyak::util::Clock clk;
+	clk.begin();
+	for (int i = 0; i < N; i++) {
+		func();
+	}
+	clk.end();
+	double t = clk.getClock() / double(N);
+	printf("%s\t", msg);
+	if (t > 1000) {
+		printf("%10.2fKclk\n", t / 1000);
+	} else {
+		printf("%10.2fclk\n", t);
+	}
+}
+template<class F, class Z>
+void bench(const char *msg, int N, const F& f, Z* z)
+{
+	Func1<F, Z> func(f, z);
+	run(msg, N, func);
+}
+template<class F, class Z, class X>
+void bench(const char *msg, int N, const F& f, Z* z, const X* x)
+{
+	Func2<F, Z, X> func(f, z, x);
+	run(msg, N, func);
+}
+template<class F, class Z, class X, class Y>
+void bench(const char *msg, int N, const F& f, Z* z, const X* x, const Y* y)
+{
+	Func3<F, Z, X, Y> func(f, z, x, y);
+	run(msg, N, func);
+}
+
 void testECOperationsG1()
 {
 	puts(__FUNCTION__);
@@ -252,16 +313,7 @@ void testECOperationsG1()
 		TEST_EQUAL(P2[0], P2_ok[0]);
 		TEST_EQUAL(P2[1], P2_ok[1]);
 		TEST_EQUAL(P2[2], P2_ok[2]);
-		Xbyak::util::Clock clk;
-		const size_t N = 10000;
-		clk.begin();
-
-		for (size_t i = 0; i < N; i++) {
-			ECDouble(P2, P);
-		}
-
-		clk.end();
-		printf("ECDouble:\t% 10.2fclk\n", clk.getClock() / double(N));
+		bench("ECDouble", 100000, ECDouble<Fp>, &P2, &P);
 	}
 	{
 		Fp P3[] = { P[0], P[1], P[2], };
@@ -280,80 +332,56 @@ void testECOperationsG1()
 		TEST_EQUAL(PR[0], PR_ok[0]);
 		TEST_EQUAL(PR[1], PR_ok[1]);
 		TEST_EQUAL(PR[2], PR_ok[2]);
-		Xbyak::util::Clock clk;
-		const size_t N = 10000;
-		clk.begin();
-
-		for (size_t i = 0; i < N; i++) {
-			ECAdd(PR, P, R);
-		}
-
-		clk.end();
-		printf("ECAdd:\t\t% 10.2fclk\n", clk.getClock() / double(N));
+		bench("ECAdd", 100000, ECAdd<Fp>, &PR, &P, &R);
 	}
 	{
 		mie::Vuint m;
 		Fp Pm[3], Pm_norm[3];
-		{
-			m = 0;
-			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnECJac3(Pm));
-			TEST_EQUAL(Pm[2], 0);
-			NormalizeJac(Pm_norm, Pm);
-			TEST_ASSERT(isOnECJac3(Pm_norm));
-			TEST_EQUAL(Pm_norm[2], 0);
-		}
-		{
-			m = 1;
-			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnECJac3(Pm));
-			NormalizeJac(Pm_norm, Pm);
-			TEST_ASSERT(isOnECJac3(Pm_norm));
-			TEST_EQUAL(Pm_norm[0], P[0]);
-			TEST_EQUAL(Pm_norm[1], P[1]);
-			TEST_EQUAL(Pm_norm[2], P[2]);
-		}
-		{
-			m = 2;
-			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnECJac3(Pm));
-			NormalizeJac(Pm_norm, Pm);
-			TEST_ASSERT(isOnECJac3(Pm_norm));
-			TEST_EQUAL(Pm_norm[0], P2_ok[0]);
-			TEST_EQUAL(Pm_norm[1], P2_ok[1]);
-			TEST_EQUAL(Pm_norm[2], P2_ok[2]);
-		}
-		{
-			m = 3;
-			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnECJac3(Pm));
-			NormalizeJac(Pm_norm, Pm);
-			TEST_ASSERT(isOnECJac3(Pm_norm));
-			TEST_EQUAL(Pm_norm[0], P3_ok[0]);
-			TEST_EQUAL(Pm_norm[1], P3_ok[1]);
-			TEST_EQUAL(Pm_norm[2], P3_ok[2]);
-		}
-		{
-			m.set(m_str);
-			ScalarMult(Pm, P, m);
-			TEST_ASSERT(isOnECJac3(Pm));
-			NormalizeJac(Pm, Pm);
-			TEST_ASSERT(isOnECJac3(Pm));
-			TEST_EQUAL(Pm[0], Pm_ok[0]);
-			TEST_EQUAL(Pm[1], Pm_ok[1]);
-			TEST_EQUAL(Pm[2], Pm_ok[2]);
-			Xbyak::util::Clock clk;
-			const size_t N = 5000;
-			const size_t K = 1000;
-			clk.begin();
+		m = 0;
+		ScalarMult(Pm, P, m);
+		TEST_ASSERT(isOnECJac3(Pm));
+		TEST_EQUAL(Pm[2], 0);
+		NormalizeJac(Pm_norm, Pm);
+		TEST_ASSERT(isOnECJac3(Pm_norm));
+		TEST_EQUAL(Pm_norm[2], 0);
 
-			for (size_t i = 0; i < N; i++) {
-				ScalarMult(Pm, P, m);
-			}
+		m = 1;
+		ScalarMult(Pm, P, m);
+		TEST_ASSERT(isOnECJac3(Pm));
+		NormalizeJac(Pm_norm, Pm);
+		TEST_ASSERT(isOnECJac3(Pm_norm));
+		TEST_EQUAL(Pm_norm[0], P[0]);
+		TEST_EQUAL(Pm_norm[1], P[1]);
+		TEST_EQUAL(Pm_norm[2], P[2]);
 
-			clk.end();
-			printf("ScalarMult:\t% 10.2fKclk\n", (clk.getClock() / K) / double(N));
-		}
+		m = 2;
+		ScalarMult(Pm, P, m);
+		TEST_ASSERT(isOnECJac3(Pm));
+		NormalizeJac(Pm_norm, Pm);
+		TEST_ASSERT(isOnECJac3(Pm_norm));
+		TEST_EQUAL(Pm_norm[0], P2_ok[0]);
+		TEST_EQUAL(Pm_norm[1], P2_ok[1]);
+		TEST_EQUAL(Pm_norm[2], P2_ok[2]);
+
+		m = 3;
+		ScalarMult(Pm, P, m);
+		TEST_ASSERT(isOnECJac3(Pm));
+		NormalizeJac(Pm_norm, Pm);
+		TEST_ASSERT(isOnECJac3(Pm_norm));
+		TEST_EQUAL(Pm_norm[0], P3_ok[0]);
+		TEST_EQUAL(Pm_norm[1], P3_ok[1]);
+		TEST_EQUAL(Pm_norm[2], P3_ok[2]);
+
+		m.set(m_str);
+		ScalarMult(Pm, P, m);
+		TEST_ASSERT(isOnECJac3(Pm));
+		NormalizeJac(Pm, Pm);
+		TEST_ASSERT(isOnECJac3(Pm));
+		TEST_EQUAL(Pm[0], Pm_ok[0]);
+		TEST_EQUAL(Pm[1], Pm_ok[1]);
+		TEST_EQUAL(Pm[2], Pm_ok[2]);
+
+		bench("ScalarMult", 5000, ScalarMult<Fp, mie::Vuint>, &Pm, &P, &m);
 	}
 	{
 		const mie::Vuint& r = Param::r;
@@ -403,80 +431,6 @@ void testFp2()
 	x *= y;
 	TEST_EQUAL(x, Fp2(1));
 	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp::add(x.a_, x.a_, x.b_);
-		}
-
-		clk.end();
-		printf("Fp::add      %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp::sub(x.a_, x.a_, x.b_);
-		}
-
-		clk.end();
-		printf("Fp::sub      %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp::neg(x.a_, x.a_);
-		}
-
-		clk.end();
-		printf("Fp::neg      %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp::mul(x.a_, x.a_, x.b_);
-		}
-
-		clk.end();
-		printf("Fp::mul      %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		Fp::Dbl d;
-		for (size_t i = 0; i < N; i++) {
-			Fp::Dbl::mul(d, x.a_, x.b_);
-		}
-
-		clk.end();
-		printf("mul256       %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		Fp::Dbl d;
-		for (size_t i = 0; i < N; i++) {
-			Fp::Dbl::mod(x.a_, d);
-		}
-
-		clk.end();
-		printf("mod512       %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
 		Fp c1 = x.a_ / Fp(2);
 		Fp c2 = x.a_;
 		Fp::divBy2(c2, c2);
@@ -511,18 +465,6 @@ void testFp2()
 		Fp c2 = z.b_;
 		Fp::divBy2(c2, c2);
 		TEST_EQUAL(c2, c1);
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp::divBy2(x.a_, x.a_);
-		}
-
-		clk.end();
-		printf("Fp::divBy2\t%6.2fclk\n", clk.getClock() / double(N));
 	}
 	{
 		Fp c1 = x.a_ / Fp(4);
@@ -560,78 +502,6 @@ void testFp2()
 		Fp::divBy4(c2, c2);
 		TEST_EQUAL(c2, c1);
 	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp::divBy4(x.a_, x.a_);
-		}
-
-		clk.end();
-		printf("Fp::divBy4\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::add(x, x, x);
-		}
-
-		clk.end();
-		printf("Fp2::add     %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::sub(x, x, y);
-		}
-
-		clk.end();
-		printf("Fp2::sub     %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::addNC(x, x, x);
-		}
-
-		clk.end();
-		printf("Fp2::addNC   %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::mul_Fp_0(x, x, Param::half);
-		}
-
-		clk.end();
-		printf("Fp2::mul_Fp_0\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::mul_Fp_1(x, Param::half);
-		}
-
-		clk.end();
-		printf("Fp2::mul_Fp_1\t%6.2fclk\n", clk.getClock() / double(N));
-	}
 	Fp2 r2(Fp(2), Fp(0));
 	r2.inverse();
 	{
@@ -651,67 +521,6 @@ void testFp2()
 		Fp2 c2 = z;
 		Fp2::divBy2(c2, c2);
 		TEST_EQUAL(c2, c1);
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::divBy2(x, x);
-		}
-
-		clk.end();
-		printf("Fp2::dibBy2\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::divBy4(x, x);
-		}
-
-		clk.end();
-		printf("Fp2::dibBy4\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::mul(x, x, x);
-		}
-
-		clk.end();
-		printf("Fp2::mul     %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2 z;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::mul_xi(z, x);
-		}
-
-		clk.end();
-		printf("Fp2::mul_xi %6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2::square(x, x);
-		}
-
-		clk.end();
-		printf("Fp2::square  %6.2fclk\n", clk.getClock() / double(N));
 	}
 	{
 		Xbyak::util::Clock clk;
@@ -2607,6 +2416,50 @@ void testPairingJac()
 	}
 }
 
+void benchFp()
+{
+	Fp x("1234566239428049280498203948209482039482");
+	Fp y("999999999999999999999999999999999999999");
+	Fp z;
+	Fp::Dbl d;
+	const int N = 100000;
+	bench("Fp::add", N, Fp::add, &z, &x, &y);
+	bench("Fp::sub", N, Fp::sub, &z, &x, &y);
+	bench("Fp::neg", N, Fp::neg, &z, &x);
+	bench("Fp::mul", N, Fp::mul, &z, &x, &y);
+	bench("Fp::inv", N, Fp::inv, &z, &x);
+	bench("mul256", N, Fp::Dbl::mul, &d, &x, &y);
+	bench("mod512", N, Fp::Dbl::mod, &z, &d);
+	bench("Fp::divBy2", N, Fp::divBy2, &z, &x);
+	bench("Fp::divBy4", N, Fp::divBy4, &z, &x);
+}
+void benchFp2()
+{
+	Fp2 x, y, z;
+	x.a_.set("4");
+	x.b_.set("464652165165");
+	z.a_.set("16798108731015832284940804142231733909889187121439069633032080833550314387514");
+	z.b_.set("3717217321320");
+	y = x * x;
+	const int N = 100000;
+	bench("Fp2::add", N, Fp2::add, &z, &x, &y);
+	bench("Fp2::sub", N, Fp2::sub, &z, &x, &y);
+	bench("Fp2::neg", N, Fp2::neg, &z, &x);
+	bench("Fp2::mul", N, Fp2::mul, &z, &x, &y);
+//	bench("Fp2::inv", N, Fp2::inv, &z, &x);
+	bench("Fp2::square", N, Fp2::square, &z, &x);
+	bench("Fp2::mul_xi", N, Fp2::mul_xi, &z, &x);
+	bench("Fp2::addNC", N, Fp2::addNC, &z, &x, &y);
+	bench("Fp2::mul_Fp_0", N, Fp2::mul_Fp_0, &x, &x, &Param::half);
+	bench("Fp2::mul_Fp_1", N, Fp2::mul_Fp_1, &x, &Param::half);
+	bench("Fp2::divBy2", N, Fp2::divBy2, &z, &x);
+	bench("Fp2::divBy4", N, Fp2::divBy4, &z, &x);
+}
+void benchAll()
+{
+	benchFp();
+	benchFp2();
+}
 int main(int argc, char* argv[]) try
 {
 	argc--, argv++;
@@ -2646,6 +2499,7 @@ int main(int argc, char* argv[]) try
 	testFpDbl_mul_mod();
 	testPairingJac();
 	testPairing();
+	benchAll();
 
 	if (sclk.getCount()) printf("sclk:%.2fclk(%dtimes)\n", sclk.getClock() / double(sclk.getCount()), sclk.getCount());
 
