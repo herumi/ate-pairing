@@ -639,18 +639,7 @@ void testECOperationsG2()
 	TEST_ASSERT(isOnTwistECJac3(Pm_ok));
 	{
 		Fp2 P2[3];
-		{
-			Xbyak::util::Clock clk;
-			const size_t N = 10000;
-			clk.begin();
-
-			for (size_t i = 0; i < N; i++) {
-				ECDouble(P2, P);
-			}
-
-			clk.end();
-			printf("ECDouble:\t% 10.2fclk\n", clk.getClock() / double(N));
-		}
+		ECDouble(P2, P);
 		TEST_ASSERT(isOnTwistECJac3(P2));
 		Fp2 P2_norm[3];
 		NormalizeJac(P2_norm, P2);
@@ -662,18 +651,7 @@ void testECOperationsG2()
 	{
 		Fp2 P3[3], PR[3];
 		ECAdd(P3, P, P2_ok);
-		{
-			Xbyak::util::Clock clk;
-			const size_t N = 10000;
-			clk.begin();
-
-			for (size_t i = 0; i < N; i++) {
-				ECAdd(PR, P, R);
-			}
-
-			clk.end();
-			printf("ECAdd:\t\t% 10.2fclk\n", clk.getClock() / double(N));
-		}
+		ECAdd(PR, P, R);
 		TEST_ASSERT(isOnTwistECJac3(P3));
 		TEST_ASSERT(isOnTwistECJac3(PR));
 		Fp2 P3_norm[3], PR_norm[3];
@@ -730,21 +708,8 @@ void testECOperationsG2()
 			TEST_EQUAL(Pm_norm[1], P3_ok[1]);
 			TEST_EQUAL(Pm_norm[2], P3_ok[2]);
 		}
-		{
-			m.set(m_str);
-			Xbyak::util::Clock clk;
-			const size_t N = 5000;
-			const size_t K = 1000;
-			clk.begin();
-
-			for (size_t i = 0; i < N; i++) {
-				ScalarMult(Pm, P, m);
-			}
-
-			clk.end();
-			printf("ScalarMult:\t% 10.2fKclk\n"
-			       , (clk.getClock() / K) / double(N));
-		}
+		m.set(m_str);
+		ScalarMult(Pm, P, m);
 		TEST_ASSERT(isOnTwistECJac3(Pm));
 		NormalizeJac(Pm_norm, Pm);
 		TEST_ASSERT(isOnTwistECJac3(Pm_norm));
@@ -2455,10 +2420,34 @@ void benchFp2()
 	bench("Fp2::divBy2", N, Fp2::divBy2, &z, &x);
 	bench("Fp2::divBy4", N, Fp2::divBy4, &z, &x);
 }
+void benchEcFp()
+{
+	const Fp P[] = { genPx(), genPy(), Fp(1) };
+	const mie::Vuint m("9347746330740818252600716999005395295745642941583534686803606077666502");
+	Fp Q[3];
+	ECDouble(Q, P);
+	const int N = 10000;
+	bench("G1:ECDouble", N, ECDouble<Fp>, &Q, &Q);
+	bench("G1:ECAdd", N, ECAdd<Fp>, &Q, &P, &Q);
+	bench("G1:ScalarMult", 5000, ScalarMult<Fp, mie::Vuint>, &Q, &P, &m);
+}
+void benchEcFp2()
+{
+	const Fp2 P[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
+	const mie::Vuint m("9347746330740818252600716999005395295745642941583534686803606077666502");
+	Fp2 Q[3];
+	ECDouble(Q, P);
+	const int N = 10000;
+	bench("G2:ECDouble", N, ECDouble<Fp2>, &Q, &Q);
+	bench("G2:ECAdd", N, ECAdd<Fp2>, &Q, &P, &Q);
+	bench("G2:ScalarMult", 5000, ScalarMult<Fp2, mie::Vuint>, &Q, &P, &m);
+}
 void benchAll()
 {
 	benchFp();
 	benchFp2();
+	benchEcFp();
+	benchEcFp2();
 }
 int main(int argc, char* argv[]) try
 {
