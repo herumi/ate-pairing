@@ -221,26 +221,26 @@ private:
 
 template<class F, class Z>
 struct Func1 : noncopyable<Func1<F, Z> > {
-	const F& f_;
+	F& f_;
 	Z* z_;
-	Func1(const F& f, Z* z) : f_(f), z_(z) {}
+	Func1(F& f, Z* z) : f_(f), z_(z) {}
 	void operator()() { f_(z_); }
 };
 template<class F, class Z, class X>
 struct Func2 : noncopyable<Func2<F, Z, X> > {
-	const F& f_;
+	F& f_;
 	Z* z_;
 	const X* x_;
-	Func2(const F& f, Z* z, const X* x) : f_(f), z_(z), x_(x) {}
+	Func2(F& f, Z* z, const X* x) : f_(f), z_(z), x_(x) {}
 	void operator()() { f_(*z_, *x_); }
 };
 template<class F, class Z, class X, class Y>
 struct Func3 : noncopyable<Func3<F, Z, X, Y> > {
-	const F& f_;
+	F& f_;
 	Z* z_;
 	const X* x_;
 	const Y* y_;
-	Func3(const F& f, Z* z, const X* x, const Y* y) : f_(f), z_(z), x_(x), y_(y) {}
+	Func3(F& f, Z* z, const X* x, const Y* y) : f_(f), z_(z), x_(x), y_(y) {}
 	void operator()() { f_(*z_, *x_, *y_); }
 };
 
@@ -262,19 +262,19 @@ void run(const char *msg, int N, Func& func)
 	}
 }
 template<class F, class Z>
-void bench(const char *msg, int N, const F& f, Z* z)
+void bench(const char *msg, int N, F& f, Z* z)
 {
 	Func1<F, Z> func(f, z);
 	run(msg, N, func);
 }
 template<class F, class Z, class X>
-void bench(const char *msg, int N, const F& f, Z* z, const X* x)
+void bench(const char *msg, int N, F& f, Z* z, const X* x)
 {
 	Func2<F, Z, X> func(f, z, x);
 	run(msg, N, func);
 }
 template<class F, class Z, class X, class Y>
-void bench(const char *msg, int N, const F& f, Z* z, const X* x, const Y* y)
+void bench(const char *msg, int N, F& f, Z* z, const X* x, const Y* y)
 {
 	Func3<F, Z, X, Y> func(f, z, x, y);
 	run(msg, N, func);
