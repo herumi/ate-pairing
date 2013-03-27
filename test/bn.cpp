@@ -219,29 +219,46 @@ private:
 	void operator=(const noncopyable&);
 };
 
+template<class F>
+struct Funcm : noncopyable<Funcm<F> > {
+	F& x_;
+	void (F::*f_)();
+	Funcm(F& x, void (F::*f)()) : x_(x), f_(f) {}
+	void operator()() { (x_.*f_)(); }
+};
 template<class F, class Z>
 struct Func1 : noncopyable<Func1<F, Z> > {
 	F& f_;
 	Z* z_;
 	Func1(F& f, Z* z) : f_(f), z_(z) {}
-	void operator()() { f_(z_); }
+	void operator()() { f_(*z_); }
 };
 template<class F, class Z, class X>
 struct Func2 : noncopyable<Func2<F, Z, X> > {
 	F& f_;
 	Z* z_;
-	const X* x_;
-	Func2(F& f, Z* z, const X* x) : f_(f), z_(z), x_(x) {}
+	X* x_;
+	Func2(F& f, Z* z, X* x) : f_(f), z_(z), x_(x) {}
 	void operator()() { f_(*z_, *x_); }
 };
 template<class F, class Z, class X, class Y>
 struct Func3 : noncopyable<Func3<F, Z, X, Y> > {
 	F& f_;
 	Z* z_;
-	const X* x_;
-	const Y* y_;
-	Func3(F& f, Z* z, const X* x, const Y* y) : f_(f), z_(z), x_(x), y_(y) {}
+	X* x_;
+	Y* y_;
+	Func3(F& f, Z* z, X* x, Y* y) : f_(f), z_(z), x_(x), y_(y) {}
 	void operator()() { f_(*z_, *x_, *y_); }
+};
+template<class F, class Z, class X, class Y, class W>
+struct Func4 : noncopyable<Func4<F, Z, X, Y, W> > {
+	F& f_;
+	Z* z_;
+	X* x_;
+	Y* y_;
+	W* w_;
+	Func4(F& f, Z* z, X* x, Y* y, W* w) : f_(f), z_(z), x_(x), y_(y), w_(w) {}
+	void operator()() { f_(*z_, *x_, *y_, *w_); }
 };
 
 template<class Func>
@@ -255,11 +272,19 @@ void run(const char *msg, int N, Func& func)
 	clk.end();
 	double t = clk.getClock() / double(N);
 	printf("%s\t", msg);
-	if (t > 1000 * 100) {
-		printf("%10.2fKclk\n", t / 1000);
+	if (t > 5e5) {
+		printf("%10.2fMclk\n", t / 1e6);
+	} else if (t > 1000 * 100) {
+		printf("%10.2fKclk\n", t / 1e3);
 	} else {
 		printf("%10.2fclk\n", t);
 	}
+}
+template<class F>
+void bench(const char *msg, int N, F& x, void (F::*f)())
+{
+	Funcm<F> func(x, f);
+	run(msg, N, func);
 }
 template<class F, class Z>
 void bench(const char *msg, int N, F& f, Z* z)
@@ -268,15 +293,21 @@ void bench(const char *msg, int N, F& f, Z* z)
 	run(msg, N, func);
 }
 template<class F, class Z, class X>
-void bench(const char *msg, int N, F& f, Z* z, const X* x)
+void bench(const char *msg, int N, F& f, Z* z, X* x)
 {
 	Func2<F, Z, X> func(f, z, x);
 	run(msg, N, func);
 }
 template<class F, class Z, class X, class Y>
-void bench(const char *msg, int N, F& f, Z* z, const X* x, const Y* y)
+void bench(const char *msg, int N, F& f, Z* z, X* x, Y* y)
 {
 	Func3<F, Z, X, Y> func(f, z, x, y);
+	run(msg, N, func);
+}
+template<class F, class Z, class X, class Y, class W>
+void bench(const char *msg, int N, F& f, Z* z, X* x, Y* y, W* w)
+{
+	Func4<F, Z, X, Y, W> func(f, z, x, y, w);
 	run(msg, N, func);
 }
 
@@ -530,20 +561,6 @@ void testFp2()
 		Fp2::divBy2(c2, c2);
 		TEST_EQUAL(c2, c1);
 	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-		x.a_ = 5;
-		x.b_ = 7;
-
-		for (size_t i = 0; i < N; i++) {
-			x.inverse();
-		}
-
-		clk.end();
-		printf("Fp2::inverse %6.2fclk\n", clk.getClock() / double(N));
-	}
 }
 
 /*
@@ -770,18 +787,6 @@ void testFp6()
 		x *= inv_x;
 		TEST_EQUAL(x, 1);
 	}
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			x.inverse();
-		}
-
-		clk.end();
-		printf("Fp6::inverse\t%6.2fclk\n", clk.getClock() / double(N));
-	}
 }
 
 void testFp6Dbl()
@@ -944,19 +949,7 @@ void test_final_exp()
 		Fp12 zt = mie::power(z, Param::r);
 		TEST_EQUAL(zt, Fp12(1));
 	}
-
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			x.final_exp();
-		}
-
-		clk.end();
-		printf("final_exp:\t%6.2fMclk\n", clk.getClock() / double(N) / 1e6);
-	}
+	bench("final_exp", 10000, x, &Fp12::final_exp);
 }
 
 void test_pointDblLineEval()
@@ -993,16 +986,7 @@ void test_pointDblLineEval()
 	TEST_EQUAL(l00, l00_ok);
 	TEST_EQUAL(l02, l02_ok);
 	TEST_EQUAL(l11, l11_ok);
-	Xbyak::util::Clock clk;
-	const size_t N = 10000;
-	clk.begin();
-
-	for (size_t i = 0; i < N; i++) {
-		Fp6::pointDblLineEval(l, Q2, P);
-	}
-
-	clk.end();
-	printf("pointDblLineEval\t% 10.2fclk\n", clk.getClock() / double(N));
+	bench("pointDblLineEval", 10000, Fp6::pointDblLineEval, &l, &Q2, &P);
 }
 
 void test_pointAddLineEval()
@@ -1056,18 +1040,7 @@ void test_pointAddLineEval()
 	TEST_EQUAL(l00, l00_ok);
 	TEST_EQUAL(l02, l02_ok);
 	TEST_EQUAL(l11, l11_ok);
-	{
-		Xbyak::util::Clock clk;
-		const size_t N = 10000;
-		clk.begin();
-
-		for (size_t i = 0; i < N; i++) {
-			Fp6::pointAddLineEval(l, RQ, Q, P);
-		}
-
-		clk.end();
-		printf("pointAddLineEval\t% 10.2fclk\n", clk.getClock() / double(N));
-	}
+	bench("pointAddLineEval", 10000, Fp6::pointAddLineEval, &l, &RQ, &Q, &P);
 }
 
 void test_compression()
@@ -1091,18 +1064,7 @@ void test_compression()
 	TEST_EQUAL(b.g3_, c.getFp2()[2]);
 	TEST_EQUAL(b.g4_, c.getFp2()[1]);
 	TEST_EQUAL(b.g5_, c.getFp2()[5]);
-	{
-		Xbyak::util::Clock clk;
-		const size_t N = 10000;
-		clk.begin();
-
-		for (size_t i = 0; i < N; i++) {
-			b.decompress();
-		}
-
-		clk.end();
-		printf("decompress:\t% 10.2fclk\n", clk.getClock() / double(N));
-	}
+	bench("decompress", 10000, b, &Compress::decompress);
 	TEST_EQUAL(a, c);
 }
 
@@ -1129,18 +1091,7 @@ void test_compressed_square()
 	Compress::square_n(b, 1);
 	b.decompress();
 	TEST_EQUAL(a, d);
-	{
-		Xbyak::util::Clock clk;
-		const size_t N = 10000;
-		clk.begin();
-
-		for (size_t i = 0; i < N; i++) {
-			Fp12::square(a);
-		}
-
-		clk.end();
-		printf("Compress::square:\t% 10.2fclk\n", clk.getClock() / double(N));
-	}
+	bench("Compress::square", 10000, Fp12::square, &a);
 }
 
 void test_compressed_fixed_power()
@@ -1159,18 +1110,7 @@ void test_compressed_fixed_power()
 	Compress::fixed_power(b, a);
 	Fp12 c = mie::power(a, Param::z.get());
 	TEST_EQUAL(b, c);
-	{
-		Xbyak::util::Clock clk;
-		const size_t N = 10000;
-		clk.begin();
-
-		for (size_t i = 0; i < N; i++) {
-			Compress::fixed_power(b, a);
-		}
-
-		clk.end();
-		printf("Compress::fixed_power:\t% 10.2fclk\n", clk.getClock() / double(N));
-	}
+	bench("Compress::fixed_power", 10000, Compress::fixed_power, &b, &a);
 }
 
 void test_sqru()
@@ -1182,7 +1122,6 @@ void test_sqru()
 		for (int i = 0; i < 12; ++i) {
 			a.get()[i] = i;
 		}
-
 		Fp12 aa;
 		a.mapToCyclo(aa);
 		a = aa;
@@ -1191,42 +1130,9 @@ void test_sqru()
 		b.sqru();
 		Fp12::square(c);
 		TEST_EQUAL(b, c);
-		{
-			Xbyak::util::Clock clk;
-			const size_t N = 10000;
-			clk.begin();
-
-			for (size_t i = 0; i < N; i++) {
-				a.sqru();
-			}
-
-			clk.end();
-			printf("Fp12::sqru:\t% 10.2fclk\n", clk.getClock() / double(N));
-		}
-		{
-			Xbyak::util::Clock clk;
-			const size_t N = 10000;
-			clk.begin();
-
-			for (size_t i = 0; i < N; i++) {
-				Fp12::square(a);
-			}
-
-			clk.end();
-			printf("Fp12::square:\t% 10.2fclk\n", clk.getClock() / double(N));
-		}
-		{
-			Xbyak::util::Clock clk;
-			const size_t N = 10000;
-			clk.begin();
-
-			for (size_t i = 0; i < N; i++) {
-				a *= b;
-			}
-
-			clk.end();
-			printf("Fp12::mul:\t% 10.2fclk\n", clk.getClock() / double(N));
-		}
+		bench("Fp12::sqru", 10000, a, &Fp12::sqru);
+		bench("Fp12::square", 10000, Fp12::square, &a);
+		bench("Fp12::mul", 10000, Fp12::mul, &a, &a, &b);
 	}
 }
 
@@ -1256,18 +1162,7 @@ void test_FrobEndOnTwist_1()
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
 
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		int N = 10000;
-
-		for (int i = 0; i < N; i++) {
-			FrobEndOnTwist_1(Q, Q);
-		}
-
-		clk.end();
-		printf("FrobEndTwist_1:\t% 10.2fclk\n", clk.getClock() / double(N));
-	}
+	bench("FrobEndTwist_1", 100000, &FrobEndOnTwist_1<Fp>, &Q, &Q);
 }
 
 void test_FrobEndOnTwist_2()
@@ -1295,19 +1190,7 @@ void test_FrobEndOnTwist_2()
 		TEST_EQUAL(Q[0], Q1[0]);
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
-
-	{
-		Xbyak::util::Clock clk;
-		clk.begin();
-		int N = 10000;
-
-		for (int i = 0; i < N; i++) {
-			FrobEndOnTwist_2(Q, Q);
-		}
-
-		clk.end();
-		printf("FrobEndTwist_2:\t%.2fclk\n", clk.getClock() / double(N));
-	}
+	bench("FrobEndTwist_2", 100000, &FrobEndOnTwist_2<Fp>, &Q, &Q);
 }
 
 void testPairing()
@@ -1603,32 +1486,6 @@ void testDbl_add_sub()
 		TEST_EQUAL(ct, c);
 	}
 	{
-		FpDbl ad(ads), bd(bds);
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			FpDbl::add(ad, ad, bd);
-		}
-
-		clk.end();
-		printf("FpDbl::add\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		FpDbl ad(ads), bd(bds);
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			FpDbl::addNC(ad, ad, bd);
-		}
-
-		clk.end();
-		printf("FpDbl::addNC\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
 		const char* cds = "0x2414fe6b4629a72b9120ac2dae95e6d78d67a14e3b096240723d7940d1cdd1de054bb2d7c1710b19b6e38010bf359cc9de7d04c41c552c787aef6094e5a973dc";
 		FpDbl ad(ads);
 		const FpDbl cd(cds);
@@ -1645,19 +1502,6 @@ void testDbl_add_sub()
 		TEST_EQUAL(ct, c);
 	}
 	{
-		FpDbl ad(ads);
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			FpDbl::neg(ad, ad);
-		}
-
-		clk.end();
-		printf("FpDbl::neg\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
 		FpDbl ad, bd;
 		const Fp c = a - b;
 		Fp ct;
@@ -1666,32 +1510,6 @@ void testDbl_add_sub()
 		FpDbl::sub(ad, ad, bd);
 		FpDbl::mod(ct, ad);
 		TEST_EQUAL(ct, c);
-	}
-	{
-		FpDbl ad(ads), bd(bds);
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			FpDbl::sub(ad, ad, bd);
-		}
-
-		clk.end();
-		printf("FpDbl::sub\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		FpDbl ad(ads), bd(bds);
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			FpDbl::subNC(ad, ad, bd);
-		}
-
-		clk.end();
-		printf("FpDbl::subNC\t%6.2fclk\n", clk.getClock() / double(N));
 	}
 }
 
@@ -1716,37 +1534,6 @@ void testFpDbl_mul_mod()
 		FpDbl::mod(s, w);
 		TEST_EQUAL(z, s);
 		TEST_EQUAL(zt, s);
-	}
-	{
-		mie::Vuint ai(as), bi(bs);
-		Fp a, b;
-		Fp::setDirect(a, ai);
-		Fp::setDirect(b, bi);
-		FpDbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000000;
-
-		for (size_t i = 0; i < N; i++) {
-			FpDbl::mul(cd, a, b);
-		}
-
-		clk.end();
-		printf("FpDbl::mul\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		FpDbl cd(cds);
-		Fp c;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000000;
-
-		for (size_t i = 0; i < N; i++) {
-			FpDbl::mod(c, cd);
-		}
-
-		clk.end();
-		printf("FpDbl::mod\t%6.2fclk\n", clk.getClock() / double(N));
 	}
 }
 
@@ -2265,7 +2052,7 @@ void benchFp2()
 	bench("Fp2::sub", N, Fp2::sub, &x, &x, &y);
 	bench("Fp2::neg", N, Fp2::neg, &x, &x);
 	bench("Fp2::mul", N, Fp2::mul, &x, &x, &y);
-//	bench("Fp2::inv", N, Fp2::inv, &z, &x);
+	bench("Fp2::inverse", N, x, &Fp2::inverse);
 	bench("Fp2::square", N, Fp2::square, &x, &x);
 	bench("Fp2::mul_xi", N, Fp2::mul_xi, &x, &x);
 	bench("Fp2::addNC", N, Fp2::addNC, &x, &x, &y);
@@ -2274,6 +2061,19 @@ void benchFp2()
 	bench("Fp2::divBy2", N, Fp2::divBy2, &x, &x);
 	bench("Fp2::divBy4", N, Fp2::divBy4, &x, &x);
 }
+
+void benchFpDbl()
+{
+	const char* ads = "0x10e6616f9d658d62913a152516a1930d3b95eb1c4f69dd334c286bf2e322e34fab44d283e8ef4e6491c7fef40ca63362182fb3be3aad38785109f6b1a568c24";
+	const char* bds = "0x18440289e040f84f0f8bb27b1f5607ad646bfeccbd737684bfdfeae964fd3bb4c5bb9f032044cb265788331de43a90e842b3b1e88eb9817676c8fe4934a8632";
+	FpDbl ad(ads), bd(bds);
+	bench("FpDbl::add", 100000, FpDbl::add, &ad, &ad, &bd);
+	bench("FpDbl::addNC", 100000, FpDbl::addNC, &ad, &ad, &bd);
+	bench("FpDbl::neg", 100000, FpDbl::neg, &ad, &ad);
+	bench("FpDbl::sub", 100000, FpDbl::sub, &ad, &ad, &bd);
+	bench("FpDbl::subNC", 100000, FpDbl::subNC, &ad, &ad, &bd);
+}
+
 void benchFp6()
 {
 	Fp6 x, y;
@@ -2287,6 +2087,7 @@ void benchFp6()
 	bench("Fp6::add", N, Fp6::add, &x, &x, &y);
 	bench("Fp6::sub", N, Fp6::sub, &x, &x, &y);
 	bench("Fp6::mul", N, Fp6::mul, &x, &x, &y);
+	bench("Fp6::inverse", N, x, &Fp6::inverse);
 }
 void benchEcFp()
 {
@@ -2331,6 +2132,7 @@ void benchAll()
 {
 	benchFp();
 	benchFp2();
+	benchFpDbl();
 	benchFp6();
 	benchFp6Dbl();
 	benchEcFp();
