@@ -132,8 +132,7 @@ struct addsubmul : E {
 	MIE_FORCE_INLINE T& operator+=(const N& rhs) { T::add(static_cast<T&>(*this), static_cast<T&>(*this), rhs); return static_cast<T&>(*this); }
 	MIE_FORCE_INLINE T& operator-=(const T& rhs) { T::sub(static_cast<T&>(*this), static_cast<T&>(*this), rhs); return static_cast<T&>(*this); }
 	MIE_FORCE_INLINE T& operator*=(const T& rhs) { T::mul(static_cast<T&>(*this), static_cast<T&>(*this), rhs); return static_cast<T&>(*this); }
-	template<class N>
-	MIE_FORCE_INLINE friend T operator+(const T& a, const N& b) { T c; T::add(c, a, b); return c; }
+	MIE_FORCE_INLINE friend T operator+(const T& a, const T& b) { T c; T::add(c, a, b); return c; }
 	MIE_FORCE_INLINE friend T operator-(const T& a, const T& b) { T c; T::sub(c, a, b); return c; }
 	MIE_FORCE_INLINE friend T operator*(const T& a, const T& b) { T c; T::mul(c, a, b); return c; }
 };
