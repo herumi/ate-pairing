@@ -1162,7 +1162,7 @@ void test_FrobEndOnTwist_1()
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
 
-	bench("FrobEndTwist_1", 100000, &FrobEndOnTwist_1<Fp>, &Q, &Q);
+	bench("FrobEndTwist_1", 100000, FrobEndOnTwist_1<Fp>, &Q, &Q);
 }
 
 void test_FrobEndOnTwist_2()
@@ -1190,7 +1190,7 @@ void test_FrobEndOnTwist_2()
 		TEST_EQUAL(Q[0], Q1[0]);
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
-	bench("FrobEndTwist_2", 100000, &FrobEndOnTwist_2<Fp>, &Q, &Q);
+	bench("FrobEndTwist_2", 100000, FrobEndOnTwist_2<Fp>, &Q, &Q);
 }
 
 void testPairing()

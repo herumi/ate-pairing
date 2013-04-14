@@ -425,6 +425,75 @@ class Code : public Xbyak::CodeGenerator {
 #endif
 		outLocalLabel();
 	}
+#ifdef XBYAK64
+	// add1(Unit *out, const Unit *x, size_t n, Unit y);
+	void genAddSub1(bool isAdd)
+	{
+		using namespace Xbyak;
+		inLocalLabel();
+		const Reg64& a = rax;
+		const Reg64& c = rcx;
+#ifdef XBYAK64_WIN
+		mov(r10, c);
+		mov(c, r8); // n
+		const Reg64& out = r10;
+		const Reg64& x = rdx;
+		const Reg64& y = r9;
+		const Reg64& t = r11;
+#else
+		mov(r10, c);
+		mov(c, rdx); // n
+		const Reg64& out = rdi;
+		const Reg64& x = rsi;
+		const Reg64& y = r10;
+		const Reg64& t = r8;
+#endif
+		lea(out, ptr [out + c * 8]);
+		lea(x, ptr [x + c * 8]);
+		xor(a, a);
+		neg(c);
+		mov(t, ptr [x + c * 8]);
+		if (isAdd) {
+			add(t, y);
+		} else {
+			sub(t, y);
+		}
+		mov(ptr [out + c * 8], t);
+		inc(c);
+#if 0
+		jrcxz(".exit");
+	L(".lp");
+		mov(t, ptr [x + c * 8]);
+		if (isAdd) {
+			adc(t, a);
+		} else {
+			sbb(t, a);
+		}
+		mov(ptr [out + c * 8], t);
+		inc(c);
+		jrcxz(".exit");
+		jmp(".lp");
+#else
+	// faster on Core i3
+		jz(".exit");
+	L(".lp");
+		mov(t, ptr [x + c * 8]);
+		if (isAdd) {
+			adc(t, a);
+		} else {
+			sbb(t, a);
+		}
+		mov(ptr [out + c * 8], t);
+		inc(c);
+		jnz(".lp");
+#endif
+
+	L(".exit");
+		setc(al);
+		ret();
+		outLocalLabel();
+	}
+#endif
 	void genMul()
 	{
 		using namespace Xbyak;
@@ -619,6 +688,11 @@ public:
 		mie::local::PrimitiveFunction::addN = (bool (*)(Unit *, const Unit *, const Unit *, size_t))getCurr();
 		genAddSub(true);
 		align(16);
+#ifdef XBYAK64
+		mie::local::PrimitiveFunction::add1 = (bool (*)(Unit *, const Unit *, size_t, Unit))getCurr();
+		genAddSub1(true);
+		align(16);
+#endif
 		mie::local::PrimitiveFunction::subN = (bool (*)(Unit *, const Unit *, const Unit *, size_t))getCurr();
 		genAddSub(false);
 		align(16);

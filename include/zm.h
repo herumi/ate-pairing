@@ -128,10 +128,12 @@ struct comparable : E {
 
 template<class T, class E = Empty<T> >
 struct addsubmul : E {
-	MIE_FORCE_INLINE T& operator+=(const T& rhs) { T::add(static_cast<T&>(*this), static_cast<T&>(*this), rhs); return static_cast<T&>(*this); }
+	template<class N>
+	MIE_FORCE_INLINE T& operator+=(const N& rhs) { T::add(static_cast<T&>(*this), static_cast<T&>(*this), rhs); return static_cast<T&>(*this); }
 	MIE_FORCE_INLINE T& operator-=(const T& rhs) { T::sub(static_cast<T&>(*this), static_cast<T&>(*this), rhs); return static_cast<T&>(*this); }
 	MIE_FORCE_INLINE T& operator*=(const T& rhs) { T::mul(static_cast<T&>(*this), static_cast<T&>(*this), rhs); return static_cast<T&>(*this); }
-	MIE_FORCE_INLINE friend T operator+(const T& a, const T& b) { T c; T::add(c, a, b); return c; }
+	template<class N>
+	MIE_FORCE_INLINE friend T operator+(const T& a, const N& b) { T c; T::add(c, a, b); return c; }
 	MIE_FORCE_INLINE friend T operator-(const T& a, const T& b) { T c; T::sub(c, a, b); return c; }
 	MIE_FORCE_INLINE friend T operator*(const T& a, const T& b) { T c; T::mul(c, a, b); return c; }
 };
@@ -513,6 +515,11 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 	ERR:
 		throw std::invalid_argument(std::string("bad digit `") + str + "`");
 	}
+	void fromStr(const std::string& str, int base = 10)
+	{
+		set(str, base);
+	}
+	std::string toStr(int base = 10) const { return toString(base); }
 	static int compare(const VuintT& x, const VuintT& y)
 	{
 		return F::compare(&x[0], x.size(), &y[0], y.size());
@@ -572,7 +579,7 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 		return c;
 	}
 
-	static void add(VuintT& out, const VuintT& x, const VuintT& y)
+	static inline void add(VuintT& out, const VuintT& x, const VuintT& y)
 	{
 		bool c = add_in(out, x, y);
 		if (c) {
@@ -580,6 +587,16 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 			out[out.size() - 1] = 1;
 		} else {
 			out.trim();
+		}
+	}
+	static inline void add(VuintT& out, const VuintT& x, uint32_t y)
+	{
+		const size_t n = x.size();
+		out.alloc(n);
+		bool c = F::add1(&out[0], &x[0], n, y);
+		if (c) {
+			out.alloc(n + 1);
+			out[n] = 1;
 		}
 	}
 	static bool sub_in(VuintT& out, const VuintT& x, const VuintT& y)
@@ -1003,16 +1020,21 @@ public:
 		if (isNeg_) return "-" + v_.toString(base);
 		return v_.toString(base);
 	}
-	void set(const std::string& str)
+	void set(const std::string& str, int base = 10)
 	{
 		isNeg_ = false;
 		if (str.size() > 0 && str[0] == '-') {
 			isNeg_ = true;
-			v_.set(&str[1]);
+			v_.set(&str[1], base);
 		} else {
-			v_.set(str);
+			v_.set(str, base);
 		}
 	}
+	void fromStr(const std::string& str, int base = 10)
+	{
+		set(str, base);
+	}
+	std::string toStr(int base = 10) { return toString(base); }
 	static inline int compare(const VsintT& x, const VsintT& y)
 	{
 		if (x.isNeg_ ^ y.isNeg_) {

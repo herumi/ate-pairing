@@ -238,16 +238,6 @@ private:
 	void operator=(const Ext12&);
 };
 
-// should be moved into Xbyak?
-bool operator==(const Reg32e& x, const Reg32e& y)
-{
-	if (x.getIdx() != y.getIdx()) return false;
-	if (x.index_.getIdx() != y.index_.getIdx()) return false;
-	if (x.scale_ != y.scale_) return false;
-	if (x.disp_ != y.disp_) return false;
-	return true;
-}
-
 // for C
 // r = (1 << 256) % p
 // rr = r^(-1) % p
