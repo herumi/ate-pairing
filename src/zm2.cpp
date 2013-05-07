@@ -1168,7 +1168,7 @@ L("@@");
 		mov(c3, a);
 		mul4x1(p, c3, t3, t2, t1, t0, t4);
 		add(c0, t0);
-		mov(c0, 0);
+//		mov(c0, 0); // c0 is always zero because Montgomery reduction
 		adc(c1, t1);
 		adc(c2, t2);
 		adc(c3, y);
