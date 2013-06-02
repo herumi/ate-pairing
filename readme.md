@@ -82,9 +82,11 @@ then you can get the binary in ate/x64/Release/test_bn.exe .
 
 Type:
 
-    $ make
-
-then you can get ate/test/bn .
+    $ git clone git://github.com/herumi/xbyak.git
+    $ git clone git://github.com/herumi/ate-pairing.git
+    $ cd ate-pairing
+    $ make -j
+    $ test/bn
 
 >Remark:The other binaries except bn are for only test.
 
