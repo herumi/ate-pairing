@@ -311,7 +311,7 @@ void bench(const char *msg, int N, F& f, Z* z, X* x, Y* y, W* w)
 	run(msg, N, func);
 }
 
-void testECOperationsG1()
+void testECOperationsG1(bool allBench)
 {
 	puts(__FUNCTION__);
 	const Fp P[] = { genPx(), genPy(), Fp(1) };
@@ -352,7 +352,7 @@ void testECOperationsG1()
 		TEST_EQUAL(P2[0], P2_ok[0]);
 		TEST_EQUAL(P2[1], P2_ok[1]);
 		TEST_EQUAL(P2[2], P2_ok[2]);
-		bench("ECDouble", 100000, ECDouble<Fp>, &P2, &P);
+		if (allBench) bench("ECDouble", 100000, ECDouble<Fp>, &P2, &P);
 	}
 	{
 		Fp P3[] = { P[0], P[1], P[2], };
@@ -371,7 +371,7 @@ void testECOperationsG1()
 		TEST_EQUAL(PR[0], PR_ok[0]);
 		TEST_EQUAL(PR[1], PR_ok[1]);
 		TEST_EQUAL(PR[2], PR_ok[2]);
-		bench("ECAdd", 100000, ECAdd<Fp>, &PR, &P, &R);
+		if (allBench) bench("ECAdd", 100000, ECAdd<Fp>, &PR, &P, &R);
 	}
 	{
 		mie::Vuint m;
@@ -420,7 +420,7 @@ void testECOperationsG1()
 		TEST_EQUAL(Pm[1], Pm_ok[1]);
 		TEST_EQUAL(Pm[2], Pm_ok[2]);
 
-		bench("ScalarMult", 5000, ScalarMult<Fp, mie::Vuint>, &Pm, &P, &m);
+		if (allBench) bench("ScalarMult", 5000, ScalarMult<Fp, mie::Vuint>, &Pm, &P, &m);
 	}
 	{
 		const mie::Vuint& r = Param::r;
@@ -952,7 +952,7 @@ void test_final_exp()
 	bench("final_exp", 10000, x, &Fp12::final_exp);
 }
 
-void test_pointDblLineEval()
+void test_pointDblLineEval(bool allBench)
 {
 	puts(__FUNCTION__);
 	Fp2 Q[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
@@ -986,10 +986,10 @@ void test_pointDblLineEval()
 	TEST_EQUAL(l00, l00_ok);
 	TEST_EQUAL(l02, l02_ok);
 	TEST_EQUAL(l11, l11_ok);
-	bench("pointDblLineEval", 10000, Fp6::pointDblLineEval, &l, &Q2, &P);
+	if (allBench) bench("pointDblLineEval", 10000, Fp6::pointDblLineEval, &l, &Q2, &P);
 }
 
-void test_pointAddLineEval()
+void test_pointAddLineEval(bool allBench)
 {
 	puts(__FUNCTION__);
 	Fp2 Q[] = { genQx(), genQy(), Fp2(Fp(1), Fp(0)) };
@@ -1040,10 +1040,10 @@ void test_pointAddLineEval()
 	TEST_EQUAL(l00, l00_ok);
 	TEST_EQUAL(l02, l02_ok);
 	TEST_EQUAL(l11, l11_ok);
-	bench("pointAddLineEval", 10000, Fp6::pointAddLineEval, &l, &RQ, &Q, &P);
+	if (allBench) bench("pointAddLineEval", 10000, Fp6::pointAddLineEval, &l, &RQ, &Q, &P);
 }
 
-void test_compression()
+void test_compression(bool allBench)
 {
 	puts(__FUNCTION__);
 	Fp12 a;
@@ -1064,11 +1064,13 @@ void test_compression()
 	TEST_EQUAL(b.g3_, c.getFp2()[2]);
 	TEST_EQUAL(b.g4_, c.getFp2()[1]);
 	TEST_EQUAL(b.g5_, c.getFp2()[5]);
-	bench("decompress", 10000, b, &Compress::decompress);
-	TEST_EQUAL(a, c);
+	if (allBench) {
+		bench("decompress", 10000, b, &Compress::decompress);
+		TEST_EQUAL(a, c);
+	}
 }
 
-void test_compressed_square()
+void test_compressed_square(bool allBench)
 {
 	puts(__FUNCTION__);
 	Fp12 a;
@@ -1091,10 +1093,10 @@ void test_compressed_square()
 	Compress::square_n(b, 1);
 	b.decompress();
 	TEST_EQUAL(a, d);
-	bench("Compress::square", 10000, Fp12::square, &a);
+	if (allBench) bench("Compress::square", 10000, Fp12::square, &a);
 }
 
-void test_compressed_fixed_power()
+void test_compressed_fixed_power(bool allBench)
 {
 	puts(__FUNCTION__);
 	Fp12 a;
@@ -1110,10 +1112,10 @@ void test_compressed_fixed_power()
 	Compress::fixed_power(b, a);
 	Fp12 c = mie::power(a, Param::z.get());
 	TEST_EQUAL(b, c);
-	bench("Compress::fixed_power", 10000, Compress::fixed_power, &b, &a);
+	if (allBench) bench("Compress::fixed_power", 10000, Compress::fixed_power, &b, &a);
 }
 
-void test_sqru()
+void test_sqru(bool allBench)
 {
 	puts(__FUNCTION__);
 	{
@@ -1130,13 +1132,13 @@ void test_sqru()
 		b.sqru();
 		Fp12::square(c);
 		TEST_EQUAL(b, c);
-		bench("Fp12::sqru", 10000, a, &Fp12::sqru);
-		bench("Fp12::square", 10000, Fp12::square, &a);
-		bench("Fp12::mul", 10000, Fp12::mul, &a, &a, &b);
+		if (allBench) bench("Fp12::sqru", 10000, a, &Fp12::sqru);
+		if (allBench) bench("Fp12::square", 10000, Fp12::square, &a);
+		if (allBench) bench("Fp12::mul", 10000, Fp12::mul, &a, &a, &b);
 	}
 }
 
-void test_FrobEndOnTwist_1()
+void test_FrobEndOnTwist_1(bool allBench)
 {
 	puts(__FUNCTION__);
 	Fp2 Q[] = { genQx(), genQy() };
@@ -1162,10 +1164,10 @@ void test_FrobEndOnTwist_1()
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
 
-	bench("FrobEndTwist_1", 100000, FrobEndOnTwist_1<Fp>, &Q, &Q);
+	if (allBench) bench("FrobEndTwist_1", 100000, FrobEndOnTwist_1<Fp>, &Q, &Q);
 }
 
-void test_FrobEndOnTwist_2()
+void test_FrobEndOnTwist_2(bool allBench)
 {
 	puts(__FUNCTION__);
 	Fp2 Q[] = { genQx(), genQy() };
@@ -1190,7 +1192,7 @@ void test_FrobEndOnTwist_2()
 		TEST_EQUAL(Q[0], Q1[0]);
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
-	bench("FrobEndTwist_2", 100000, FrobEndOnTwist_2<Fp>, &Q, &Q);
+	if (allBench) bench("FrobEndTwist_2", 100000, FrobEndOnTwist_2<Fp>, &Q, &Q);
 }
 
 void testPairing()
@@ -1575,7 +1577,7 @@ void testFp2Dbl()
 	}
 }
 
-void testFp2Dbl_add_sub()
+void testFp2Dbl_add_sub(bool allBench)
 {
 	puts(__FUNCTION__);
 	const Fp2 one(Fp("1"), Fp("0"));
@@ -1626,6 +1628,15 @@ void testFp2Dbl_add_sub()
 		TEST_EQUAL(ct, cc);
 	}
 	{
+		const Fp2 c = a - b;
+		Fp2 ct;
+		Fp2Dbl adt(ad);
+		Fp2Dbl::sub(adt, adt, bd);
+		Fp2Dbl::mod(ct, adt);
+		TEST_EQUAL(ct, c);
+	}
+	if (!allBench) return;
+	{
 		Fp2Dbl cd;
 		Xbyak::util::Clock clk;
 		clk.begin();
@@ -1663,14 +1674,6 @@ void testFp2Dbl_add_sub()
 
 		clk.end();
 		printf("Fp2Dbl::neg\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		const Fp2 c = a - b;
-		Fp2 ct;
-		Fp2Dbl adt(ad);
-		Fp2Dbl::sub(adt, adt, bd);
-		Fp2Dbl::mod(ct, adt);
-		TEST_EQUAL(ct, c);
 	}
 	{
 		Fp2Dbl cd;
@@ -1732,7 +1735,7 @@ void testFp2Dbl_add_sub()
 	}
 }
 
-void testFp2Dbl_mul_mod()
+void testFp2Dbl_mul_mod(bool allBench)
 {
 	puts(__FUNCTION__);
 	const Fp2 a(
@@ -1764,6 +1767,15 @@ void testFp2Dbl_mul_mod()
 		TEST_EQUAL(ct, c);
 	}
 	{
+		const Fp2 c = a * a;
+		Fp2Dbl cd;
+		Fp2Dbl::square(cd, a);
+		Fp2 ct;
+		Fp2Dbl::mod(ct, cd);
+		TEST_EQUAL(ct, c);
+	}
+	if (!allBench) return;
+	{
 		Fp2Dbl cd;
 		Xbyak::util::Clock clk;
 		clk.begin();
@@ -1788,14 +1800,6 @@ void testFp2Dbl_mul_mod()
 
 		clk.end();
 		printf("Fp2Dbl::mulOpt2\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		const Fp2 c = a * a;
-		Fp2Dbl cd;
-		Fp2Dbl::square(cd, a);
-		Fp2 ct;
-		Fp2Dbl::mod(ct, cd);
-		TEST_EQUAL(ct, c);
 	}
 	{
 		Fp2Dbl cd;
@@ -2128,9 +2132,10 @@ void benchFp6Dbl()
 	bench("Fp6Dbl::subNC", N, Fp6Dbl::subNC, &x, &x, &y);
 	bench("Fp6Dbl::neg", N, Fp6Dbl::neg, &x, &x);
 }
-void benchAll()
+void benchAll(bool benchAll)
 {
 	benchFp();
+	if (!benchAll) return;
 	benchFp2();
 	benchFpDbl();
 	benchFp6();
@@ -2143,6 +2148,7 @@ int main(int argc, char* argv[]) try
 	argc--, argv++;
 	int mode = -1;
 	bool useMulx = true;
+	bool allBench = false;
 
 	while (argc > 0) {
 		if (argc > 1 && strcmp(*argv, "-m") == 0) {
@@ -2152,6 +2158,13 @@ int main(int argc, char* argv[]) try
 		if (argc > 1 && strcmp(*argv, "-mulx") == 0) {
 			argc--, argv++;
 			useMulx = atoi(*argv) == 1;
+		} else
+		if (strcmp(*argv, "-all") == 0) {
+			allBench = true;
+		} else
+		{
+			printf("bn [-m (0|1)][-mulx (0|1)][-all]\n");
+			return 1;
 		}
 		argc--, argv++;
 	}
@@ -2165,28 +2178,28 @@ int main(int argc, char* argv[]) try
 	testFpDbl_mul_mod();
 	testFp2();
 	testFp2Dbl();
-	testFp2Dbl_add_sub();
-	testFp2Dbl_mul_mod();
+	testFp2Dbl_add_sub(allBench);
+	testFp2Dbl_mul_mod(allBench);
 	testFp6();
 	testFp6Dbl();
 	testFp12();
-	test_pointDblLineEval();
-	test_pointAddLineEval();
-	test_compression();
-	test_compressed_square();
-	test_compressed_fixed_power();
-	test_sqru();
-	test_FrobEndOnTwist_1();
-	test_FrobEndOnTwist_2();
+	test_pointDblLineEval(allBench);
+	test_pointAddLineEval(allBench);
+	test_compression(allBench);
+	test_compressed_square(allBench);
+	test_compressed_fixed_power(allBench);
+	test_sqru(allBench);
+	test_FrobEndOnTwist_1(allBench);
+	test_FrobEndOnTwist_2(allBench);
 	testECDouble();
 	testECAdd();
-	testECOperationsG1();
+	testECOperationsG1(allBench);
 	testECOperationsG2();
-	test_final_exp();
 	testFpDbl_mul_mod();
 	testPairingJac();
+	test_final_exp();
 	testPairing();
-	benchAll();
+	benchAll(allBench);
 
 	if (sclk.getCount()) printf("sclk:%.2fclk(%dtimes)\n", sclk.getClock() / double(sclk.getCount()), sclk.getCount());
 
