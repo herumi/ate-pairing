@@ -78,6 +78,13 @@ then you can get the binary in ate/x64/Release/test_bn.exe .
 * make -j
 * test/bn.exe
 
+### mulx supported with Haswell
+
+test/bn.exe use mulx if possible and test/bn.exe -mulx 0 does not use mulx.
+You can verify the difference with/without mulx on Haswell.
+
+I don't have Haswell, so could you tell me the timing?
+
 ### Linux
 
 Type:
