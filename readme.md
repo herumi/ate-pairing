@@ -150,6 +150,7 @@ Reference
 
 History
 -------------
+* 2013/Jun/02 support mulx of Haswell
 * 2013/Mar/08 add elliptic curve class
 * 2012/Jan/30 rewrite ate pairing according to
   "Faster explicit formulas for computing pairings over ordinary curves.
