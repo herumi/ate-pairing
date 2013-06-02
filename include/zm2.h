@@ -260,7 +260,7 @@ public:
 	MIE_FORCE_INLINE Unit& operator[](size_t i) { return v_[i]; }
 	MIE_FORCE_INLINE size_t size() const { return N; }
 
-	static void setModulo(const mie::Vuint& p, int mode);
+	static void setModulo(const mie::Vuint& p, int mode, bool useMulx = true);
 	static inline const mie::Vuint& getModulo() { return p_; }
 	static const Fp& getDirectP(int n); /* n = 0..6 */
 	static inline const mie::Vuint& getMontgomeryR() { return montgomeryR_; }

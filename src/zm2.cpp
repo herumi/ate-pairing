@@ -74,8 +74,9 @@ struct CpuExt {
 	cpu vendor=amd, family=15, model=4, extFamily=1, extModel=0, stepping=2 ; Opteron 2376
 */
 bool interleaveLoad = false;
+bool g_useMulx = false;
 
-void detectCpu(int mode)
+void detectCpu(int mode, bool useMulx)
 {
 	using namespace Xbyak::util;
 	Xbyak::util::Cpu cpu;
@@ -98,6 +99,14 @@ void detectCpu(int mode)
 		}
 //		printf("-m %d option is selected, but try -m %d to verify the determination.\n", interleaveLoad, 1 - interleaveLoad);
 		break;
+	}
+	if (cpu.has(Xbyak::util::Cpu::tGPR1)) {
+		g_useMulx = useMulx;
+		if (g_useMulx) {
+			fprintf(stderr, "use mulx\n");
+		}
+	} else {
+		g_useMulx = false;
 	}
 //	printf("interleaveLoad=%d\n", interleaveLoad);
 }
@@ -1116,6 +1125,18 @@ L("@@");
 	{
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
+		if (g_useMulx) {
+			mov(d, x);
+			mulx(t1, t0, ptr [py + 8 * 0]);
+			mulx(t2, a, ptr [py + 8 * 1]);
+			add(t1, a);
+			mulx(x, a, ptr [py + 8 * 2]);
+			adc(t2, a);
+			mulx(d, a, ptr [py + 8 * 3]);
+			adc(x, a);
+			adc(d, 0);
+			return;
+		}
 		mov(a, ptr [py]);
 		mul(x);
 		mov(t0, a);
@@ -1263,26 +1284,39 @@ L("@@");
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
 
-		mov(t5, ptr [px]);
-		mov(a, ptr [py + 8 * 0]);
-		mul(t5);
-		mov(ptr [pz + 8 * 0], a);
-		mov(t0, d);
-		mov(a, ptr [py + 8 * 1]);
-		mul(t5);
-		mov(t3, a);
-		mov(t1, d);
-		mov(a, ptr [py + 8 * 2]);
-		mul(t5);
-		mov(t4, a);
-		mov(t2, d);
-		mov(a, ptr [py + 8 * 3]);
-		mul(t5);
-		add(t0, t3);
-		mov(t3, 0);
-		adc(t1, t4);
-		adc(t2, a);
-		adc(t3, d); // [t3:t2:t1:t0:pz[0]] = px[0] * py[3..0]
+		if (g_useMulx) {
+			mov(d, ptr [px]);
+			mulx(t0, a, ptr [py + 8 * 0]);
+			mov(ptr [pz + 8 * 0], a);
+			mulx(t1, a, ptr [py + 8 * 1]);
+			add(t0, a);
+			mulx(t2, a, ptr [py + 8 * 2]);
+			adc(t1, a);
+			mulx(t3, a, ptr [py + 8 * 3]);
+			adc(t2, a);
+			adc(t3, 0);
+		} else {
+			mov(t5, ptr [px]);
+			mov(a, ptr [py + 8 * 0]);
+			mul(t5);
+			mov(ptr [pz + 8 * 0], a);
+			mov(t0, d);
+			mov(a, ptr [py + 8 * 1]);
+			mul(t5);
+			mov(t3, a);
+			mov(t1, d);
+			mov(a, ptr [py + 8 * 2]);
+			mul(t5);
+			mov(t4, a);
+			mov(t2, d);
+			mov(a, ptr [py + 8 * 3]);
+			mul(t5);
+			add(t0, t3);
+			mov(t3, 0);
+			adc(t1, t4);
+			adc(t2, a);
+			adc(t3, d); // [t3:t2:t1:t0:pz[0]] = px[0] * py[3..0]
+		}
 
 		// here [t3:t2:t1:t0]
 
@@ -3127,9 +3161,9 @@ L("@@");
 #endif
 		if (P > 0) add(rsp, P);
 	}
-	void init(const mie::Vuint& p, int mode)
+	void init(const mie::Vuint& p, int mode, bool useMulx)
 	{
-		detectCpu(mode);
+		detectCpu(mode, useMulx);
 
 		// make some parameters for mulmod and Fp_mul
 		const size_t N = 64;
@@ -3406,7 +3440,7 @@ void Fp::setTablesForDiv(const mie::Vuint& p)
 	Fp::setDirect(quarterTbl_[3], quarter*3);
 }
 
-void Fp::setModulo(const mie::Vuint& p, int mode)
+void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 {
 #ifdef DEBUG_COUNT
 	puts("DEBUG_COUNT mode on!!!");
@@ -3479,7 +3513,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode)
 
 		// setup code
 		static PairingCode code(codeSize, codeAddr);
-		code.init(p_, mode);
+		code.init(p_, mode, useMulx);
 		{
 			Fp t(2);
 			for (int i = 0; i < 512; i++) {

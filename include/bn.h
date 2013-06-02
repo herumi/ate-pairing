@@ -75,7 +75,7 @@ struct ParamT {
 	// avoid to a bug of VC that sizeof can't be applied to siTbl[]
 	static const size_t siTblNum = 65; // sizeof(siTbl) / sizeof(siTbl[0]);
 
-	static inline void init(int mode = -1)
+	static inline void init(int mode = -1, bool useMulx = true)
 	{
 		mie::zmInit();
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
@@ -87,7 +87,7 @@ struct ParamT {
 		eval(r, z, rCoff);
 		eval(t, z, tCoff);
 		largest_c = 6 * z + 2;
-		Fp::setModulo(p, mode);
+		Fp::setModulo(p, mode, useMulx);
 		half = Fp(1) / Fp(2);
 		Fp2 xi(1, 1);
 		/*

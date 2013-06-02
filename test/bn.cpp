@@ -2142,12 +2142,21 @@ int main(int argc, char* argv[]) try
 {
 	argc--, argv++;
 	int mode = -1;
+	bool useMulx = true;
 
-	if (argc > 1 && strcmp(*argv, "-m") == 0) {
-		mode = atoi(argv[1]);
+	while (argc > 0) {
+		if (argc > 1 && strcmp(*argv, "-m") == 0) {
+			argc--, argv++;
+			mode = atoi(*argv);
+		} else
+		if (argc > 1 && strcmp(*argv, "-mulx") == 0) {
+			argc--, argv++;
+			useMulx = atoi(*argv) == 1;
+		}
+		argc--, argv++;
 	}
 
-	Param::init(mode);
+	Param::init(mode, useMulx);
 	testParameters();
 	testFp();
 	testFp_add_sub();
