@@ -38,6 +38,7 @@ Benchmark
 Clock cycle counts of operations on Core i7 2600 3.4GHz/Xeon X5650 2.6GHz/Core i7 4700MQ 2.4GHz.
 
 operation   | i7 2600|Xeon X5650|Haswell|Haswell with mulx
+------------|--------|----------|-------|-----------------
 TurboBoost  |on      |on        |off    |off
             |        |          |       |
 mu          | 50     |60        |42     |38
