@@ -173,7 +173,7 @@ struct Ext1 {
 		, next(sizeof(F) + n)
 	{
 	}
-	operator Reg32e() const { return r_ + n_; }
+	operator RegExp() const { return r_ + n_; }
 	const Reg64& r_;
 	const int n_;
 	const int next;
@@ -192,7 +192,7 @@ struct Ext2 {
 		, b_(r, n + sizeof(F))
 	{
 	}
-	operator Reg32e() const { return r_ + n_; }
+	operator RegExp() const { return r_ + n_; }
 	const Reg64& r_;
 	const int n_;
 	const int next;
@@ -214,7 +214,7 @@ struct Ext6 {
 		, c_(r, n + sizeof(F) * 4)
 	{
 	}
-	operator Reg32e() const { return r_ + n_; }
+	operator RegExp() const { return r_ + n_; }
 	const Reg64& r_;
 	const int n_;
 	const int next;
@@ -236,7 +236,7 @@ struct Ext12 {
 		, b_(r, n + sizeof(F) * 6)
 	{
 	}
-	operator Reg32e() const { return r_ + n_; }
+	operator RegExp() const { return r_ + n_; }
 	const Reg64& r_;
 	const int n_;
 	const int next;
@@ -423,7 +423,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		[z3:z2:z1:z0] = [m3:m2:m1:m0]
 	*/
 	void load_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
-		const Reg32e& m)
+		const RegExp& m)
 	{
 		mov(z0, ptr [m + 8 * 0]);
 		mov(z1, ptr [m + 8 * 1]);
@@ -433,7 +433,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	/*
 		[z3:z2:z1:z0] = [m3:m2:m1:m0]
 	*/
-	void store_mr(const Reg32e& m, const Reg64& x3, const Reg64& x2, const Reg64& x1, const Reg64& x0)
+	void store_mr(const RegExp& m, const Reg64& x3, const Reg64& x2, const Reg64& x1, const Reg64& x0)
 	{
 		mov(ptr [m + 8 * 0], x0);
 		mov(ptr [m + 8 * 1], x1);
@@ -455,7 +455,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		[z3:z2:z1:z0] += [m3:m2:m1:m0]
 	*/
 	void add_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
-		const Reg32e& m)
+		const RegExp& m)
 	{
 		add(z0, ptr [m + 8 * 0]);
 		adc(z1, ptr [m + 8 * 1]);
@@ -475,7 +475,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		[z3:z2:z1:z0] += [m3:m2:m1:m0] with carry
 	*/
 	void adc_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
-		const Reg32e& m)
+		const RegExp& m)
 	{
 		adc(z0, ptr [m + 8 * 0]);
 		adc(z1, ptr [m + 8 * 1]);
@@ -483,7 +483,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		adc(z3, ptr [m + 8 * 3]);
 	}
 	void load_add_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
-		const Reg32e& mx, const Reg32e& my, bool withCarry)
+		const RegExp& mx, const RegExp& my, bool withCarry)
 	{
 #ifdef DEBUG_COUNT
 		upCount(&g_count_add256);
@@ -511,7 +511,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		}
 	}
 	void load_sub_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
-		const Reg32e& mx, const Reg32e& my, bool withCarry)
+		const RegExp& mx, const RegExp& my, bool withCarry)
 	{
 #ifdef DEBUG_COUNT
 		upCount(&g_count_add256);
@@ -553,7 +553,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		[z3:z2:z1:z0] -= [m3:m2:m1:m0]
 	*/
 	void sub_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
-		const Reg32e& m)
+		const RegExp& m)
 	{
 		sub(z0, ptr [m + 8 * 0]);
 		sbb(z1, ptr [m + 8 * 1]);
@@ -564,14 +564,14 @@ struct PairingCode : Xbyak::CodeGenerator {
 		[z3:z2:z1:z0] -= [m3:m2:m1:m0] with carry
 	*/
 	void sbb_rm(const Reg64& z3, const Reg64& z2, const Reg64& z1, const Reg64& z0,
-		const Reg32e& m)
+		const RegExp& m)
 	{
 		sbb(z0, ptr [m + 8 * 0]);
 		sbb(z1, ptr [m + 8 * 1]);
 		sbb(z2, ptr [m + 8 * 2]);
 		sbb(z3, ptr [m + 8 * 3]);
 	}
-	void in_Fp_add_carry(const Reg32e& mz, const Reg32e& mx, const Reg32e& my, bool withCarry)
+	void in_Fp_add_carry(const RegExp& mz, const RegExp& mx, const RegExp& my, bool withCarry)
 	{
 		if (interleaveLoad) {
 			mov(gt1, ptr [mx + 8 * 0]);
@@ -598,7 +598,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 			store_mr(mz, gt4, gt3, gt2, gt1);
 		}
 	}
-	void in_Fp_sub_carry(const Reg32e& mz, const Reg32e& mx, const Reg32e& my, bool withCarry)
+	void in_Fp_sub_carry(const RegExp& mz, const RegExp& mx, const RegExp& my, bool withCarry)
 	{
 		if (interleaveLoad) {
 			mov(gt1, ptr [mx + 8 * 0]);
@@ -625,19 +625,19 @@ struct PairingCode : Xbyak::CodeGenerator {
 			store_mr(mz, gt4, gt3, gt2, gt1);
 		}
 	}
-	void in_Fp_addNC(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_addNC(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		in_Fp_add_carry(mz, mx, my, false);
 	}
-	void in_Fp_subNC(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_subNC(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		in_Fp_sub_carry(mz, mx, my, false);
 	}
-	void in_Fp_adcNC(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_adcNC(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		in_Fp_add_carry(mz, mx, my, true);
 	}
-	void in_Fp_sbbNC(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_sbbNC(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		in_Fp_sub_carry(mz, mx, my, true);
 	}
@@ -646,7 +646,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		gp2 = mx
 		gp3 = my
 	*/
-	void smart_set_gp(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void smart_set_gp(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		lea(gp1, ptr [mz]);
 		if (mx == mz) {
@@ -662,12 +662,12 @@ struct PairingCode : Xbyak::CodeGenerator {
 			lea(gp3, ptr [my]);
 		}
 	}
-	void in_FpDbl_addNC(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_addNC(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_FpDbl_addNC);
 	}
-	void in_FpDbl_subNC(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_subNC(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_FpDbl_subNC);
@@ -733,7 +733,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		input rax : &s_pTbl[1]
 		destroy gt1, ..., gt7, rdx
 	*/
-	void in_Fp_add(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_add(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		load_add_rm(gt4, gt3, gt2, gt1, mx, my, false);
 
@@ -771,7 +771,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		input rax : &s_pTbl[1]
 		destroy gt1, ..., gt7, rdx
 	*/
-	void in_Fp_sub(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_sub(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		load_sub_rm(gt4, gt3, gt2, gt1, mx, my, false);
 		in_Fp_sub_modp();
@@ -780,7 +780,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	/*
 		destroy gt1, ..., gt7, rdx, rax
 	*/
-	void in_FpDbl_add(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_add(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		in_Fp_addNC(mz, mx, my);
@@ -791,7 +791,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	/*
 		destroy gt1, ..., gt7, rdx, rax
 	*/
-	void sub_FpDbl_sub(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void sub_FpDbl_sub(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		in_Fp_subNC(mz, mx, my);
@@ -799,7 +799,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		in_Fp_sub_modp();
 		store_mr(mz + 32, gt4, gt3, gt2, gt1);
 	}
-	void in_FpDbl_sub(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_sub(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_FpDbl_sub);
@@ -827,7 +827,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		in_Fp_sbbNC(gp1 + 32, gp2 + 32, gp3 + 32);
 		ret();
 	}
-	void in_Fp2Dbl_add(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp2Dbl_add(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_FpDbl_add);
@@ -843,7 +843,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		sub_FpDbl_sub(gp1, gp2, gp3);
 		ret();
 	}
-	void in_Fp2Dbl_sub(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp2Dbl_sub(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_FpDbl_sub);
@@ -852,7 +852,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		add(gp3, 64);
 		call(p_FpDbl_sub);
 	}
-	void in_Fp_add(int n, const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_add(int n, const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		for (int i = 0; i < n; i++) {
@@ -860,7 +860,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		}
 	}
 
-	void in_Fp_neg(const Reg32e& mz, const Reg32e& mx)
+	void in_Fp_neg(const RegExp& mz, const RegExp& mx)
 	{
 		load_rm(gt4, gt3, gt2, gt1, mx);
 		mov(rdx, gt1);
@@ -872,14 +872,14 @@ struct PairingCode : Xbyak::CodeGenerator {
 L("@@");
         store_mr(mz, gt4, gt3, gt2, gt1);
 	}
-	void in_Fp_neg(int n, const Reg32e& mz, const Reg32e& mx)
+	void in_Fp_neg(int n, const RegExp& mz, const RegExp& mx)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		for (int i = 0; i < n; i++) {
 			in_Fp_neg(mz + 32 * i, mx + 32 * i);
 		}
 	}
-	void in_Fp2_neg(const Reg32e& mz, const Reg32e& mx)
+	void in_Fp2_neg(const RegExp& mz, const RegExp& mx)
 	{
 		// smart_set_gp for only two arguments.
 		lea(gp1, ptr [mz]);
@@ -899,12 +899,12 @@ L("@@");
 		ret();
 	}
 
-	void in_Fp2_add(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp2_add(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_Fp2_add);
 	}
-	void in_Fp2_sub(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp2_sub(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_Fp2_sub);
@@ -931,31 +931,31 @@ L("@@");
 		in_Fp_sub(2, gp1, gp2, gp3);
 		ret();
 	}
-	void in_Fp2_addNC(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp2_addNC(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		smart_set_gp(mz, mx, my);
 		call(p_Fp2_addNC);
 	}
-	void in_Fp_sub(int n, const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_Fp_sub(int n, const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		for (int i = 0; i < n; i++) {
 			in_Fp_sub(mz + 32 * i, mx + 32 * i, my + 32 * i);
 		}
 	}
-	void in_FpDbl_add(int n, const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_add(int n, const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		for (int i = 0; i < n; i++) {
 			in_FpDbl_add(mz + 64 * i, mx + 64 * i, my + 64 * i);
 		}
 	}
-	void in_FpDbl_addNC(int n, const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_addNC(int n, const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		for (int i = 0; i < n; i++) {
 			in_FpDbl_addNC(mz + 64 * i, mx + 64 * i, my + 64 * i);
 		}
 	}
-	void in_FpDbl_sub(int n, const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_sub(int n, const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		for (int i = 0; i < n; i++) {
 			sub_FpDbl_sub(mz + 64 * i, mx + 64 * i, my + 64 * i);
@@ -1056,7 +1056,7 @@ L("@@");
 		input : gp1, gp2, rax = s_pTbl[1]
 		destroy : rdx, gt1, ..., gt7
 	*/
-	void sub_Fp_divBy2(const Reg32e& z, const Reg32e& x)
+	void sub_Fp_divBy2(const RegExp& z, const RegExp& x)
 	{
 		mov(rdx, ptr [x]);
 		and(rdx, 1); // x[0] & 1
@@ -1120,7 +1120,7 @@ L("@@");
 		[d:x:t2:t1:t0] <- py[3:2:1:0] * x
 		destroy x, t
 	*/
-	void mul4x1(const Reg32e& py, const Reg64& x, const Reg64& t3, const Reg64& t2, const Reg64& t1, const Reg64& t0,
+	void mul4x1(const RegExp& py, const Reg64& x, const Reg64& t3, const Reg64& t2, const Reg64& t1, const Reg64& t0,
 		const Reg64& t)
 	{
 		const Reg64& a = rax;
@@ -1275,7 +1275,7 @@ L("@@");
 	/*
 		pz[7..0] <- px[3..0] * py[3..0]
 	*/
-	void mul4x4(const Reg32e& pz, const Reg32e& px, const Reg32e& py,
+	void mul4x4(const RegExp& pz, const RegExp& px, const RegExp& py,
 		const Reg64& t9, const Reg64& t8, const Reg64& t7, const Reg64& t6, const Reg64& t5, const Reg64& t4, const Reg64& t3, const Reg64& t2, const Reg64& t1, const Reg64& t0)
 	{
 #ifdef DEBUG_COUNT
@@ -1441,7 +1441,7 @@ L("@@");
 		store_mr(gp1, gt10, gt9, gt8, gt4);
 	}
 
-	void in_Fp2_mul_xi(const Reg32e& mz, const Reg32e& mx)
+	void in_Fp2_mul_xi(const RegExp& mz, const RegExp& mx)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		in_Fp_sub(mz, mx, mx + 32);
@@ -1457,7 +1457,7 @@ L("@@");
 		destroy : gt1, gt2, gt3, gt4, rdx(, rax)
 		memo : gp3 is free
 	*/
-	void in_FpDbl_neg(const Reg32e& mz, const Reg32e& mx)
+	void in_FpDbl_neg(const RegExp& mz, const RegExp& mx)
 	{
 		inLocalLabel();
 		load_rm(gt4, gt3, gt2, gt1, mx);
@@ -1538,7 +1538,7 @@ L("@@");
 			in_Fp_sbbNC(gp1 + 64 * i + 32, gp2 + 64 * i + 32, gp3 + 64 * i + 32);
 		}
 	}
-	void in_Fp2Dbl_mul_xi(const Reg32e& mz, const Reg32e& mx)
+	void in_Fp2Dbl_mul_xi(const RegExp& mz, const RegExp& mx)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		lea(gp1, ptr [mz]);
@@ -1680,7 +1680,7 @@ L("@@");
 	/*
 		pz[7..0] -= px[7..0]
 	*/
-	void sub_Fp2Dbl_subNC(const Reg32e& pz, const Reg32e& px,
+	void sub_Fp2Dbl_subNC(const RegExp& pz, const RegExp& px,
 		const Reg64& t3, const Reg64& t2, const Reg64& t1, const Reg64& t0)
 	{
 		load_sub_rm(t3, t2, t1, t0, pz, px, false);
@@ -1695,7 +1695,7 @@ L("@@");
 		addNC(z, x, pN);
 		subNC(z, z, y);
 	*/
-	void in_FpDbl_subOpt1(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void in_FpDbl_subOpt1(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		mov32c(rax, (uint64)&Fp::Dbl::pNTbl_[2]);
 		load_rm(gt4, gt3, gt2, gt1, mx);
@@ -1921,14 +1921,14 @@ L("@@");
 		// d0 -= d1(subNC)
 		load_sub_rm(gt3, gt2, gt1, gt10, z.b_, z.a_, false);
 
-		load_sub_rm(gt7, gt6, gt5, gt4, (Reg32e)z.b_ + sizeof(Fp), (Reg32e)z.a_ + sizeof(Fp), true);
+		load_sub_rm(gt7, gt6, gt5, gt4, (RegExp)z.b_ + sizeof(Fp), (RegExp)z.a_ + sizeof(Fp), true);
 		// d0 -= d2(subNC)
 		sub_rm(gt3, gt2, gt1, gt10, d0);
-		sbb_rm(gt7, gt6, gt5, gt4, (Reg32e)d0 + sizeof(Fp));
+		sbb_rm(gt7, gt6, gt5, gt4, (RegExp)d0 + sizeof(Fp));
 
 		// set return value z.b_
 		store_mr(z.b_, gt3, gt2, gt1, gt10);
-		store_mr((Reg32e)z.b_ + sizeof(Fp), gt7, gt6, gt5, gt4);
+		store_mr((RegExp)z.b_ + sizeof(Fp), gt7, gt6, gt5, gt4);
 
 		if (mode == 1) {
 			// call:606
@@ -2121,11 +2121,11 @@ L("@@");
 
 #if 0
 		load_sub_rm(gt4, gt3, gt2, gt1, z.c_.b_, T2.b_, false);
-		load_sub_rm(rdx, rax, gt6, gt5, (Reg32e)z.c_.b_ + sizeof(Fp), (Reg32e)T2.b_ + sizeof(Fp), true);
+		load_sub_rm(rdx, rax, gt6, gt5, (RegExp)z.c_.b_ + sizeof(Fp), (RegExp)T2.b_ + sizeof(Fp), true);
 		add_rm(gt4, gt3, gt2, gt1, T1.b_);
-		adc_rm(rdx, rax, gt6, gt5, (Reg32e)T1.b_ + sizeof(Fp));
+		adc_rm(rdx, rax, gt6, gt5, (RegExp)T1.b_ + sizeof(Fp));
 		store_mr(z.c_.b_, gt4, gt3, gt2, gt1);
-		store_mr((Reg32e)z.c_.b_ + sizeof(Fp), rdx, rax, gt6, gt5);
+		store_mr((RegExp)z.c_.b_ + sizeof(Fp), rdx, rax, gt6, gt5);
 #else
 		// FpDbl::subNC(z.c_.b_, z.c_.b_, T2.b_);
 		in_FpDbl_subNC(z.c_.b_, z.c_.b_, T2.b_);
@@ -2185,7 +2185,7 @@ L("@@");
 		call(p_Fp6_mul);
 	}
 	// for debug
-	void debug_save_buf(const Reg32e& m, int n)
+	void debug_save_buf(const RegExp& m, int n)
 	{
 		static uint64 save[3];
 
@@ -2359,10 +2359,10 @@ L("@@");
 		movq(z, zsave);
 		for (int i = 0; i < 2; i++) {
 			mov32c(rax, (uint64_t)&s_pTbl[1]);
-			load_add_rm(gt4, gt3, gt2, gt1, (Reg32e)t0 + sizeof(Fp) * i, rax, false);
+			load_add_rm(gt4, gt3, gt2, gt1, (RegExp)t0 + sizeof(Fp) * i, rax, false);
 			sub_rm(gt4, gt3, gt2, gt1, z + g4 + sizeof(Fp) * i);
 			add_rr(gt4, gt3, gt2, gt1, gt4, gt3, gt2, gt1);
-			add_rm(gt4, gt3, gt2, gt1, (Reg32e)t0 + sizeof(Fp) * i);
+			add_rm(gt4, gt3, gt2, gt1, (RegExp)t0 + sizeof(Fp) * i);
 			fast_modp(gt4, gt3, gt2, gt1, gp1, gp2, gp3, gt5);
 			store_mr(z + g4 + sizeof(Fp) * i, gt4, gt3, gt2, gt1);
 		}
@@ -2413,7 +2413,7 @@ L("@@");
 		mz = 2mz + 3mx
 		destroy : gp3, gt1, .., gt7, rax, rdx
 	*/
-	void in_Fp_2z_add_3x(const Reg32e& mz, const Reg32e& mx)
+	void in_Fp_2z_add_3x(const RegExp& mz, const RegExp& mx)
 	{
 		load_add_rm(gt4, gt3, gt2, gt1, mz, mx, false);
 		add_rr(gt4, gt3, gt2, gt1, gt4, gt3, gt2, gt1);
@@ -2434,7 +2434,7 @@ L("@@");
 		in_Fp_2z_add_3x(gp1 + sizeof(Fp), gp2 + sizeof(Fp));
 		ret();
 	}
-	void sub_Fp2_mul_gamma_add(const Reg32e& mz, const Reg32e& mx, const Reg32e& my)
+	void sub_Fp2_mul_gamma_add(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
 		const int a = 0;
 		const int b = sizeof(Fp2);
@@ -2567,7 +2567,7 @@ L("@@");
 		for (int i = 0; i < 12; i++) {
 			mov(gp1, ptr [zsave]);
 			if (i > 0) add(gp1, sizeof(Fp) * i);
-			lea(gp2, ptr [(Reg32e)zd + sizeof(FpDbl) * i]);
+			lea(gp2, ptr [(RegExp)zd + sizeof(FpDbl) * i]);
 			call(p_FpDbl_mod);
 		}
 	}
