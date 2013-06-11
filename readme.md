@@ -29,6 +29,9 @@ Optimal Ate Pairing |10545mu + 5028r|10311mu + 4954r
 Remark : Their Table 2 in p.17 does not contain the cost of (m, r) so
 I add the costs of (282m + 6mu + 4r), (30m + 75mu + 50r) for ML and FE respectively.
 
+Our current implementation does not support the algoirthm in Pereira et al.
+[A family of mplementation-friendly BN elliptic curves](http://www.sciencedirect.com/science/article/pii/S0164121211000914).
+
 Benchmark
 -------------
 
