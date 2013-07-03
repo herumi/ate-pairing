@@ -5,6 +5,7 @@ extern Xbyak::util::Clock sclk;
 #include "bn.h"
 #include <iostream>
 #include "util.h"
+#include <cybozu/benchmark.hpp>
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(*x))
 
@@ -211,106 +212,6 @@ void testECAdd()
 	}
 }
 
-template<class T>
-struct noncopyable {
-	noncopyable() {}
-private:
-	noncopyable(const noncopyable&);
-	void operator=(const noncopyable&);
-};
-
-template<class F>
-struct Funcm : noncopyable<Funcm<F> > {
-	F& x_;
-	void (F::*f_)();
-	Funcm(F& x, void (F::*f)()) : x_(x), f_(f) {}
-	void operator()() { (x_.*f_)(); }
-};
-template<class F, class Z>
-struct Func1 : noncopyable<Func1<F, Z> > {
-	F& f_;
-	Z* z_;
-	Func1(F& f, Z* z) : f_(f), z_(z) {}
-	void operator()() { f_(*z_); }
-};
-template<class F, class Z, class X>
-struct Func2 : noncopyable<Func2<F, Z, X> > {
-	F& f_;
-	Z* z_;
-	X* x_;
-	Func2(F& f, Z* z, X* x) : f_(f), z_(z), x_(x) {}
-	void operator()() { f_(*z_, *x_); }
-};
-template<class F, class Z, class X, class Y>
-struct Func3 : noncopyable<Func3<F, Z, X, Y> > {
-	F& f_;
-	Z* z_;
-	X* x_;
-	Y* y_;
-	Func3(F& f, Z* z, X* x, Y* y) : f_(f), z_(z), x_(x), y_(y) {}
-	void operator()() { f_(*z_, *x_, *y_); }
-};
-template<class F, class Z, class X, class Y, class W>
-struct Func4 : noncopyable<Func4<F, Z, X, Y, W> > {
-	F& f_;
-	Z* z_;
-	X* x_;
-	Y* y_;
-	W* w_;
-	Func4(F& f, Z* z, X* x, Y* y, W* w) : f_(f), z_(z), x_(x), y_(y), w_(w) {}
-	void operator()() { f_(*z_, *x_, *y_, *w_); }
-};
-
-template<class Func>
-void run(const char *msg, int N, Func& func)
-{
-	Xbyak::util::Clock clk;
-	clk.begin();
-	for (int i = 0; i < N; i++) {
-		func();
-	}
-	clk.end();
-	double t = clk.getClock() / double(N);
-	printf("%s\t", msg);
-	if (t > 5e5) {
-		printf("%10.2fMclk\n", t / 1e6);
-	} else if (t > 1000 * 100) {
-		printf("%10.2fKclk\n", t / 1e3);
-	} else {
-		printf("%10.2fclk\n", t);
-	}
-}
-template<class F>
-void bench(const char *msg, int N, F& x, void (F::*f)())
-{
-	Funcm<F> func(x, f);
-	run(msg, N, func);
-}
-template<class F, class Z>
-void bench(const char *msg, int N, F& f, Z* z)
-{
-	Func1<F, Z> func(f, z);
-	run(msg, N, func);
-}
-template<class F, class Z, class X>
-void bench(const char *msg, int N, F& f, Z* z, X* x)
-{
-	Func2<F, Z, X> func(f, z, x);
-	run(msg, N, func);
-}
-template<class F, class Z, class X, class Y>
-void bench(const char *msg, int N, F& f, Z* z, X* x, Y* y)
-{
-	Func3<F, Z, X, Y> func(f, z, x, y);
-	run(msg, N, func);
-}
-template<class F, class Z, class X, class Y, class W>
-void bench(const char *msg, int N, F& f, Z* z, X* x, Y* y, W* w)
-{
-	Func4<F, Z, X, Y, W> func(f, z, x, y, w);
-	run(msg, N, func);
-}
-
 void testECOperationsG1(bool allBench)
 {
 	puts(__FUNCTION__);
@@ -352,7 +253,7 @@ void testECOperationsG1(bool allBench)
 		TEST_EQUAL(P2[0], P2_ok[0]);
 		TEST_EQUAL(P2[1], P2_ok[1]);
 		TEST_EQUAL(P2[2], P2_ok[2]);
-		if (allBench) bench("ECDouble", 100000, ECDouble<Fp>, &P2, &P);
+		if (allBench) CYBOZU_BENCH("ECDouble", ECDouble<Fp>, P2, P);
 	}
 	{
 		Fp P3[] = { P[0], P[1], P[2], };
@@ -371,7 +272,7 @@ void testECOperationsG1(bool allBench)
 		TEST_EQUAL(PR[0], PR_ok[0]);
 		TEST_EQUAL(PR[1], PR_ok[1]);
 		TEST_EQUAL(PR[2], PR_ok[2]);
-		if (allBench) bench("ECAdd", 100000, ECAdd<Fp>, &PR, &P, &R);
+		if (allBench) CYBOZU_BENCH("ECAdd", ECAdd<Fp>, PR, P, R);
 	}
 	{
 		mie::Vuint m;
@@ -420,7 +321,7 @@ void testECOperationsG1(bool allBench)
 		TEST_EQUAL(Pm[1], Pm_ok[1]);
 		TEST_EQUAL(Pm[2], Pm_ok[2]);
 
-		if (allBench) bench("ScalarMult", 5000, ScalarMult<Fp, mie::Vuint>, &Pm, &P, &m);
+		if (allBench) CYBOZU_BENCH("ScalarMult", (ScalarMult<Fp, mie::Vuint>), Pm, P, m);
 	}
 	{
 		const mie::Vuint& r = Param::r;
@@ -949,7 +850,7 @@ void test_final_exp()
 		Fp12 zt = mie::power(z, Param::r);
 		TEST_EQUAL(zt, Fp12(1));
 	}
-	bench("final_exp", 10000, x, &Fp12::final_exp);
+	CYBOZU_BENCH("final_exp", x.final_exp);
 }
 
 void test_pointDblLineEval(bool allBench)
@@ -986,7 +887,7 @@ void test_pointDblLineEval(bool allBench)
 	TEST_EQUAL(l00, l00_ok);
 	TEST_EQUAL(l02, l02_ok);
 	TEST_EQUAL(l11, l11_ok);
-	if (allBench) bench("pointDblLineEval", 10000, Fp6::pointDblLineEval, &l, &Q2, &P);
+	if (allBench) CYBOZU_BENCH("pointDblLineEval", Fp6::pointDblLineEval, l, Q2, P);
 }
 
 void test_pointAddLineEval(bool allBench)
@@ -1040,7 +941,7 @@ void test_pointAddLineEval(bool allBench)
 	TEST_EQUAL(l00, l00_ok);
 	TEST_EQUAL(l02, l02_ok);
 	TEST_EQUAL(l11, l11_ok);
-	if (allBench) bench("pointAddLineEval", 10000, Fp6::pointAddLineEval, &l, &RQ, &Q, &P);
+	if (allBench) CYBOZU_BENCH("pointAddLineEval", Fp6::pointAddLineEval, l, RQ, Q, P);
 }
 
 void test_compression(bool allBench)
@@ -1065,7 +966,7 @@ void test_compression(bool allBench)
 	TEST_EQUAL(b.g4_, c.getFp2()[1]);
 	TEST_EQUAL(b.g5_, c.getFp2()[5]);
 	if (allBench) {
-		bench("decompress", 10000, b, &Compress::decompress);
+		CYBOZU_BENCH_C("decompress", 10000, b.decompress);
 		TEST_EQUAL(a, c);
 	}
 }
@@ -1093,7 +994,7 @@ void test_compressed_square(bool allBench)
 	Compress::square_n(b, 1);
 	b.decompress();
 	TEST_EQUAL(a, d);
-	if (allBench) bench("Compress::square", 10000, Fp12::square, &a);
+	if (allBench) CYBOZU_BENCH("Compress::square", Fp12::square, a);
 }
 
 void test_compressed_fixed_power(bool allBench)
@@ -1112,7 +1013,7 @@ void test_compressed_fixed_power(bool allBench)
 	Compress::fixed_power(b, a);
 	Fp12 c = mie::power(a, Param::z.get());
 	TEST_EQUAL(b, c);
-	if (allBench) bench("Compress::fixed_power", 10000, Compress::fixed_power, &b, &a);
+	if (allBench) CYBOZU_BENCH("Compress::fixed_power", Compress::fixed_power, b, a);
 }
 
 void test_sqru(bool allBench)
@@ -1132,9 +1033,11 @@ void test_sqru(bool allBench)
 		b.sqru();
 		Fp12::square(c);
 		TEST_EQUAL(b, c);
-		if (allBench) bench("Fp12::sqru", 10000, a, &Fp12::sqru);
-		if (allBench) bench("Fp12::square", 10000, Fp12::square, &a);
-		if (allBench) bench("Fp12::mul", 10000, Fp12::mul, &a, &a, &b);
+		if (allBench) {
+			CYBOZU_BENCH("Fp12::sqru  ", a.sqru);
+			CYBOZU_BENCH("Fp12::square", Fp12::square, a);
+			CYBOZU_BENCH("Fp12::mul   ", Fp12::mul, a, a, b);
+		}
 	}
 }
 
@@ -1164,7 +1067,7 @@ void test_FrobEndOnTwist_1(bool allBench)
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
 
-	if (allBench) bench("FrobEndTwist_1", 100000, FrobEndOnTwist_1<Fp>, &Q, &Q);
+	if (allBench) CYBOZU_BENCH("FrobEndTwist_1", FrobEndOnTwist_1<Fp>, Q, Q);
 }
 
 void test_FrobEndOnTwist_2(bool allBench)
@@ -1192,7 +1095,7 @@ void test_FrobEndOnTwist_2(bool allBench)
 		TEST_EQUAL(Q[0], Q1[0]);
 		TEST_EQUAL(Q[1], Q1[1]);
 	}
-	if (allBench) bench("FrobEndTwist_2", 100000, FrobEndOnTwist_2<Fp>, &Q, &Q);
+	if (allBench) CYBOZU_BENCH("FrobEndTwist_2", FrobEndOnTwist_2<Fp>, Q, Q);
 }
 
 void testPairing()
@@ -1635,72 +1538,6 @@ void testFp2Dbl_add_sub(bool allBench)
 		Fp2Dbl::mod(ct, adt);
 		TEST_EQUAL(ct, c);
 	}
-	if (!allBench) return;
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::add(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::add\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::addNC(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::addNC\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::neg(cd, ad);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::neg\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::sub(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::sub\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::subNC(cd, ad, bd);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::subNC\t%6.2fclk\n", clk.getClock() / double(N));
-	}
 	{
 		const Fp2 a(Fp("1"), Fp("0"));
 		Fp2 c; Fp2::mul_xi(c, a);
@@ -1720,22 +1557,23 @@ void testFp2Dbl_add_sub(bool allBench)
 		Fp2Dbl::mod(ct, cd);
 		TEST_EQUAL(ct, c);
 	}
-	{
+	if (allBench) {
 		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::mul_xi(cd, ad);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::mul_xi\t%6.2fclk\n", clk.getClock() / double(N));
+		CYBOZU_BENCH("Fp2Dbl::add    ", Fp2Dbl::add, cd, ad, bd);
+		CYBOZU_BENCH("Fp2Dbl::sub    ", Fp2Dbl::sub, cd, ad, bd);
+		CYBOZU_BENCH("Fp2Dbl::addNC  ", Fp2Dbl::addNC, cd, ad, bd);
+		CYBOZU_BENCH("Fp2Dbl::subNC  ", Fp2Dbl::subNC, cd, ad, bd);
+		CYBOZU_BENCH("Fp2Dbl::neg    ", Fp2Dbl::neg, cd, ad);
+		CYBOZU_BENCH("Fp2Dbl::mul_xi ", Fp2Dbl::mul_xi, cd, ad);
+		CYBOZU_BENCH("Fp2Dbl::mulOpt1", Fp2Dbl::mulOpt1, cd, a, b);
+		CYBOZU_BENCH("Fp2Dbl::mulOpt2", Fp2Dbl::mulOpt2, cd, a, b);
+		CYBOZU_BENCH("Fp2Dbl::square ", Fp2Dbl::square, cd, a);
+		Fp2 c;
+		CYBOZU_BENCH("Fp2Dbl::mod    ", Fp2Dbl::mod, c, ad);
 	}
 }
 
-void testFp2Dbl_mul_mod(bool allBench)
+void testFp2Dbl_mul_mod()
 {
 	puts(__FUNCTION__);
 	const Fp2 a(
@@ -1773,59 +1611,6 @@ void testFp2Dbl_mul_mod(bool allBench)
 		Fp2 ct;
 		Fp2Dbl::mod(ct, cd);
 		TEST_EQUAL(ct, c);
-	}
-	if (!allBench) return;
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::mulOpt1(cd, a, b);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::mulOpt1\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::mulOpt2(cd, a, b);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::mulOpt2\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2Dbl cd;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::square(cd, a);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::square\t%6.2fclk\n", clk.getClock() / double(N));
-	}
-	{
-		Fp2 c;
-		Xbyak::util::Clock clk;
-		clk.begin();
-		const size_t N = 10000;
-
-		for (size_t i = 0; i < N; i++) {
-			Fp2Dbl::mod(c, ad);
-		}
-
-		clk.end();
-		printf("Fp2Dbl::mod\t%6.2fclk\n", clk.getClock() / double(N));
 	}
 }
 
@@ -2027,9 +1812,7 @@ void testPairingJac()
 		opt_atePairingJac<Fp>(e1, g2, g1);
 		printf(" e(g2, g1) : %s\n", e1 == e ? "ok" : "ng");
 	}
-	{
-		bench("Fp12::mul", 10000, Fp12::mul, &e, &e, &e);
-	}
+	CYBOZU_BENCH("Fp12::mul", Fp12::mul, e, e, e);
 }
 
 void benchFp()
@@ -2037,16 +1820,15 @@ void benchFp()
 	Fp x("1234566239428049280498203948209482039482");
 	Fp y("999999999999999999999999999999999999999");
 	Fp::Dbl d;
-	const int N = 100000;
-	bench("Fp::add", N, Fp::add, &x, &x, &y);
-	bench("Fp::sub", N, Fp::sub, &x, &x, &y);
-	bench("Fp::neg", N, Fp::neg, &x, &x);
-	bench("Fp::mul", N, Fp::mul, &x, &x, &y);
-	bench("Fp::inv", N, Fp::inv, &x, &x);
-	bench("mul256", N, Fp::Dbl::mul, &d, &x, &y);
-	bench("mod512", N, Fp::Dbl::mod, &x, &d);
-	bench("Fp::divBy2", N, Fp::divBy2, &x, &x);
-	bench("Fp::divBy4", N, Fp::divBy4, &x, &x);
+	CYBOZU_BENCH("Fp::add   ", Fp::add, x, x, y);
+	CYBOZU_BENCH("Fp::sub   ", Fp::sub, x, x, y);
+	CYBOZU_BENCH("Fp::neg   ", Fp::neg, x, x);
+	CYBOZU_BENCH("Fp::mul   ", Fp::mul, x, x, y);
+	CYBOZU_BENCH("Fp::inv   ", Fp::inv, x, x);
+	CYBOZU_BENCH("mul256    ", Fp::Dbl::mul, d, x, y);
+	CYBOZU_BENCH("mod512    ", Fp::Dbl::mod, x, d);
+	CYBOZU_BENCH("Fp::divBy2", Fp::divBy2, x, x);
+	CYBOZU_BENCH("Fp::divBy4", Fp::divBy4, x, x);
 }
 void benchFp2()
 {
@@ -2054,19 +1836,18 @@ void benchFp2()
 	x.a_.set("4");
 	x.b_.set("464652165165");
 	y = x * x;
-	const int N = 100000;
-	bench("Fp2::add", N, Fp2::add, &x, &x, &y);
-	bench("Fp2::sub", N, Fp2::sub, &x, &x, &y);
-	bench("Fp2::neg", N, Fp2::neg, &x, &x);
-	bench("Fp2::mul", N, Fp2::mul, &x, &x, &y);
-	bench("Fp2::inverse", N, x, &Fp2::inverse);
-	bench("Fp2::square", N, Fp2::square, &x, &x);
-	bench("Fp2::mul_xi", N, Fp2::mul_xi, &x, &x);
-	bench("Fp2::addNC", N, Fp2::addNC, &x, &x, &y);
-	bench("Fp2::mul_Fp_0", N, Fp2::mul_Fp_0, &x, &x, &Param::half);
-	bench("Fp2::mul_Fp_1", N, Fp2::mul_Fp_1, &x, &Param::half);
-	bench("Fp2::divBy2", N, Fp2::divBy2, &x, &x);
-	bench("Fp2::divBy4", N, Fp2::divBy4, &x, &x);
+	CYBOZU_BENCH("Fp2::add     ", Fp2::add, x, x, y);
+	CYBOZU_BENCH("Fp2::addNC   ", Fp2::addNC, x, x, y);
+	CYBOZU_BENCH("Fp2::sub     ", Fp2::sub, x, x, y);
+	CYBOZU_BENCH("Fp2::neg     ", Fp2::neg, x, x);
+	CYBOZU_BENCH("Fp2::mul     ", Fp2::mul, x, x, y);
+	CYBOZU_BENCH("Fp2::inverse ", x.inverse);
+	CYBOZU_BENCH("Fp2::square  ", Fp2::square, x, x);
+	CYBOZU_BENCH("Fp2::mul_xi  ", Fp2::mul_xi, x, x);
+	CYBOZU_BENCH("Fp2::mul_Fp_0", Fp2::mul_Fp_0, x, x, Param::half);
+	CYBOZU_BENCH("Fp2::mul_Fp_1", Fp2::mul_Fp_1, x, Param::half);
+	CYBOZU_BENCH("Fp2::divBy2  ", Fp2::divBy2, x, x);
+	CYBOZU_BENCH("Fp2::divBy4  ", Fp2::divBy4, x, x);
 }
 
 void benchFpDbl()
@@ -2074,11 +1855,11 @@ void benchFpDbl()
 	const char* ads = "0x10e6616f9d658d62913a152516a1930d3b95eb1c4f69dd334c286bf2e322e34fab44d283e8ef4e6491c7fef40ca63362182fb3be3aad38785109f6b1a568c24";
 	const char* bds = "0x18440289e040f84f0f8bb27b1f5607ad646bfeccbd737684bfdfeae964fd3bb4c5bb9f032044cb265788331de43a90e842b3b1e88eb9817676c8fe4934a8632";
 	FpDbl ad(ads), bd(bds);
-	bench("FpDbl::add", 100000, FpDbl::add, &ad, &ad, &bd);
-	bench("FpDbl::addNC", 100000, FpDbl::addNC, &ad, &ad, &bd);
-	bench("FpDbl::neg", 100000, FpDbl::neg, &ad, &ad);
-	bench("FpDbl::sub", 100000, FpDbl::sub, &ad, &ad, &bd);
-	bench("FpDbl::subNC", 100000, FpDbl::subNC, &ad, &ad, &bd);
+	CYBOZU_BENCH("FpDbl::add  ", FpDbl::add, ad, ad, bd);
+	CYBOZU_BENCH("FpDbl::sub  ", FpDbl::sub, ad, ad, bd);
+	CYBOZU_BENCH("FpDbl::addNC", FpDbl::addNC, ad, ad, bd);
+	CYBOZU_BENCH("FpDbl::subNC", FpDbl::subNC, ad, ad, bd);
+	CYBOZU_BENCH("FpDbl::neg  ", FpDbl::neg, ad, ad);
 }
 
 void benchFp6()
@@ -2088,13 +1869,12 @@ void benchFp6()
 	for (int i = 0; i < 6; i++) {
 		x.get()[i] = i * i + 3;
 	}
-	const int N = 100000;
-	bench("Fp6::addC", N, Fp6::addC, &x, &x, &y);
-	bench("Fp6::subC", N, Fp6::subC, &x, &x, &y);
-	bench("Fp6::add", N, Fp6::add, &x, &x, &y);
-	bench("Fp6::sub", N, Fp6::sub, &x, &x, &y);
-	bench("Fp6::mul", N, Fp6::mul, &x, &x, &y);
-	bench("Fp6::inverse", N, x, &Fp6::inverse);
+	CYBOZU_BENCH("Fp6::add    ", Fp6::add, x, x, y);
+	CYBOZU_BENCH("Fp6::sub    ", Fp6::sub, x, x, y);
+	CYBOZU_BENCH("Fp6::addC   ", Fp6::addC, x, x, y);
+	CYBOZU_BENCH("Fp6::subC   ", Fp6::subC, x, x, y);
+	CYBOZU_BENCH("Fp6::mul    ", Fp6::mul, x, x, y);
+	CYBOZU_BENCH("Fp6::inverse", x.inverse);
 }
 void benchEcFp()
 {
@@ -2102,10 +1882,9 @@ void benchEcFp()
 	const mie::Vuint m("9347746330740818252600716999005395295745642941583534686803606077666502");
 	Fp Q[3];
 	ECDouble(Q, P);
-	const int N = 10000;
-	bench("G1:ECDouble", N, ECDouble<Fp>, &Q, &Q);
-	bench("G1:ECAdd", N, ECAdd<Fp>, &Q, &P, &Q);
-	bench("G1:ScalarMult", 5000, ScalarMult<Fp, mie::Vuint>, &Q, &P, &m);
+	CYBOZU_BENCH("G1:ECDouble  ", ECDouble<Fp>, Q, Q);
+	CYBOZU_BENCH("G1:ECAdd     ", ECAdd<Fp>, Q, P, Q);
+	CYBOZU_BENCH("G1:ScalarMult", (ScalarMult<Fp, mie::Vuint>), Q, P, m);
 }
 void benchEcFp2()
 {
@@ -2113,10 +1892,9 @@ void benchEcFp2()
 	const mie::Vuint m("9347746330740818252600716999005395295745642941583534686803606077666502");
 	Fp2 Q[3];
 	ECDouble(Q, P);
-	const int N = 10000;
-	bench("G2:ECDouble", N, ECDouble<Fp2>, &Q, &Q);
-	bench("G2:ECAdd", N, ECAdd<Fp2>, &Q, &P, &Q);
-	bench("G2:ScalarMult", 5000, ScalarMult<Fp2, mie::Vuint>, &Q, &P, &m);
+	CYBOZU_BENCH("G2:ECDouble  ", ECDouble<Fp2>, Q, Q);
+	CYBOZU_BENCH("G2:ECAdd     ", ECAdd<Fp2>, Q, P, Q);
+	CYBOZU_BENCH("G2:ScalarMult", (ScalarMult<Fp2, mie::Vuint>), Q, P, m);
 }
 void benchFp6Dbl()
 {
@@ -2126,14 +1904,13 @@ void benchFp6Dbl()
 	for (int i = 0; i < 6; i++) {
 		a.get()[i] = i * i + 3;
 	}
-	const int N = 10000;
-	bench("Fp6Dbl::add", N, Fp6Dbl::add, &x, &x, &x);
-	bench("Fp6Dbl::sub", N, Fp6Dbl::sub, &x, &x, &y);
-	bench("Fp6Dbl::mul", N, Fp6Dbl::mul, &x, &a, &a);
-	bench("Fp6Dbl::mod", N, Fp6Dbl::mod, &a, &x);
-	bench("Fp6Dbl::addNC", N, Fp6Dbl::addNC, &x, &x, &x);
-	bench("Fp6Dbl::subNC", N, Fp6Dbl::subNC, &x, &x, &y);
-	bench("Fp6Dbl::neg", N, Fp6Dbl::neg, &x, &x);
+	CYBOZU_BENCH("Fp6Dbl::add  ", Fp6Dbl::add, x, x, x);
+	CYBOZU_BENCH("Fp6Dbl::sub  ", Fp6Dbl::sub, x, x, y);
+	CYBOZU_BENCH("Fp6Dbl::mul  ", Fp6Dbl::mul, x, a, a);
+	CYBOZU_BENCH("Fp6Dbl::mod  ", Fp6Dbl::mod, a, x);
+	CYBOZU_BENCH("Fp6Dbl::addNC", Fp6Dbl::addNC, x, x, x);
+	CYBOZU_BENCH("Fp6Dbl::subNC", Fp6Dbl::subNC, x, x, y);
+	CYBOZU_BENCH("Fp6Dbl::neg  ", Fp6Dbl::neg, x, x);
 }
 void benchAll(bool benchAll)
 {
@@ -2182,7 +1959,7 @@ int main(int argc, char* argv[]) try
 	testFp2();
 	testFp2Dbl();
 	testFp2Dbl_add_sub(allBench);
-	testFp2Dbl_mul_mod(allBench);
+	testFp2Dbl_mul_mod();
 	testFp6();
 	testFp6Dbl();
 	testFp12();
@@ -2227,4 +2004,3 @@ int main(int argc, char* argv[]) try
   tab-width: 4
   End:
 */
-
