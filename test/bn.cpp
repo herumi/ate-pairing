@@ -1212,10 +1212,10 @@ void testPairing()
 	opt_atePairing<Fp>(e22, Q2, P);
 	TEST_EQUAL(e * e, e21);
 	TEST_EQUAL(e * e, e22);
-	{
+	for (int j = 0; j < 4; j++) {
 		double begin = GetCurrTime();
 		Xbyak::util::Clock clk;
-		const int N = 20000;
+		const int N = 10000;
 		clk.begin();
 
 		for (int i = 0; i < N; i++) {
@@ -1224,7 +1224,7 @@ void testPairing()
 
 		clk.end();
 		double end = GetCurrTime();
-		printf("opt_ate:%.2fclk(N=%d)\n", clk.getClock() / double(N), N);
+		printf("opt_ate:%.2fclk(N=%d) ", clk.getClock() / double(N), N);
 		printf("%.3fmsec\n", (end - begin) * 1e3 / N);
 	}
 }
@@ -2026,6 +2026,9 @@ void testPairingJac()
 		Fp12 e1;
 		opt_atePairingJac<Fp>(e1, g2, g1);
 		printf(" e(g2, g1) : %s\n", e1 == e ? "ok" : "ng");
+	}
+	{
+		bench("Fp12::mul", 10000, Fp12::mul, &e, &e, &e);
 	}
 }
 

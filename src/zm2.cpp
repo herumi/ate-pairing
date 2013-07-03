@@ -724,10 +724,19 @@ struct PairingCode : Xbyak::CodeGenerator {
 		mov(rdx, gt4);
 
 		sub_rm(gt4, gt3, gt2, gt1, rax);
+#if 1 // faster@sandy 1.36Mclk
 		cmovc(gt1, gt5);
 		cmovc(gt2, gt6);
 		cmovc(gt3, gt7);
 		cmovc(gt4, rdx);
+#else // 1.39Mclk
+		jnc("@f");
+		mov(gt1, gt5);
+		mov(gt2, gt6);
+		mov(gt3, gt7);
+		mov(gt4, rdx);
+	L("@@");
+#endif
 	}
 	/*
 		input rax : &s_pTbl[1]
@@ -747,7 +756,8 @@ struct PairingCode : Xbyak::CodeGenerator {
 	*/
 	void in_Fp_sub_modp()
 	{
-#if 1 // fast on i7 (a little slow on core2duo?)
+#if 1
+#if 1 // 1.36Mclk
 		sbb(rdx, rdx);
 		mov(gt5, rdx);
 		mov(gt6, rdx);
@@ -757,15 +767,22 @@ struct PairingCode : Xbyak::CodeGenerator {
 		and(gt6, qword [rax + 8 * 2]);
 		and(gt7, qword [rax + 8 * 3]);
 #else
-		load_rm(gt7, gt6, gt5, rdx, rax);
-		sbb(rax, rax);
-		and(rdx, rax);
-		and(gt5, rax);
-		and(gt6, rax);
-		and(gt7, rax);
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		// 1.37Mclk
+		mov(rdx, 0);
+		mov(gt5, rdx);
+		mov(gt6, rdx);
+		mov(gt7, rdx);
+		cmovc(rdx, qword [rax + 8 * 0]);
+		cmovc(gt5, qword [rax + 8 * 1]);
+		cmovc(gt6, qword [rax + 8 * 2]);
+		cmovc(gt7, qword [rax + 8 * 3]);
 #endif
 		add_rr(gt4, gt3, gt2, gt1, gt7, gt6, gt5, rdx);
+#else
+		jnc("@f");
+		add_rm(gt4, gt3, gt2, gt1, rax);
+	L("@@");
+#endif
 	}
 	/*
 		input rax : &s_pTbl[1]
@@ -1762,7 +1779,7 @@ L("@@");
 		call(p_Fp2_mul);
 	}
 
-	// uint64_t preInv(Fp2T& r, const Fp2T& x)
+	// uint64_t preInv(FpT& r, const FpT& x)
 	void make_Fp_preInv()
 	{
 		MakeStackFrame<> sf(this, 10, 4);
