@@ -154,9 +154,7 @@ int main(int argc, char *argv[])
 		int (*f)();
 		Call call((const void**)&f);
 		printf("%d\n", f());
-	} catch (Xbyak::Error err) {
-		fprintf(stderr, "ExpCode ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
-	} catch (...) {
-		fprintf(stderr, "ExpCode ERR:unknown error\n");
+	} catch (std::exception& e) {
+		fprintf(stderr, "ExpCode ERR:%s\n", e.what());
 	}
 }

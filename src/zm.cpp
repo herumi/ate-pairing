@@ -721,10 +721,8 @@ void mie::zmInit()
 #endif
 		static Code code;
 		return;
-	} catch (Xbyak::Error err) {
-		fprintf(stderr, "zmInit ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
-	} catch (...) {
-		fprintf(stderr, "zmInit ERR:unknown error\n");
+	} catch (std::exception& e) {
+		fprintf(stderr, "zmInit ERR:%s\n", e.what());
 	}
 	::exit(1);
 }
