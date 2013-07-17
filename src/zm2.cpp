@@ -3539,10 +3539,8 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 			}
 		}
 		return;
-	} catch (Xbyak::Error err) {
-		fprintf(stderr, "setModulo ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
-	} catch (...) {
-		fprintf(stderr, "setModulo ERR:unknown error\n");
+	} catch (std::exception& e) {
+		fprintf(stderr, "setModulo ERR:%s\n", e.what());
 	}
 	::exit(1);
 }

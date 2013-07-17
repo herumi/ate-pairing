@@ -1986,13 +1986,7 @@ int main(int argc, char* argv[]) try
 	printf("err=%d(test=%d)\n", s_errNum, s_testNum);
 	return 0;
 
-} catch (Xbyak::Error err)
-{
-	fprintf(stderr, "ExpCode ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
-	return 1;
-
-} catch (std::exception& e)
-{
+} catch (std::exception& e) {
 	fprintf(stderr, "std::exception %s\n", e.what());
 	return 1;
 }
