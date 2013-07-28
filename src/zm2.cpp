@@ -2483,17 +2483,17 @@ L("@@");
 
 		lea(gp1, ptr [z.b_]);
 		mov(gp2, gp1);
-		mov(gp3, z);
+		mov(gp3, z.r_);
 		call(p_Fp6_mul);
 		mov(gp1, ptr [rsp + zsave]);
 		lea(gp2, ptr [t0]);
 		lea(gp3, ptr [t1]);
 		call(p_Fp6_mul);
 
-		mov(z, ptr [rsp + zsave]);
+		mov(z.r_, ptr [rsp + zsave]);
 		sub_Fp2_mul_gamma_add(t1, z.b_, z.b_);
 
-		mov(z, ptr [rsp + zsave]);
+		mov(z.r_, ptr [rsp + zsave]);
 		mov(gp1, z.r_);
 		mov(gp2, z.r_);
 		lea(gp3, ptr [t1]);
