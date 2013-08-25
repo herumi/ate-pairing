@@ -100,7 +100,7 @@ void detectCpu(int mode, bool useMulx)
 //		printf("-m %d option is selected, but try -m %d to verify the determination.\n", interleaveLoad, 1 - interleaveLoad);
 		break;
 	}
-	if (cpu.has(Xbyak::util::Cpu::tGPR2)) {
+	if (cpu.has(Xbyak::util::Cpu::tBMI2)) {
 		g_useMulx = useMulx;
 		if (g_useMulx) {
 			fprintf(stderr, "use mulx\n");
