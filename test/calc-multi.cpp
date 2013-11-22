@@ -194,12 +194,7 @@ int main(int argc, char *argv[]) try
 	argc--, argv++;
 	Param::init(-1);
 	testPairing();
-
-	return 0;
-} catch (Xbyak::Error err) {
-	fprintf(stderr, "ExpCode ERR:%s(%d)\n", Xbyak::ConvertErrorToString(err), err);
-	return 1;
 } catch (std::exception& e) {
-	fprintf(stderr, "std::exception %s\n", e.what());
+	fprintf(stderr, "exception %s\n", e.what());
 	return 1;
 }
