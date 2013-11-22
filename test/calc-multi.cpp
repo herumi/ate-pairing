@@ -163,12 +163,28 @@ void testPairing()
 			sr = g_count_r512;
 			sa = g_count_add256;
 		}
+		int km;
+		int kr;
+		int ka;
+		{
+			Fp6 pre[8][70];
+			memset(pre, 0, sizeof(pre));
+			PrecomputePairingKnownG2(pre, 8, Qn);
+			g_count_m256 = 0;
+			g_count_r512 = 0;
+			g_count_add256 = 0;
+			bn::opt_atePairingKnownG2(e, pre[0], Pn[0]);
+			km = g_count_m256;
+			kr = g_count_r512;
+			ka = g_count_add256;
+		}
 		printf("(%dm + %dr + %da) * N + EXP + %dm + %dr + %da\n"
 			, m, r, a
 			, c1[2] - 2 * m - em, c2[2] - 2 * r - er, c3[2] - 2 * a - ea);
 		printf("EXP = %dm + %dr + %da\n", em, er, ea);
-		printf("single = (%dm + %dr + %da) + EXP\n", sm - em, sr - er, sa - ea);
-		printf("       = %dm + %dr + %da\n", sm, sr, sa);
+		printf("single U = (%dm + %dr + %da) + EXP\n", sm - em, sr - er, sa - ea);
+		printf("       U = %dm + %dr + %da\n", sm, sr, sa);
+		printf("       K = %dm + %dr + %da\n", km, kr, ka);
 #if 0
 		{
 			Fp12 f;
