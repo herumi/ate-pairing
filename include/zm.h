@@ -14,6 +14,7 @@
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
+#include <algorithm>
 
 // for debug(remove it later)
 #include <iostream>
