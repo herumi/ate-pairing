@@ -410,14 +410,6 @@ void (*FpDbl::mul)(Dbl&, const Fp&, const Fp&) = &FpDbl_mulC;
 void (*FpDbl::mod)(Fp&, const Dbl&) = &FpDbl_modC;
 
 struct PairingCode : Xbyak::CodeGenerator {
-	void mov32c(const Reg64& r, uint64 c)
-	{
-		if (c & 0xffffffff00000000ULL) {
-			mov(r, c);
-		} else {
-			mov(Reg32(r.getIdx()), (uint32)c);
-		}
-	}
 	/*
 		[z3:z2:z1:z0] = [m3:m2:m1:m0]
 	*/
@@ -798,7 +790,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	*/
 	void in_FpDbl_add(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		in_Fp_addNC(mz, mx, my);
 		load_add_rm(gt4, gt3, gt2, gt1, mx + sizeof(Fp), my + sizeof(Fp), true);
 		in_Fp_add_modp();
@@ -809,7 +801,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	*/
 	void sub_FpDbl_sub(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		in_Fp_subNC(mz, mx, my);
 		load_sub_rm(gt4, gt3, gt2, gt1, mx + sizeof(Fp), my + sizeof(Fp), true);
 		in_Fp_sub_modp();
@@ -870,7 +862,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 	}
 	void in_Fp_add(int n, const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		for (int i = 0; i < n; i++) {
 			in_Fp_add(mz + 32 * i, mx + 32 * i, my + 32 * i);
 		}
@@ -890,7 +882,7 @@ L("@@");
 	}
 	void in_Fp_neg(int n, const RegExp& mz, const RegExp& mx)
 	{
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		for (int i = 0; i < n; i++) {
 			in_Fp_neg(mz + 32 * i, mx + 32 * i);
 		}
@@ -954,7 +946,7 @@ L("@@");
 	}
 	void in_Fp_sub(int n, const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		for (int i = 0; i < n; i++) {
 			in_Fp_sub(mz + 32 * i, mx + 32 * i, my + 32 * i);
 		}
@@ -1038,7 +1030,7 @@ L("@@");
 		or(rax, z2);
 		or(rax, z3);
 		jz("@f");
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		load_sub_rm(z3, z2, z1, z0, rax, x, false);
 	L("@@");
 		store_mr(z, z3, z2, z1, z0);
@@ -1079,7 +1071,7 @@ L("@@");
 		shl(rdx, 5); // * 32
 		load_rm(gt4, gt3, gt2, gt1, x);
 		shr1(gt4, gt3, gt2, gt1);
-		mov32c(gt5, (uint64_t)Fp::halfTbl_);
+		mov(gt5, (uint64_t)Fp::halfTbl_);
 		add(rdx, gt5);
 		add_rm(gt4, gt3, gt2, gt1, rdx);
 		store_mr(z, gt4, gt3, gt2, gt1);
@@ -1090,7 +1082,7 @@ L("@@");
 		p_Fp2_divBy2 = (void*)const_cast<uint8_t*>(getCurr());
 		const Reg64& z = gp1;
 		const Reg64& x = gp2;
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		sub_Fp_divBy2(z, x);
 		sub_Fp_divBy2(z + 32, x + 32);
 		ret();
@@ -1224,7 +1216,7 @@ L("@@");
 		upCount(&g_count_r512);
 #endif
 		movq(xm0, gp1); // save gp1
-		mov32c(gp1, (uint64_t)&s_pTbl[1]);
+		mov(gp1, (uint64_t)&s_pTbl[1]);
 		movq(xm1, gp3);
 		mov(gp3, ptr [gp3]);
 		montgomery1(gt1, gt8, gt4, gt3, gt2, gp2, gp3, gp1, gt5, gt6, gt7, gt9, gt10, true);
@@ -1383,7 +1375,7 @@ L("@@");
 
 		mov(a, pp_);
 		mul(gp1);
-		mov32c(gp3, (uint64_t)&s_pTbl[1]);
+		mov(gp3, (uint64_t)&s_pTbl[1]);
 		mov(gt7, a); // q
 
 		// [d:gt7:gt3:gt2:gt1] = p * q
@@ -1459,7 +1451,7 @@ L("@@");
 
 	void in_Fp2_mul_xi(const RegExp& mz, const RegExp& mx)
 	{
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 #ifdef BN_SUPPORT_SNARK
 		in_Fp_add(mz, mx, mx); // 2
 		in_Fp_add(mz, mz, mz); // 4
@@ -1570,7 +1562,7 @@ L("@@");
 	}
 	void in_Fp2Dbl_mul_xi(const RegExp& mz, const RegExp& mx)
 	{
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		lea(gp1, ptr [mz]);
 		lea(gp2, ptr [mx]);
 		call(p_Fp2Dbl_mul_xi);
@@ -1636,7 +1628,7 @@ L("@@");
 		shr(rdx, 61); // rdx = [0:x3_63:x3_62:x3_61]
 
 		shl(rdx, 5); // sizeof(Fp) = 32
-		mov32c(a, (uint64_t)&s_pTbl[0]);
+		mov(a, (uint64_t)&s_pTbl[0]);
 		sub_rm(x3, x2, x1, x0, a + rdx);
 		sbb(rdx, rdx);
 
@@ -1670,7 +1662,7 @@ L("@@");
 		sub(rsp, SS);
 
 #ifdef BN_SUPPORT_SNARK
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 		load_rm(gt4, gt3, gt2, gt1, x.b_);
 		add_rr(gt4, gt3, gt2, gt1, gt4, gt3, gt2, gt1);
 		in_Fp_add_modp(); // XITAG
@@ -1679,7 +1671,7 @@ L("@@");
 		// d0 = t[3..0] * a
 		mul4x4(d0, t, x, gt10, gt9, gt8, gt7, gt6, gt5, gt4, gt3, gt2, gt1);
 
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 
 		load_add_rm(gt4, gt3, gt2, gt1, x.a_, rax, false); // t = a + p
 		sub_rm(gt4, gt3, gt2, gt1, x.b_); // a + p - b
@@ -1694,7 +1686,7 @@ L("@@");
 		// d0 = t[3..0] * a
 		mul4x4(d0, t, x, gt10, gt9, gt8, gt7, gt6, gt5, gt4, gt3, gt2, gt1);
 
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 
 		load_add_rm(gt4, gt3, gt2, gt1, x.a_, rax, false); // t = a + p
 		sub_rm(gt4, gt3, gt2, gt1, x.b_); // a + p - b
@@ -1745,7 +1737,7 @@ L("@@");
 	*/
 	void in_FpDbl_subOpt1(const RegExp& mz, const RegExp& mx, const RegExp& my)
 	{
-		mov32c(rax, (uint64)&Fp::Dbl::pNTbl_[2]);
+		mov(rax, (uint64)&Fp::Dbl::pNTbl_[2]);
 		load_rm(gt4, gt3, gt2, gt1, mx);
 		// 192-bits lower value of pNTbl_[2] is zero
 		add(gt4, ptr [rax + 8 * 3]); // add_rm(gt4, gt3, gt2, gt1, rax + 8 * 3);
@@ -1837,7 +1829,7 @@ L("@@");
 		const Xmm& xt1 = xm1;
 		const Xmm& xt2 = xm2;
 		const Xmm& xt3 = xm3;
-		mov32c(t, (uint64_t)&s_pTbl[1]);
+		mov(t, (uint64_t)&s_pTbl[1]);
 		load_rm(u3, u2, u1, u0, t); // u = p
 		mov(v3, ptr [v0 + 8 * 3]);
 		mov(v2, ptr [v0 + 8 * 2]);
@@ -1910,7 +1902,7 @@ L("@@");
 	L(".exit");
 		// r = 2p - r
 		// if (r >= p) r -= p ; this is unnecessary because next function is mul
-		mov32c(t, (uint64_t)&s_pTbl[2]);
+		mov(t, (uint64_t)&s_pTbl[2]);
 		load_rm(s3, s2, s1, s0, t);
 		sub(s0, ptr [rsp + 8 * 0]);
 		sbb(s1, ptr [rsp + 8 * 1]);
@@ -2008,7 +2000,7 @@ L("@@");
 	{
 		align(16);
 		p_Fp2Dbl_mul_xi = (void*)const_cast<uint8_t*>(getCurr());
-		mov32c(rax, (uint64_t)&s_pTbl[1]);
+		mov(rax, (uint64_t)&s_pTbl[1]);
 #ifdef BN_SUPPORT_SNARK
 		in_FpDbl_add(gp1, gp2, gp2); // 2
 		in_FpDbl_add(gp1, gp1, gp1); // 4
@@ -2424,7 +2416,7 @@ L("@@");
 #if 1
 		movq(z, zsave);
 		for (int i = 0; i < 2; i++) {
-			mov32c(rax, (uint64_t)&s_pTbl[1]);
+			mov(rax, (uint64_t)&s_pTbl[1]);
 			load_add_rm(gt4, gt3, gt2, gt1, (RegExp)t0 + sizeof(Fp) * i, rax, false);
 			sub_rm(gt4, gt3, gt2, gt1, z + g4 + sizeof(Fp) * i);
 			add_rr(gt4, gt3, gt2, gt1, gt4, gt3, gt2, gt1);
@@ -2930,7 +2922,7 @@ L("@@");
 		mul4x4(z.b_, t0, x.a_, gt9, gt8, gt7, gt6, gt5, gt4, gt3, gt2, gt1, gt0);
 		// d0 = t[3..0] * a_
 
-		mov32c(a, (uint64_t)&s_pTbl[1]);
+		mov(a, (uint64_t)&s_pTbl[1]);
 
 		load_add_rm(gt3, gt2, gt1, gt0, x.a_, a, false); // t = a + p
 		sub_rm(gt3, gt2, gt1, gt0, x.b_); // a + p - b
