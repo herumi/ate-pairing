@@ -1661,7 +1661,11 @@ void testParameters()
 		const char* b;
 	};
 	{
+#ifdef BN_USE_SCIPR_DIFF
+		const Fp2 (&gammar)[6] = Param::gammar;
+#else
 		const Fp2 (&gammar)[5] = Param::gammar;
+#endif
 		const Fp2_str gammar_str[] = {
 			{
 				"12310438583873020660552735091161044116898065562217439662059245424880585960937",

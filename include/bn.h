@@ -12,6 +12,9 @@
 #ifdef MIE_ATE_USE_GMP
 #include <gmpxx.h>
 
+// https://github.com/scipr-lab/libsnark/blob/master/patches/ate-pairing-change-curve.diff
+#define BN_USE_SCIPR_DIFF
+
 namespace mie {
 
 inline size_t M_bitLen(const mpz_class& x)
@@ -62,11 +65,16 @@ struct ParamT {
 	static Fp Z;
 	static Fp2 W2p;
 	static Fp2 W3p;
+#ifdef BN_USE_SCIPR_DIFF
+	static Fp2 gammar[6];
+#else
 	static Fp2 gammar[5];
+#endif
 	static Fp2 gammar2[5];
 	static Fp2 gammar3[5];
 	static Fp i0; // 0
 	static Fp i1; // 1
+	static int b;
 	static Fp2 b_invxi; // b/xi of twist E' : Y^2 = X^3 + b/xi
 	static Fp half;
 
@@ -78,7 +86,11 @@ struct ParamT {
 	static inline void init(int mode = -1, bool useMulx = true)
 	{
 		mie::zmInit();
+#ifdef BN_USE_SCIPR_DIFF
+		const int64_t org_z = 4965661367192848881LL; // NOTE: hard-coded Fp12::pow_neg_t too.
+#else
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
+#endif
 		const int pCoff[] = { 1, 6, 24, 36, 36 };
 		const int rCoff[] = { 1, 6, 18, 36, 36 };
 		const int tCoff[] = { 1, 0,  6,  0,  0 };
@@ -89,18 +101,39 @@ struct ParamT {
 		largest_c = 6 * z + 2;
 		Fp::setModulo(p, mode, useMulx);
 		half = Fp(1) / Fp(2);
+#ifdef BN_USE_SCIPR_DIFF
+		b = 3;
+		Fp2 xi(9, 1);
+		/*
+			b_invxi = 3 * xi.inverse(),
+			b/xi = 266929791119991161246907387137283842545076965332900288569378510910307636690*U +
+			       19485874751759354771024239261021720505790618469301721065564631296452457478373
+		*/
+		b_invxi = Fp2(Fp("19485874751759354771024239261021720505790618469301721065564631296452457478373"),
+					  Fp("266929791119991161246907387137283842545076965332900288569378510910307636690"));
+#else
+		b = 2;
 		Fp2 xi(1, 1);
 		/*
-			b = 2,
 			b_invxi = 2 * xi.inverse(),
 			b/xi = [1, -1].
 		*/
 		b_invxi = Fp2(Fp("1"), -Fp("1"));
+#endif
+#ifdef BN_USE_SCIPR_DIFF
+		gammar[0] = 1;
+		gammar[1] = mie::power(xi, (p - 1) / 6);
+
+		for (size_t i = 2; i < sizeof(gammar) / sizeof(*gammar); ++i) {
+			gammar[i] = gammar[i - 1] * gammar[1];
+		}
+#else
 		gammar[0] = mie::power(xi, (p - 1) / 6);
 
 		for (size_t i = 1; i < sizeof(gammar) / sizeof(*gammar); ++i) {
 			gammar[i] = gammar[i - 1] * gammar[0];
 		}
+#endif
 
 		for (size_t i = 0; i < sizeof(gammar2) / sizeof(*gammar2); ++i) {
 			gammar2[i] = Fp2(gammar[i].a_, -gammar[i].b_) * gammar[i];
@@ -111,7 +144,7 @@ struct ParamT {
 		}
 
 		W2p = mie::power(xi, (p - 1) / 3);
-		W3p = mie::power(xi, ((3 * p - 1) / 2 - 1) / 3);
+		W3p = mie::power(xi, (p - 1) / 2);
 		Fp2 temp = mie::power(xi, (p * p - 1) / 6);
 		assert(temp.b_.isZero());
 		Fp::square(Z, -temp.a_);
@@ -146,6 +179,8 @@ typename Fp2::Fp ParamT<Fp2>::i0;
 template<class Fp2>
 typename Fp2::Fp ParamT<Fp2>::i1;
 template<class Fp2>
+int ParamT<Fp2>::b;
+template<class Fp2>
 Fp2 ParamT<Fp2>::b_invxi;
 
 template<class Fp2>
@@ -156,8 +191,13 @@ Fp2 ParamT<Fp2>::W2p;
 template<class Fp2>
 Fp2 ParamT<Fp2>::W3p;
 
+#ifdef BN_USE_SCIPR_DIFF
+template<class Fp2>
+Fp2 ParamT<Fp2>::gammar[6];
+#else
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar[5];
+#endif
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar2[5];
 template<class Fp2>
@@ -166,6 +206,10 @@ Fp2 ParamT<Fp2>::gammar3[5];
 // Loop parameter for ate pairing.
 template<class Fp2>
 const int ParamT<Fp2>::siTbl[] = {
+#ifdef BN_USE_SCIPR_DIFF
+// XITAG
+1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0
+#else
 	1, 1, 0, 0, 0,
 	0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -173,6 +217,7 @@ const int ParamT<Fp2>::siTbl[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+#endif
 };
 
 /*
@@ -286,6 +331,29 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		Fp::divBy4(z.b_, x.b_);
 	}
 
+#ifdef BN_USE_SCIPR_DIFF
+	/*
+	  XITAG
+		u^2 = -1
+		xi = 9 + u
+		(a + bu)(9 + u) = (9a - b) + (a + 9b)u
+	*/
+	static inline void mul_xiC(Fp2T& z, const Fp2T& x)
+	{
+		assert(&z != &x);
+		Fp::add(z.a_, x.a_, x.a_); // 2
+		Fp::add(z.a_, z.a_, z.a_); // 4
+		Fp::add(z.a_, z.a_, z.a_); // 8
+		Fp::add(z.a_, z.a_, x.a_); // 9
+		Fp::sub(z.a_, z.a_, x.b_);
+
+		Fp::add(z.b_, x.b_, x.b_); // 2
+		Fp::add(z.b_, z.b_, z.b_); // 4
+		Fp::add(z.b_, z.b_, z.b_); // 8
+		Fp::add(z.b_, z.b_, x.b_); // 9
+		Fp::add(z.b_, z.b_, x.a_);
+	}
+#else
 	/*
 		u^2 = -1
 		xi = 1 + u
@@ -299,12 +367,22 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		Fp::sub(z.a_, x.a_, x.b_);
 		Fp::add(z.b_, x.a_, x.b_);
 	}
+#endif
 
 	/*
 		(a + bu)^2 = (a - b)(a + b) + 2abu
 	*/
 	static inline void squareC(Fp2T& z, const Fp2T& x)
 	{
+#ifdef BN_USE_SCIPR_DIFF
+		Fp t, tt;
+		Fp::add(t, x.b_, x.b_); // 2b
+		t *= x.a_; // 2ab
+		Fp::sub(tt, x.a_, x.b_); // a - b
+		Fp::add(z.a_, x.a_, x.b_); // a + b
+		z.a_ *= tt; // (a - b)(a + b)
+		z.b_ = t;
+#else
 		Fp t, tt;
 		Fp::addNC(t, x.b_, x.b_); // 2b
 		t *= x.a_; // 2ab
@@ -312,6 +390,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		Fp::addNC(z.a_, x.a_, x.a_); // a + b
 		z.a_ *= tt; // (a - b)(a + b)
 		z.b_ = t;
+#endif
 	}
 
 	/*
@@ -502,12 +581,36 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 			FpDbl::subNC(z.b_, x.b_, y.b_);
 		}
 
+#ifdef BN_USE_SCIPR_DIFF
+		/*
+		  XITAG
+		  u^2 = -1
+		  xi = 9 + u
+		  (a + bu)(9 + u) = (9a - b) + (a + 9b)u
+		*/
+		static void mul_xiC(Dbl& z, const Dbl& x)
+		{
+			assert(&z != &x);
+			FpDbl::add(z.a_, x.a_, x.a_); // 2
+			FpDbl::add(z.a_, z.a_, z.a_); // 4
+			FpDbl::add(z.a_, z.a_, z.a_); // 8
+			FpDbl::add(z.a_, z.a_, x.a_); // 9
+			FpDbl::sub(z.a_, z.a_, x.b_);
+
+			FpDbl::add(z.b_, x.b_, x.b_); // 2
+			FpDbl::add(z.b_, z.b_, z.b_); // 4
+			FpDbl::add(z.b_, z.b_, z.b_); // 8
+			FpDbl::add(z.b_, z.b_, x.b_); // 9
+			FpDbl::add(z.b_, z.b_, x.a_);
+		}
+#else
 		static void mul_xiC(Dbl& z, const Dbl& x)
 		{
 			assert(&z != &x);
 			FpDbl::sub(z.a_, x.a_, x.b_);
 			FpDbl::add(z.b_, x.b_, x.a_);
 		}
+#endif
 
 		static void mulOptC(Dbl& z, const Fp2T& x, const Fp2T& y, int mode)
 		{
@@ -791,6 +894,9 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 	{
 		Fp2 t0, t1, t2, t3, t4, t5;
 		Fp2Dbl T0, T1, T2;
+		// X1, Y1, Z1 == R[0], R[1], R[2]
+		// xp, yp = P[0], P[1]
+
 		// # 1
 		Fp2::square(t0, R[2]);
 		Fp2::mul(t4, R[0], R[1]);
@@ -802,9 +908,16 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		// # 3
 		t0 += t3;
 		// # 4
+#ifdef BN_USE_SCIPR_DIFF
+		// (a + bu) * binv_xi
+		Fp2::mul(t2, t0, ParamT<Fp2>::b_invxi);
+		//Fp::add(t2.a_, t0.a_, t0.b_);
+		//Fp::sub(t2.b_, t0.b_, t0.a_);
+#else
 		// (a + bu)(1 - u) = (a + b) + (b - a)u
 		Fp::add(t2.a_, t0.a_, t0.b_);
 		Fp::sub(t2.b_, t0.b_, t0.a_);
+#endif
 		// # 5
 		Fp2::square(t0, R[0]);
 		Fp2::add(t3, t2, t2);
@@ -825,7 +938,11 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		Fp2Dbl::addNC(T2, T1, T1);
 		Fp2::add(t3, R[1], R[2]);
 		// # 11
+#ifdef BN_USE_SCIPR_DIFF
+		Fp2Dbl::add(T2, T2, T1);
+#else
 		Fp2Dbl::addNC(T2, T2, T1);
+#endif
 		Fp2::square(t3, t3);
 		// # 12
 		t3 -= t5;
@@ -1057,9 +1174,14 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 			FpDbl::sub(z.c_.a_, z.c_.a_, z.b_.a_);
 			// # 13
 			FpDbl::subNC(z.c_.b_, z.c_.b_, z.b_.b_);
+			/// c1 except xi * t2 term
 			// # 14, 15
+#ifdef BN_USE_SCIPR_DIFF
+			Fp2Dbl::mul_xi(z.b_, T2); // store xi * t2 term
+#else
 			FpDbl::subOpt1(z.b_.a_, T2.a_, T2.b_);
 			FpDbl::add(z.b_.b_, T2.a_, T2.b_);
+#endif
 			// # 16
 			Fp2Dbl::add(z.b_, z.b_, z.c_);
 			// # 17
@@ -1267,7 +1389,11 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		Fp2Dbl::square(T1, x1);
 		Fp2Dbl::mul_xi(T2, T1);
 //		T2 += T0;
+#ifdef BN_USE_SCIPR_DIFF
+		Fp2Dbl::add(T2, T2, T0);
+#else
 		Fp2Dbl::addNC(T2, T2, T0); // RRR
+#endif
 		Fp2::add(z1, x0, x1);
 		Fp2Dbl::mod(z0, T2);
 		// overwrite z[0] (position 0).
@@ -1444,7 +1570,32 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 	void Frobenius(Fp12T& z) const
 	{
+		/* this assumes (q-1)/6 is odd */
 		assert(this != &z);
+#ifdef BN_USE_SCIPR_DIFF
+		z.a_.a_.a_ = a_.a_.a_;
+		Fp::neg(z.a_.a_.b_, a_.a_.b_);
+
+		z.a_.b_.a_ = a_.b_.a_;
+		Fp::neg(z.a_.b_.b_, a_.b_.b_);
+		Fp2::mul(z.a_.b_, z.a_.b_, Param::gammar[2]);
+
+		z.a_.c_.a_ = a_.c_.a_;
+		Fp::neg(z.a_.c_.b_, a_.c_.b_);
+		Fp2::mul(z.a_.c_, z.a_.c_, Param::gammar[4]);
+
+		z.b_.a_.a_ = b_.a_.a_;
+		Fp::neg(z.b_.a_.b_, b_.a_.b_);
+		Fp2::mul(z.b_.a_, z.b_.a_, Param::gammar[1]);
+
+		z.b_.b_.a_ = b_.b_.a_;
+		Fp::neg(z.b_.b_.b_, b_.b_.b_);
+		Fp2::mul(z.b_.b_, z.b_.b_, Param::gammar[3]);
+
+		z.b_.c_.a_ = b_.c_.a_;
+		Fp::neg(z.b_.c_.b_, b_.c_.b_);
+		Fp2::mul(z.b_.c_, z.b_.c_, Param::gammar[5]);
+#else
 		z.a_.a_.a_ = a_.a_.a_;
 		Fp::neg(z.a_.a_.b_, a_.a_.b_);
 		z.a_.b_.a_ = a_.b_.a_;
@@ -1462,20 +1613,42 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		z.b_.c_.a_ = b_.c_.a_;
 		Fp::neg(z.b_.c_.b_, b_.c_.b_);
 		z.b_.c_ *=  Param::gammar[4];
+#endif
 	}
 
 	void Frobenius2(Fp12T& z) const
 	{
+#ifdef BN_USE_SCIPR_DIFF
+		// TODO: fix this
+		Fp12T zcopy;
+		this->Frobenius(zcopy);
+		zcopy.Frobenius(z);
+/*
+		z.a_.a_ = a_.a_;
+		Fp2::mul(z.a_.b_, a_.b_, Param::gammar[3]);
+		Fp2::mul(z.a_.c_, a_.c_, Param::gammar[1]);
+		Fp2::mul(z.b_.a_, b_.a_, Param::gammar[1]);
+		z.b_.b_ = b_.b_;
+		Fp2::mul(z.b_.c_, b_.c_, Param::gammar[3]);
+*/
+#else
 		z.a_.a_ = a_.a_;
 		Fp2::mul_Fp_0(z.a_.b_, a_.b_, Param::gammar2[1].a_);
 		Fp2::mul_Fp_0(z.a_.c_, a_.c_, Param::gammar2[3].a_);
 		Fp2::mul_Fp_0(z.b_.a_, b_.a_, Param::gammar2[0].a_);
 		Fp2::mul_Fp_0(z.b_.b_, b_.b_, Param::gammar2[2].a_);
 		Fp2::mul_Fp_0(z.b_.c_, b_.c_, Param::gammar2[4].a_);
+#endif
 	}
 
 	void Frobenius3(Fp12T& z) const
 	{
+#ifdef BN_USE_SCIPR_DIFF
+		// TODO: fix this
+		Fp12T zcopy;
+		this->Frobenius2(zcopy);
+		zcopy.Frobenius(z);
+#else
 		z.a_.a_.a_ = a_.a_.a_;
 		Fp::neg(z.a_.a_.b_, a_.a_.b_);
 		z.a_.b_.a_ = a_.b_.a_;
@@ -1493,6 +1666,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		z.b_.c_.a_ = b_.c_.a_;
 		Fp::neg(z.b_.c_.b_, b_.c_.b_);
 		Fp2::mul(z.b_.c_, z.b_.c_, Param::gammar3[4]);
+#endif
 	}
 
 	/*
@@ -1500,6 +1674,11 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	*/
 	void mapToCyclo(Fp12T& z)
 	{
+		// (a + b*i) -> ((a - b*i) * (a + b*i)^(-1))^(q^2+1)
+		//
+		// See Beuchat page 9: raising to 6-th power is the same as
+		// conjugation, so this entire function computes
+		// z^((p^6-1) * (p^2+1))
 		z.a_ = a_;
 		Fp6::neg(z.b_, b_);
 		inverse();
@@ -1517,12 +1696,76 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 		*this = final_exp(*this)
 	*/
+#ifdef BN_USE_SCIPR_DIFF
+	static void pow_neg_t(Fp12T &out, const Fp12T &in)
+	{
+		int64_t t = 4965661367192848881LL;
+		out = 1;
+
+		int64_t bitcount = 0, tcopy = t;
+		while (tcopy != 0)
+		{
+			tcopy >>= 1;
+			++bitcount;
+		}
+
+		for (int64_t b = bitcount - 1; b >= 0; --b)
+		{
+			out.sqru();
+			// Fp12T::mul(out, out, out);
+
+			if ((t & (1ll << b)) != 0)
+			{
+				Fp12T::mul(out, out, in);
+			}
+		}
+
+		// invert by conjugation
+		Fp6::neg(out.b_, out.b_);
+	}
+#endif
+
 	void final_exp()
 	{
 		Fp12T f, f2z, f6z, f6z2, f12z3;
 		Fp12T a, b;
 		Fp12T& z = *this;
 		mapToCyclo(f);
+
+#ifdef BN_USE_SCIPR_DIFF
+		Fp12T::pow_neg_t(f2z, f);
+		f2z.sqru();                       // f2z = f^(-2*z)
+		f2z.sqru(f6z);
+		f6z *= f2z;                       // f6z = f^(-6*z)
+		Fp12T::pow_neg_t(f6z2, f6z);
+		// A variable a is unnecessary only here.
+		f6z2.sqru(a);
+		// Compress::fixed_power(f12z3, a);  // f12z3 = f^(-12*z^3)
+		Fp12T::pow_neg_t(f12z3, a);
+		// It will compute inversion of f2z, thus, conjugation free.
+		Fp6::neg(f6z.b_, f6z.b_);         // f6z = f^(6z)
+		Fp6::neg(f12z3.b_, f12z3.b_);     // f12z3 = f^(12*z^3)
+		// Computes a and b.
+		Fp12T::mul(a, f12z3, f6z2);       // a = f^(12*z^3 + 6z^2)
+		a *= f6z;                         // a = f^(12*z^3 + 6z^2 + 6z)
+		Fp12T::mul(b, a, f2z);            // b = f^(12*z^3 + 6z^2 + 4z)w
+		// @note f2z, f6z, and f12z are unnecessary from here.
+		// Last part.
+		Fp12T::mul(z, a, f6z2);          // z = f^(12*z^3 + 12z^2 + 6z)
+		z *= f;                          // z = f^(12*z^3 + 12z^2 + 6z + 1)
+		b.Frobenius(f2z);                // f2z = f^(q(12*z^3 + 6z^2 + 4z))
+		z *= f2z;                        // z = f^(q(12*z^3 + 6z^2 + 4z) + (12*z^3 + 12z^2 + 6z + 1))
+		a.Frobenius2(f2z);               // f2z = f^(q^2(12*z^3 + 6z^2 + 6z))
+		z *= f2z;                        // z = f^(q^2(12*z^3 + 6z^2 + 6z) + q(12*z^3 + 6z^2 + 4z) + (12*z^3 + 12z^2 + 6z + 1))
+		Fp6::neg(f.b_, f.b_);            // f = -f
+		b *= f;                          // b = f^(12*z^3 + 6z^2 + 4z - 1)
+		b.Frobenius3(f2z);               // f2z = f^(q^3(12*z^3 + 6z^2 + 4z - 1))
+		z *= f2z;                        // z = f^(q^3(12*z^3 + 6z^2 + 4z - 1) +
+                                         //       q^2(12*z^3 + 6z^2 + 6z) +
+                                         //       q(12*z^3 + 6z^2 + 4z) +
+                                         //       (12*z^3 + 12z^2 + 6z + 1))
+										 // see page 6 in the "Faster hashing to G2" paper
+#else
 		// Hard part starts from here.
 		// Computes addition chain.
 		typedef CompressT<Fp2> Compress;
@@ -1553,6 +1796,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		b *= f;
 		b.Frobenius3(f2z);
 		z *= f2z;
+#endif
 	}
 
 	struct Dbl : public mie::local::addsubmul<Dbl, mie::local::hasNegative<Dbl> > {
@@ -2064,48 +2308,55 @@ inline void copy(FF* out, const FF* in)
 }
 
 /*
-	@memo Jacobian coordinates: Y^2 = X^3 + 2*Z^6
+	@memo Jacobian coordinates: Y^2 = X^3 + b*Z^6
 */
 template<class Fp>
 inline bool isOnECJac3(const Fp* P)
 {
+	typedef Fp2T<Fp> Fp2;
+	typedef ParamT<Fp2> Param;
 	if (P[2] == 0) return true;
 
 	Fp Z6p_2;
 	Fp::square(Z6p_2, P[2]);
 	Fp::mul(Z6p_2, Z6p_2, P[2]);
 	Fp::square(Z6p_2, Z6p_2);
-	Fp::add(Z6p_2, Z6p_2, Z6p_2);
+	Z6p_2 *= Param::b;
 	return P[1] * P[1] == P[0] * P[0] * P[0] + Z6p_2;
 }
 
 /*
-	@memo Y^2=X^3+2
+	@memo Y^2=X^3+b
 	Homogeneous.
 */
 template<class Fp>
 inline bool isOnECHom2(const Fp* P)
 {
-	return P[1] * P[1] == P[0] * P[0] * P[0] + Fp(2);
+	typedef Fp2T<Fp> Fp2;
+	typedef ParamT<Fp2> Param;
+	return P[1] * P[1] == P[0] * P[0] * P[0] + Param::b;
 }
 
 /*
-	@memo Y^2=X^3+2
+	@memo Y^2=X^3+b
 	Homogeneous.
 */
 template<class Fp>
 inline bool isOnECHom3(const Fp* P)
 {
+	typedef Fp2T<Fp> Fp2;
+	typedef ParamT<Fp2> Param;
 	if (P[2] == 0) return true;
 
 	Fp ZZZ;
 	Fp::square(ZZZ, P[2]);
 	Fp::mul(ZZZ, ZZZ, P[2]);
-	return P[1] * P[1] * P[2] == P[0] * P[0] * P[0] + ZZZ + ZZZ;
+	ZZZ *= Param::b;
+	return P[1] * P[1] * P[2] == P[0] * P[0] * P[0] + ZZZ;
 }
 
 /*
-	@memo Y^2=X^3+2/xi
+	@memo Y^2=X^3+b/xi
 */
 template<class Fp>
 inline bool isOnTwistECJac3(const Fp2T<Fp>* P)
@@ -2122,7 +2373,7 @@ inline bool isOnTwistECJac3(const Fp2T<Fp>* P)
 }
 
 /*
-	@memo Y^2=X^3+2/xi
+	@memo Y^2=X^3+b/xi
 	Homogeneous.
 */
 template<class Fp>
@@ -2134,7 +2385,7 @@ inline bool isOnTwistECHom2(const Fp2T<Fp>* P)
 }
 
 /*
-	@memo Y^2=X^3+2/xi
+	@memo Y^2=X^3+b/xi
 	Homogeneous.
 */
 template<class Fp>
@@ -2353,30 +2604,60 @@ void FrobEndOnTwist_1(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 {
 	typedef Fp2T<Fp> Fp2;
 	typedef ParamT<Fp2> Param;
+	// applying Q[0] <- P[0]^q
+#ifdef BN_USE_SCIPR_DIFF
+	Q[0].a_ = P[0].a_;
+	Fp::neg(Q[0].b_, P[0].b_);
+
+	// Q[0] *= xi^((p-1)/3)
+	Q[0] *= Param::gammar[2];
+
+	// applying Q[1] <- P[1]^q
+	Q[1].a_ = P[1].a_;
+	Fp::neg(Q[1].b_, P[1].b_);
+
+	// Q[1] *= xi^((p-1)/2)
+	Q[1] *= Param::gammar[3];
+#else
 	Q[0].a_ = P[0].a_;
 	Fp::neg(Q[0].b_, P[0].b_);
 	Fp2::mul_Fp_1(Q[0], Param::W2p.b_);
 	Q[1].a_ = P[1].a_;
 	Fp::neg(Q[1].b_, P[1].b_);
 	Q[1] *= Param::W3p;
+#endif
 }
 
 template<class Fp>
 void FrobEndOnTwist_2(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 {
+#ifdef BN_USE_SCIPR_DIFF
+	Fp2T<Fp> scratch[2];
+	FrobEndOnTwist_1(scratch, P);
+	FrobEndOnTwist_1(Q, scratch);
+#else
 	typedef Fp2T<Fp> Fp2;
 	typedef ParamT<Fp2> Param;
 	Fp2::mul_Fp_0(Q[0], P[0], Param::Z);
 	Fp2::neg(Q[1], P[1]);
+#endif
 }
 
 template<class Fp>
 void FrobEndOnTwist_8(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 {
+#ifdef BN_USE_SCIPR_DIFF
+	Fp2T<Fp> scratch2[2], scratch4[2], scratch6[2];
+	FrobEndOnTwist_2(scratch2, P);
+	FrobEndOnTwist_2(scratch4, scratch2);
+	FrobEndOnTwist_2(scratch6, scratch4);
+	FrobEndOnTwist_2(Q, scratch6);
+#else
 	typedef Fp2T<Fp> Fp2;
 	typedef ParamT<Fp2> Param;
 	Fp2::mul_Fp_0(Q[0], P[0], Param::Z);
 	Q[1] = P[1];
+#endif
 }
 
 } // namespace ecop
@@ -2432,10 +2713,15 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 	Fp2 Q1[2];
 	ecop::FrobEndOnTwist_1(Q1, Q);
 	Fp2 Q2[2];
+#ifdef BN_USE_SCIPR_DIFF
+	ecop::FrobEndOnTwist_2(Q2, Q);
+	Fp2::neg(Q2[1], Q2[1]);
+#else
 	ecop::FrobEndOnTwist_8(Q2, Q);
 	// @memo z < 0
 	Fp6::neg(f.b_, f.b_);
 	Fp2::neg(T[1], T[1]);
+#endif
 	Fp12 ft;
 	Fp6::pointAddLineEval(d, T, Q1, P); // 5k
 	Fp6::pointAddLineEval(e, T, Q2, P); // 5k

@@ -1,5 +1,6 @@
 #include "zm.h"
 #include "xbyak/xbyak.h"
+#include <cstdio>
 
 using namespace mie;
 using namespace Xbyak;
@@ -10,6 +11,7 @@ using namespace Xbyak;
 */
 static inline bool in_addN(Unit *out, const Unit *x, const Unit *y, size_t n)
 {
+	printf("in_addN\n");
 	assert(n > 0);
 
 	Unit c = 0;
@@ -119,6 +121,8 @@ static inline Unit mulUnit(Unit *H, Unit a, Unit b)
 */
 static inline void in_mul(Unit *out, const Unit *x, size_t n, Unit y)
 {
+	printf("in_mul\n");
+
 	assert(n > 0);
 	Unit H = 0;
 	for (size_t i = 0; i < n; i++) {
