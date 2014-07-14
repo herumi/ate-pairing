@@ -923,8 +923,6 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 #ifdef BN_SUPPORT_SNARK
 		// (a + bu) * binv_xi
 		Fp2::mul(t2, t0, ParamT<Fp2>::b_invxi);
-		//Fp::add(t2.a_, t0.a_, t0.b_);
-		//Fp::sub(t2.b_, t0.b_, t0.a_);
 #else
 		// (a + bu)(1 - u) = (a + b) + (b - a)u
 		Fp::add(t2.a_, t0.a_, t0.b_);

@@ -3013,11 +3013,19 @@ L("@@");
 		// t0 += t3;
 		in_Fp2_add(t0, t0, t3);
 
+#ifdef BN_SUPPORT_SNARK
+		// (a + bu) * binv_xi
+		lea(gp1, ptr [t2]);
+		lea(gp2, ptr [t0]);
+		lea(gp3, ptr [&ParamT<Fp2>::b_invxi]);
+		call(p_Fp2_mul);
+#else
 		// Fp::add(t2.a_, t0.a_, t0.b_);
 		in_Fp_add(t2.a_, t0.a_, t0.b_);
 
 		// Fp::sub(t2.b_, t0.b_, t0.a_);
 		in_Fp_sub(t2.b_, t0.b_, t0.a_);
+#endif
 
 		// Fp2::square(t0, R[0]);
 		lea(gp1, ptr [t0]);
@@ -3073,7 +3081,11 @@ L("@@");
 		in_Fp2_add(t3, R + sizeof(Fp2) * 1, R + sizeof(Fp2) * 2);
 
 		// Fp2Dbl::addNC(T2, T2, T1);
+#ifdef BN_SUPPORT_SNARK
+		in_FpDbl_add(2, T2, T2, T1);
+#else
 		in_FpDbl_addNC(2, T2, T2, T1);
+#endif
 
 		// Fp2::square(t3, t3);
 		lea(gp1, ptr [t3]);
@@ -3418,11 +3430,9 @@ L("@@");
 		Fp6::sub = (void (*)(Fp6&, const Fp6&, const Fp6&))getCurr();
 		make_Fp6_sub();
 
-#ifndef BN_SUPPORT_SNARK
 		align(16);
 		Fp6::pointDblLineEval = (void (*)(Fp6& l, Fp2 *R, const Fp *P))getCurr();
 		make_pointDblLineEval();
-#endif
 
 		align(16);
 		Fp6Dbl::mul = (void (*)(Fp6Dbl&, const Fp6&, const Fp6&))getCurr();
