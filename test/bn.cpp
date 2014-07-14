@@ -23,6 +23,41 @@ static int s_testNum = 0;
 const mie::Vuint& p = Param::p;
 const mie::Vuint& r = Param::r;
 
+void benchFp()
+{
+	Fp x("1234566239428049280498203948209482039482");
+	Fp y("999999999999999999999999999999999999999");
+	Fp::Dbl d;
+	CYBOZU_BENCH("Fp::add   ", Fp::add, x, x, y);
+	CYBOZU_BENCH("Fp::sub   ", Fp::sub, x, x, y);
+	CYBOZU_BENCH("Fp::neg   ", Fp::neg, x, x);
+	CYBOZU_BENCH("Fp::mul   ", Fp::mul, x, x, y);
+	CYBOZU_BENCH("Fp::inv   ", Fp::inv, x, x);
+	CYBOZU_BENCH("mul256    ", Fp::Dbl::mul, d, x, y);
+	CYBOZU_BENCH("mod512    ", Fp::Dbl::mod, x, d);
+	CYBOZU_BENCH("Fp::divBy2", Fp::divBy2, x, x);
+	CYBOZU_BENCH("Fp::divBy4", Fp::divBy4, x, x);
+}
+void benchFp2()
+{
+	Fp2 x, y;
+	x.a_.set("4");
+	x.b_.set("464652165165");
+	y = x * x;
+	CYBOZU_BENCH("Fp2::add     ", Fp2::add, x, x, y);
+	CYBOZU_BENCH("Fp2::addNC   ", Fp2::addNC, x, x, y);
+	CYBOZU_BENCH("Fp2::sub     ", Fp2::sub, x, x, y);
+	CYBOZU_BENCH("Fp2::neg     ", Fp2::neg, x, x);
+	CYBOZU_BENCH("Fp2::mul     ", Fp2::mul, x, x, y);
+	CYBOZU_BENCH("Fp2::inverse ", x.inverse);
+	CYBOZU_BENCH("Fp2::square  ", Fp2::square, x, x);
+	CYBOZU_BENCH("Fp2::mul_xi  ", Fp2::mul_xi, x, x);
+	CYBOZU_BENCH("Fp2::mul_Fp_0", Fp2::mul_Fp_0, x, x, Param::half);
+	CYBOZU_BENCH("Fp2::mul_Fp_1", Fp2::mul_Fp_1, x, Param::half);
+	CYBOZU_BENCH("Fp2::divBy2  ", Fp2::divBy2, x, x);
+	CYBOZU_BENCH("Fp2::divBy4  ", Fp2::divBy4, x, x);
+}
+
 #ifdef BN_SUPPORT_SNARK
 void test_pairing()
 {
@@ -46,6 +81,9 @@ void test_pairing()
 		Fp("1")
 	};
 	Fp12 e;
+	benchFp();
+	benchFp2();
+	CYBOZU_BENCH("finalexp", e.final_exp);
 	CYBOZU_BENCH("pairing", opt_atePairingJac<Fp>, e, g2, g1);
 	const char expectTbl[12][128] = {
 		"15163392945550945552839911839294582974434771053565812675833291179413834896953",
@@ -72,6 +110,7 @@ int main()
 {
 	bn::Param::init();
 	test_pairing();
+	if (sclk.getCount()) printf("sclk:%.2fclk(%dtimes)\n", sclk.getClock() / double(sclk.getCount()), sclk.getCount());
 	printf("s_errNum=%d\n", s_errNum);
 }
 #else
@@ -1869,41 +1908,6 @@ void testPairingJac()
 		printf(" e(g2, g1) : %s\n", e1 == e ? "ok" : "ng");
 	}
 	CYBOZU_BENCH("Fp12::mul", Fp12::mul, e, e, e);
-}
-
-void benchFp()
-{
-	Fp x("1234566239428049280498203948209482039482");
-	Fp y("999999999999999999999999999999999999999");
-	Fp::Dbl d;
-	CYBOZU_BENCH("Fp::add   ", Fp::add, x, x, y);
-	CYBOZU_BENCH("Fp::sub   ", Fp::sub, x, x, y);
-	CYBOZU_BENCH("Fp::neg   ", Fp::neg, x, x);
-	CYBOZU_BENCH("Fp::mul   ", Fp::mul, x, x, y);
-	CYBOZU_BENCH("Fp::inv   ", Fp::inv, x, x);
-	CYBOZU_BENCH("mul256    ", Fp::Dbl::mul, d, x, y);
-	CYBOZU_BENCH("mod512    ", Fp::Dbl::mod, x, d);
-	CYBOZU_BENCH("Fp::divBy2", Fp::divBy2, x, x);
-	CYBOZU_BENCH("Fp::divBy4", Fp::divBy4, x, x);
-}
-void benchFp2()
-{
-	Fp2 x, y;
-	x.a_.set("4");
-	x.b_.set("464652165165");
-	y = x * x;
-	CYBOZU_BENCH("Fp2::add     ", Fp2::add, x, x, y);
-	CYBOZU_BENCH("Fp2::addNC   ", Fp2::addNC, x, x, y);
-	CYBOZU_BENCH("Fp2::sub     ", Fp2::sub, x, x, y);
-	CYBOZU_BENCH("Fp2::neg     ", Fp2::neg, x, x);
-	CYBOZU_BENCH("Fp2::mul     ", Fp2::mul, x, x, y);
-	CYBOZU_BENCH("Fp2::inverse ", x.inverse);
-	CYBOZU_BENCH("Fp2::square  ", Fp2::square, x, x);
-	CYBOZU_BENCH("Fp2::mul_xi  ", Fp2::mul_xi, x, x);
-	CYBOZU_BENCH("Fp2::mul_Fp_0", Fp2::mul_Fp_0, x, x, Param::half);
-	CYBOZU_BENCH("Fp2::mul_Fp_1", Fp2::mul_Fp_1, x, Param::half);
-	CYBOZU_BENCH("Fp2::divBy2  ", Fp2::divBy2, x, x);
-	CYBOZU_BENCH("Fp2::divBy4  ", Fp2::divBy4, x, x);
 }
 
 void benchFpDbl()
