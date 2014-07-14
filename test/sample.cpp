@@ -27,7 +27,7 @@ void sample1()
 	// init my library
 	Param::init();
 	// prepair a generator
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	const Fp2 g2[3] = {
 #if 1
 		Fp2(
@@ -159,7 +159,7 @@ void sample1()
 	verify("e(g2a, g1 * b) = e(g2, g1)^b", eb1, eb2);
 
 	const Fp q1[3] = {
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		Fp("7615409189752738789107368255485754320464560767061038054839369330880063494217"),
 		Fp("15800406041316817480040243057042225004929182948660112672908602141759833978876"),
 #else
@@ -183,7 +183,7 @@ void sample2()
 	using namespace bn;
 	// init my library
 	Param::init();
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 puts("g2");
 	const Ec2 g2(
 		Fp2(
@@ -282,7 +282,7 @@ puts("g2");
 	verify("e(g2a, g1 * b) = e(g2, g1)^b", eb1, eb2);
 
 	const Ec1 q1(
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		Fp("7615409189752738789107368255485754320464560767061038054839369330880063494217"),
 		Fp("15800406041316817480040243057042225004929182948660112672908602141759833978876")
 #else

@@ -154,6 +154,10 @@ modified new BSD License
 
 If you have any questions or problems, just let me know, then I'm happy.
 
+[A patch](https://github.com/scipr-lab/libsnark/blob/master/patches/ate-pairing-change-curve.diff)
+is released under [modified new BSD License](http://opensource.org/licenses/BSD-3-Clause)
+by the [SCIPR Lab project](https://github.com/scipr-lab) and contributors.
+
 Reference
 -------------
 

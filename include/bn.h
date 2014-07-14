@@ -10,8 +10,10 @@
 #include <stdexcept>
 #include "zm2.h"
 
-// https://github.com/scipr-lab/libsnark/blob/master/patches/ate-pairing-change-curve.diff
-#define BN_USE_SCIPR_DIFF
+/*
+	https://github.com/scipr-lab/libsnark/blob/master/patches/ate-pairing-change-curve.diff
+*/
+//#define BN_SUPPORT_SNARK
 
 #ifdef MIE_ATE_USE_GMP
 #include <gmpxx.h>
@@ -55,9 +57,9 @@ extern uint64_t debug_buf[128]; // for debug
 
 namespace bn {
 
-static inline bool useSCIPRdiff()
+static inline bool supportSNARK()
 {
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	return true;
 #else
 	return false;
@@ -75,7 +77,7 @@ struct ParamT {
 	static Fp Z;
 	static Fp2 W2p;
 	static Fp2 W3p;
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	static Fp2 gammar[6];
 #else
 	static Fp2 gammar[5];
@@ -96,7 +98,7 @@ struct ParamT {
 	static inline void init(int mode = -1, bool useMulx = true)
 	{
 		mie::zmInit();
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		const int64_t org_z = 4965661367192848881LL; // NOTE: hard-coded Fp12::pow_neg_t too.
 #else
 		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
@@ -111,7 +113,7 @@ struct ParamT {
 		largest_c = 6 * z + 2;
 		Fp::setModulo(p, mode, useMulx);
 		half = Fp(1) / Fp(2);
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		b = 3;
 		Fp2 xi(9, 1);
 		/*
@@ -130,7 +132,7 @@ struct ParamT {
 		*/
 		b_invxi = Fp2(Fp("1"), -Fp("1"));
 #endif
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		gammar[0] = 1;
 		gammar[1] = mie::power(xi, (p - 1) / 6);
 
@@ -201,7 +203,7 @@ Fp2 ParamT<Fp2>::W2p;
 template<class Fp2>
 Fp2 ParamT<Fp2>::W3p;
 
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar[6];
 #else
@@ -216,7 +218,7 @@ Fp2 ParamT<Fp2>::gammar3[5];
 // Loop parameter for ate pairing.
 template<class Fp2>
 const int ParamT<Fp2>::siTbl[] = {
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 // XITAG
 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0
 #else
@@ -341,7 +343,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		Fp::divBy4(z.b_, x.b_);
 	}
 
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	/*
 	  XITAG
 		u^2 = -1
@@ -384,7 +386,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 	*/
 	static inline void squareC(Fp2T& z, const Fp2T& x)
 	{
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		Fp t, tt;
 		Fp::add(t, x.b_, x.b_); // 2b
 		t *= x.a_; // 2ab
@@ -591,7 +593,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 			FpDbl::subNC(z.b_, x.b_, y.b_);
 		}
 
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		/*
 		  XITAG
 		  u^2 = -1
@@ -918,7 +920,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		// # 3
 		t0 += t3;
 		// # 4
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		// (a + bu) * binv_xi
 		Fp2::mul(t2, t0, ParamT<Fp2>::b_invxi);
 		//Fp::add(t2.a_, t0.a_, t0.b_);
@@ -948,7 +950,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		Fp2Dbl::addNC(T2, T1, T1);
 		Fp2::add(t3, R[1], R[2]);
 		// # 11
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		Fp2Dbl::add(T2, T2, T1);
 #else
 		Fp2Dbl::addNC(T2, T2, T1);
@@ -1186,7 +1188,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 			FpDbl::subNC(z.c_.b_, z.c_.b_, z.b_.b_);
 			/// c1 except xi * t2 term
 			// # 14, 15
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 			Fp2Dbl::mul_xi(z.b_, T2); // store xi * t2 term
 #else
 			FpDbl::subOpt1(z.b_.a_, T2.a_, T2.b_);
@@ -1399,7 +1401,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		Fp2Dbl::square(T1, x1);
 		Fp2Dbl::mul_xi(T2, T1);
 //		T2 += T0;
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		Fp2Dbl::add(T2, T2, T0);
 #else
 		Fp2Dbl::addNC(T2, T2, T0); // RRR
@@ -1582,7 +1584,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	{
 		/* this assumes (q-1)/6 is odd */
 		assert(this != &z);
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		z.a_.a_.a_ = a_.a_.a_;
 		Fp::neg(z.a_.a_.b_, a_.a_.b_);
 
@@ -1628,7 +1630,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 	void Frobenius2(Fp12T& z) const
 	{
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		// TODO: fix this
 		Fp12T zcopy;
 		this->Frobenius(zcopy);
@@ -1653,7 +1655,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 	void Frobenius3(Fp12T& z) const
 	{
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		// TODO: fix this
 		Fp12T zcopy;
 		this->Frobenius2(zcopy);
@@ -1706,7 +1708,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 		*this = final_exp(*this)
 	*/
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	static void pow_neg_t(Fp12T &out, const Fp12T &in)
 	{
 		int64_t t = 4965661367192848881LL;
@@ -1742,7 +1744,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		Fp12T& z = *this;
 		mapToCyclo(f);
 
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		Fp12T::pow_neg_t(f2z, f);
 		f2z.sqru();                       // f2z = f^(-2*z)
 		f2z.sqru(f6z);
@@ -2615,7 +2617,7 @@ void FrobEndOnTwist_1(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 	typedef Fp2T<Fp> Fp2;
 	typedef ParamT<Fp2> Param;
 	// applying Q[0] <- P[0]^q
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	Q[0].a_ = P[0].a_;
 	Fp::neg(Q[0].b_, P[0].b_);
 
@@ -2641,7 +2643,7 @@ void FrobEndOnTwist_1(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 template<class Fp>
 void FrobEndOnTwist_2(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 {
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	Fp2T<Fp> scratch[2];
 	FrobEndOnTwist_1(scratch, P);
 	FrobEndOnTwist_1(Q, scratch);
@@ -2656,7 +2658,7 @@ void FrobEndOnTwist_2(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 template<class Fp>
 void FrobEndOnTwist_8(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 {
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	Fp2T<Fp> scratch2[2], scratch4[2], scratch6[2];
 	FrobEndOnTwist_2(scratch2, P);
 	FrobEndOnTwist_2(scratch4, scratch2);
@@ -2723,7 +2725,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 	Fp2 Q1[2];
 	ecop::FrobEndOnTwist_1(Q1, Q);
 	Fp2 Q2[2];
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	ecop::FrobEndOnTwist_2(Q2, Q);
 	Fp2::neg(Q2[1], Q2[1]);
 #else

@@ -1460,7 +1460,7 @@ L("@@");
 	void in_Fp2_mul_xi(const RegExp& mz, const RegExp& mx)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		in_Fp_add(mz, mx, mx); // 2
 		in_Fp_add(mz, mz, mz); // 4
 		in_Fp_add(mz, mz, mz); // 8
@@ -1669,7 +1669,7 @@ L("@@");
 		const int SS = d1.next;
 		sub(rsp, SS);
 
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		load_rm(gt4, gt3, gt2, gt1, x.b_);
 		add_rr(gt4, gt3, gt2, gt1, gt4, gt3, gt2, gt1);
@@ -2009,7 +2009,7 @@ L("@@");
 		align(16);
 		p_Fp2Dbl_mul_xi = (void*)const_cast<uint8_t*>(getCurr());
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		in_FpDbl_add(gp1, gp2, gp2); // 2
 		in_FpDbl_add(gp1, gp1, gp1); // 4
 		in_FpDbl_add(gp1, gp1, gp1); // 8
@@ -2150,7 +2150,7 @@ L("@@");
 		in_FpDbl_subNC(z.c_.b_, z.c_.b_, z.b_.b_);
 
 		// FpDbl::subOpt1(z.b_.a_, T2.a_, T2.b_);
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		in_Fp2Dbl_mul_xi(z.b_, T2);
 #else
 		in_FpDbl_subOpt1(z.b_.a_, T2.a_, T2.b_);
@@ -3418,7 +3418,7 @@ L("@@");
 		Fp6::sub = (void (*)(Fp6&, const Fp6&, const Fp6&))getCurr();
 		make_Fp6_sub();
 
-#ifndef BN_USE_SCIPR_DIFF
+#ifndef BN_SUPPORT_SNARK
 		align(16);
 		Fp6::pointDblLineEval = (void (*)(Fp6& l, Fp2 *R, const Fp *P))getCurr();
 		make_pointDblLineEval();
@@ -3514,14 +3514,17 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 #ifdef DEBUG_COUNT
 	puts("DEBUG_COUNT mode on!!!");
 #endif
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 	const bool scipr = true;
 #else
 	const bool scipr = false;
 #endif
-	if (scipr != bn::useSCIPRdiff()) {
-		fprintf(stderr, "use -DBN_USE_SCIPR_DIFF for all sources\n");
+	if (scipr != bn::supportSNARK()) {
+		fprintf(stderr, "use -DBN_SUPPORT_SNARK for all sources\n");
 		exit(1);
+	}
+	if (bn::supportSNARK()) {
+		fprintf(stderr, "support SNARK\n");
 	}
 	static bool init = false;
 	if (init) return;

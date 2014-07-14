@@ -1661,7 +1661,7 @@ void testParameters()
 		const char* b;
 	};
 	{
-#ifdef BN_USE_SCIPR_DIFF
+#ifdef BN_SUPPORT_SNARK
 		const Fp2 (&gammar)[6] = Param::gammar;
 #else
 		const Fp2 (&gammar)[5] = Param::gammar;

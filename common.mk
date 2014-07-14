@@ -15,6 +15,9 @@ CFLAGS_ALWAYS = -D_FILE_OFFSET_BITS=64 -fno-operator-names
 LDFLAGS = -s -lm -lzm $(LIB_DIR) -lgmp -lgmpxx
 AS = nasm
 AFLAGS = -f elf -D__unix__
+ifeq ($(SUPPORT_SNARK),1)
+CFLAGS += -DBN_SUPPORT_SNARK
+endif
 
 # for only 64-bit
 BIT=-m64
