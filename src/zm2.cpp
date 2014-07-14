@@ -15,7 +15,6 @@ typedef unsigned char uint8_t;
 using namespace bn;
 using namespace Xbyak;
 
-//#define DEBUG_COUNT
 #ifdef DEBUG_COUNT
 extern int g_count_m256;
 extern int g_count_r512;
@@ -103,7 +102,7 @@ void detectCpu(int mode, bool useMulx)
 	if (cpu.has(Xbyak::util::Cpu::tBMI2)) {
 		g_useMulx = useMulx;
 		if (g_useMulx) {
-			fprintf(stderr, "use mulx\n");
+//			fprintf(stderr, "use mulx\n");
 		}
 	} else {
 		g_useMulx = false;
@@ -1461,26 +1460,7 @@ L("@@");
 	void in_Fp2_mul_xi(const RegExp& mz, const RegExp& mx)
 	{
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
-/*
-		in_Fp_sub(mz, mx, mx + 32);
-		in_Fp_add(mz + 32, mx, mx + 32);
-
--		Fp::sub(z.a_, x.a_, x.b_);
--		Fp::add(z.b_, x.a_, x.b_);
-*/
-/*
-+		Fp::add(z.a_, x.a_, x.a_); // 2
-+		Fp::add(z.a_, z.a_, z.a_); // 4
-+		Fp::add(z.a_, z.a_, z.a_); // 8
-+		Fp::add(z.a_, z.a_, x.a_); // 9
-+		Fp::sub(z.a_, z.a_, x.b_);
-+
-+		Fp::add(z.b_, x.b_, x.b_); // 2
-+		Fp::add(z.b_, z.b_, z.b_); // 4
-+		Fp::add(z.b_, z.b_, z.b_); // 8
-+		Fp::add(z.b_, z.b_, x.b_); // 9
-+		Fp::add(z.b_, z.b_, x.a_);
-*/
+#ifdef BN_USE_SCIPR_DIFF
 		in_Fp_add(mz, mx, mx); // 2
 		in_Fp_add(mz, mz, mz); // 4
 		in_Fp_add(mz, mz, mz); // 8
@@ -1492,6 +1472,10 @@ L("@@");
 		in_Fp_add(mz + 32, mz + 32, mz + 32); // 8
 		in_Fp_add(mz + 32, mz + 32, mx + 32); // 9
 		in_Fp_add(mz + 32, mz + 32, mx);
+#else
+		in_Fp_sub(mz, mx, mx + 32);
+		in_Fp_add(mz + 32, mx, mx + 32);
+#endif
 	}
 	void make_Fp2_mul_xi()
 	{
@@ -1677,15 +1661,6 @@ L("@@");
 	void in_Fp2_square()
 	{
 //begin_clock();
-/*
-		Fp t, tt;
-		Fp::add(t, x.b_, x.b_); // 2b
-		t *= x.a_; // 2ab
-		Fp::sub(tt, x.a_, x.b_); // a - b
-		Fp::add(z.a_, x.a_, x.b_); // a + b
-		z.a_ *= tt; // (a - b)(a + b)
-		z.b_ = t;
-*/
 		const Ext2<Fp> z(gp1);
 		const Ext2<Fp> x(gp2);
 		const Ext1<Fp> t(rsp);
@@ -1694,6 +1669,7 @@ L("@@");
 		const int SS = d1.next;
 		sub(rsp, SS);
 
+#ifdef BN_USE_SCIPR_DIFF
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
 		load_rm(gt4, gt3, gt2, gt1, x.b_);
 		add_rr(gt4, gt3, gt2, gt1, gt4, gt3, gt2, gt1);
@@ -1709,9 +1685,23 @@ L("@@");
 		sub_rm(gt4, gt3, gt2, gt1, x.b_); // a + p - b
 		store_mr(t, gt4, gt3, gt2, gt1); // t = a + p - b
 
-		// in_Fp_add_carry(z.a_, x.a_, x.b_, false); // z.a_ = a + b
 		in_Fp_add(z.a_, x.a_, x.b_);
+#else
+		load_rm(gt4, gt3, gt2, gt1, x.b_);
+		add_rr(gt4, gt3, gt2, gt1, gt4, gt3, gt2, gt1);
+		store_mr(t, gt4, gt3, gt2, gt1); // t = 2 * b
 
+		// d0 = t[3..0] * a
+		mul4x4(d0, t, x, gt10, gt9, gt8, gt7, gt6, gt5, gt4, gt3, gt2, gt1);
+
+		mov32c(rax, (uint64_t)&s_pTbl[1]);
+
+		load_add_rm(gt4, gt3, gt2, gt1, x.a_, rax, false); // t = a + p
+		sub_rm(gt4, gt3, gt2, gt1, x.b_); // a + p - b
+		store_mr(t, gt4, gt3, gt2, gt1); // t = a + p - b
+
+		in_Fp_add_carry(z.a_, x.a_, x.b_, false); // z.a_ = a + b
+#endif
 		// d1 = (a + p - b)(a + b)
 		mul4x4(d1, t, z.a_, gt10, gt9, gt8, gt7, gt6, gt5, gt4, gt3, gt2, gt1);
 
@@ -2019,25 +2009,7 @@ L("@@");
 		align(16);
 		p_Fp2Dbl_mul_xi = (void*)const_cast<uint8_t*>(getCurr());
 		mov32c(rax, (uint64_t)&s_pTbl[1]);
-/*
--			FpDbl::sub(z.a_, x.a_, x.b_);
--			FpDbl::add(z.b_, x.b_, x.a_);
-		sub_FpDbl_sub(gp1, gp2, gp2 + sizeof(FpDbl));
-		in_FpDbl_add(gp1 + 64, gp2 + sizeof(FpDbl), gp2);
-*/
-/*
-+			FpDbl::add(z.a_, x.a_, x.a_); // 2
-+			FpDbl::add(z.a_, z.a_, z.a_); // 4
-+			FpDbl::add(z.a_, z.a_, z.a_); // 8
-+			FpDbl::add(z.a_, z.a_, x.a_); // 9
-+			FpDbl::sub(z.a_, z.a_, x.b_);
-+
-+			FpDbl::add(z.b_, x.b_, x.b_); // 2
-+			FpDbl::add(z.b_, z.b_, z.b_); // 4
-+			FpDbl::add(z.b_, z.b_, z.b_); // 8
-+			FpDbl::add(z.b_, z.b_, x.b_); // 9
-+			FpDbl::add(z.b_, z.b_, x.a_);
-*/
+#ifdef BN_USE_SCIPR_DIFF
 		in_FpDbl_add(gp1, gp2, gp2); // 2
 		in_FpDbl_add(gp1, gp1, gp1); // 4
 		in_FpDbl_add(gp1, gp1, gp1); // 8
@@ -2049,6 +2021,10 @@ L("@@");
 		in_FpDbl_add(gp1 + 64, gp1 + 64, gp1 + 64); // 8
 		in_FpDbl_add(gp1 + 64, gp1 + 64, gp2 + sizeof(FpDbl)); // 9
 		in_FpDbl_add(gp1 + 64, gp1 + 64, gp2);
+#else
+		sub_FpDbl_sub(gp1, gp2, gp2 + sizeof(FpDbl));
+		in_FpDbl_add(gp1 + 64, gp2 + sizeof(FpDbl), gp2);
+#endif
 		ret();
 	}
 
@@ -2173,15 +2149,16 @@ L("@@");
 		// FpDbl::subNC(z.c_.b_, z.c_.b_, z.b_.b_);
 		in_FpDbl_subNC(z.c_.b_, z.c_.b_, z.b_.b_);
 
-		// XITAG
-		in_Fp2Dbl_mul_xi(z.b_, T2);
-
 		// FpDbl::subOpt1(z.b_.a_, T2.a_, T2.b_);
-		//in_FpDbl_subOpt1(z.b_.a_, T2.a_, T2.b_);
+#ifdef BN_USE_SCIPR_DIFF
+		in_Fp2Dbl_mul_xi(z.b_, T2);
+#else
+		in_FpDbl_subOpt1(z.b_.a_, T2.a_, T2.b_);
 
 		// FpDbl::add(z.b_.b_, T2.a_, T2.b_);
-		//in_FpDbl_add(z.b_.b_, T2.a_, T2.b_);
+		in_FpDbl_add(z.b_.b_, T2.a_, T2.b_);
 
+#endif
 		// Fp2Dbl::add(z.b_, z.b_, z.c_);
 		in_Fp2Dbl_add(z.b_, z.b_, z.c_);
 
@@ -3372,19 +3349,14 @@ L("@@");
 		Fp2::mul = (void (*)(Fp2&, const Fp2&, const Fp2&))getCurr();
 		make_Fp2_mul();
 
-		// XITAG
-#if 1
 		align(16);
 		Fp2::mul_xi = (void (*)(Fp2&, const Fp2&))getCurr();
 		make_Fp2_mul_xi();
-#endif
 
-#if 1
 		// TODO: seems to work fine. should we change it?!
 		align(16);
 		Fp2::square = (void (*)(Fp2&, const Fp2&))getCurr();
 		make_Fp2_square();
-#endif
 
 		align(16);
 		Fp2::mul_Fp_0 = (void (*)(Fp2&, const Fp2&, const Fp&))getCurr();
@@ -3432,12 +3404,9 @@ L("@@");
 		Fp2Dbl::mod = (void (*)(Fp2 &, const Fp2Dbl &))getCurr();
 		make_Fp2Dbl_mod();
 
-		// XITAG
-#if 1
 		align(16);
 		Fp2Dbl::mul_xi = (void (*)(Fp2Dbl &, const Fp2Dbl &))getCurr();
 		make_Fp2Dbl_mul_xi();
-#endif
 
 		// setup Fp6
 
@@ -3449,37 +3418,28 @@ L("@@");
 		Fp6::sub = (void (*)(Fp6&, const Fp6&, const Fp6&))getCurr();
 		make_Fp6_sub();
 
-		// XITAG
-#if 0
+#ifndef BN_USE_SCIPR_DIFF
 		align(16);
 		Fp6::pointDblLineEval = (void (*)(Fp6& l, Fp2 *R, const Fp *P))getCurr();
 		make_pointDblLineEval();
 #endif
 
-#if 1
 		align(16);
 		Fp6Dbl::mul = (void (*)(Fp6Dbl&, const Fp6&, const Fp6&))getCurr();
 		make_Fp6Dbl_mul();
-#endif
 
-#if 1
-		// XITAG
 		align(16);
 		Fp6::mul = (void (*)(Fp6&, const Fp6&, const Fp6&))getCurr();
 		make_Fp6_mul();
-#endif
 
 		align(16);
 		Compress::square_n = (void (*)(Compress&, int n))getCurr();
 		make_Compress_square_n();
 
-#if 1
-		// XITAG
 		align(16);
 		Fp12::square = (void (*)(Fp12& z))getCurr();
 		make_Fp12_square();
 
-		// XITAG
 		align(16);
 		Fp12::mul = (void (*)(Fp12& z, const Fp12& x, const Fp12& y))getCurr();
 		make_Fp12_mul();
@@ -3487,7 +3447,7 @@ L("@@");
 		align(16);
 		Fp12Dbl::mul_Fp2_024 = (void (*)(Fp12 &x, const Fp6& y))getCurr();
 		make_Fp12Dbl_mul_Fp2_024();
-#endif
+
 //		printf("jit code size=%d\n", (int)getSize());
 	}
 	bool isRaxP_; // true if rax is set to a pointer to p
@@ -3554,6 +3514,15 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 #ifdef DEBUG_COUNT
 	puts("DEBUG_COUNT mode on!!!");
 #endif
+#ifdef BN_USE_SCIPR_DIFF
+	const bool scipr = true;
+#else
+	const bool scipr = false;
+#endif
+	if (scipr != bn::useSCIPRdiff()) {
+		fprintf(stderr, "use -DBN_USE_SCIPR_DIFF for all sources\n");
+		exit(1);
+	}
 	static bool init = false;
 	if (init) return;
 	init = true;

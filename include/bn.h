@@ -9,11 +9,12 @@
 */
 #include <stdexcept>
 #include "zm2.h"
-#ifdef MIE_ATE_USE_GMP
-#include <gmpxx.h>
 
 // https://github.com/scipr-lab/libsnark/blob/master/patches/ate-pairing-change-curve.diff
 #define BN_USE_SCIPR_DIFF
+
+#ifdef MIE_ATE_USE_GMP
+#include <gmpxx.h>
 
 namespace mie {
 
@@ -53,6 +54,15 @@ struct IntTag<mpz_class> {
 extern uint64_t debug_buf[128]; // for debug
 
 namespace bn {
+
+static inline bool useSCIPRdiff()
+{
+#ifdef BN_USE_SCIPR_DIFF
+	return true;
+#else
+	return false;
+#endif
+}
 
 template<class Fp2>
 struct ParamT {

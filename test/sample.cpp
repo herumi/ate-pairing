@@ -58,28 +58,6 @@ void sample1()
 		Fp("2"),
 		Fp("1")
 	};
-{
-	Fp12 e;
-	// calc e : G2 x G1 -> G3 pairing
-	opt_atePairingJac<Fp>(e, g2, g1); // e = e(g2, g1)
-PUT(e);
-	{
-		Fp t[3];
-		ecop::ScalarMult(t, g1, Param::r);
-		// (x, y, 0) means 0 at Jacobi coordinate
-		verify("orgder of g1 == r", t[2], 0);
-	}
-	{
-		Fp2 t[3];
-		ecop::ScalarMult(t, g2, Param::r);
-		verify("order of g2 == r", t[2], 0);
-	}
-	{
-		Fp12 t = power(e, Param::r);
-		verify("order of e == r", t, 1);
-	}
-exit(1);
-}
 #else
 	const Fp2 g2[3] = {
 		Fp2(
@@ -181,8 +159,13 @@ exit(1);
 	verify("e(g2a, g1 * b) = e(g2, g1)^b", eb1, eb2);
 
 	const Fp q1[3] = {
+#ifdef BN_USE_SCIPR_DIFF
+		Fp("7615409189752738789107368255485754320464560767061038054839369330880063494217"),
+		Fp("15800406041316817480040243057042225004929182948660112672908602141759833978876"),
+#else
 		Fp("2"),
 		Fp("16740896641879863340107777353588575149660814923656713498672603551465628253431"),
+#endif
 		Fp("1")
 	};
 	verify("q1 is on EC", ecop::isOnECJac3(q1), true);
@@ -299,8 +282,13 @@ puts("g2");
 	verify("e(g2a, g1 * b) = e(g2, g1)^b", eb1, eb2);
 
 	const Ec1 q1(
+#ifdef BN_USE_SCIPR_DIFF
+		Fp("7615409189752738789107368255485754320464560767061038054839369330880063494217"),
+		Fp("15800406041316817480040243057042225004929182948660112672908602141759833978876")
+#else
 		Fp("2"),
 		Fp("16740896641879863340107777353588575149660814923656713498672603551465628253431")
+#endif
 	);
 	verify("q1 is on EC", q1.isValid(), true);
 	Fp12 e1, e2;
@@ -323,7 +311,7 @@ int main()
 {
 	puts("sample1");
 	sample1();
-//	puts("sample2");
-//	sample2();
+	puts("sample2");
+	sample2();
 	printf("errNum = %d\n", errNum);
 }
