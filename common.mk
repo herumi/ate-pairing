@@ -12,7 +12,7 @@ RM=rm -f
 CFLAGS = -O3 -fomit-frame-pointer -DNDEBUG -msse2 -mfpmath=sse -march=native
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith #-Wswitch-enum -Wstrict-aliasing=2
 CFLAGS_ALWAYS = -D_FILE_OFFSET_BITS=64 -fno-operator-names
-LDFLAGS = -s -lm -lzm $(LIB_DIR) -lgmp -lgmpxx
+LDFLAGS = -lm -lzm $(LIB_DIR) -lgmp -lgmpxx
 AS = nasm
 AFLAGS = -f elf -D__unix__
 ifeq ($(SUPPORT_SNARK),1)
