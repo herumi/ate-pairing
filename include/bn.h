@@ -1710,7 +1710,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	static void pow_neg_t(Fp12T &out, const Fp12T &in)
 	{
 		int64_t t = 4965661367192848881LL;
-		out = 1;
+		out = in;
 
 		int64_t bitcount = 0, tcopy = t;
 		while (tcopy != 0)
@@ -1719,7 +1719,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 			++bitcount;
 		}
 
-		for (int64_t b = bitcount - 1; b >= 0; --b)
+		for (int64_t b = bitcount - 2; b >= 0; --b)
 		{
 			out.sqru();
 			// Fp12T::mul(out, out, out);
