@@ -1468,6 +1468,7 @@ L("@@");
 	void in_Fp_mul_xi_addsub(const RegExp& mz, const RegExp& mx, const RegExp& my, bool doAdd)
 	{
 		/*
+			require p * 10 < (1<<258) because sizeof(s_pTbl[0]) == 32
 			x *= 9
 			pTop = (p >> 193) + 1  # 0x183227397098d015
 			pRev = (1<<124) / pTop # 0xa948e8c4c474094e
@@ -1495,6 +1496,7 @@ L("@@");
 		shr(d, 60); // f(x)
 		shl(d, 5);
 		mov(rax, (uint64_t)&s_pTbl[1]);
+		// use only 256bit value(d is not necessary)
 		sub_rm(gt4, gt3, gt2, gt1, rax - 32 + rdx); // 0 <= [gt4:gt3:gt2:gt1] < 2p
 		in_Fp_add_modp();
 		store_mr(mz, gt4, gt3, gt2, gt1);
