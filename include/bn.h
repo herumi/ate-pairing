@@ -220,7 +220,8 @@ template<class Fp2>
 const int ParamT<Fp2>::siTbl[] = {
 #ifdef BN_SUPPORT_SNARK
 // XITAG
-1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0
+// 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0
+1, 1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 1, 0, 1, 0, 0, 0
 #else
 	1, 1, 0, 0, 0,
 	0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
@@ -2693,6 +2694,11 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 	T[0] = Q[0];
 	T[1] = Q[1];
 	T[2] = Fp2(1);
+#ifdef BN_SUPPORT_SNARK
+	Fp2 Qneg[2];
+	Qneg[0] = Q[0];
+	Fp2::neg(Qneg[1], Q[1]);
+#endif
 	// at 1.
 	Fp6 d;
 	Fp6::pointDblLineEval(d, T, P);
@@ -2711,12 +2717,22 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 		// 4.48k x 63
 		Fp12::Dbl::mul_Fp2_024(f, l);
 
+#ifdef BN_SUPPORT_SNARK
+		if (Param::siTbl[i] == 1) {
+			Fp6::pointAddLineEval(l, T, Q, P);
+			Fp12::Dbl::mul_Fp2_024(f, l);
+		} else if (Param::siTbl[i] == -1) {
+			Fp6::pointAddLineEval(l, T, Qneg, P);
+			Fp12::Dbl::mul_Fp2_024(f, l);
+		}
+#else
 		if (Param::siTbl[i]) {
 			// 9.8k x 3
 			// 5.1k
 			Fp6::pointAddLineEval(l, T, Q, P);
 			Fp12::Dbl::mul_Fp2_024(f, l);
 		}
+#endif
 	}
 
 	// addition step
