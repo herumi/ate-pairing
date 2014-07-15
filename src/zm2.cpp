@@ -135,6 +135,18 @@ bn::FpDbl *bn::FpDbl::pNTbl_;
 // for debug
 static Xbyak::util::Cpu s_cpu;
 uint64_t debug_buf[128];
+#if 0
+struct PutDebugBuf {
+	~PutDebugBuf()
+	{
+		puts("debug_buf");
+		for (int i = 0; i < 4; i++) {
+			printf("%016llx", (long long)debug_buf[3 - i]);
+		}
+		printf("\n");
+	}
+}s_putDebugBuf;
+#endif
 int debug_counter;
 struct PutDebugCounter {
 	~PutDebugCounter()
