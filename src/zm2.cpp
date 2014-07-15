@@ -3069,7 +3069,7 @@ L("@@");
 		// (a + bu) * binv_xi
 		lea(gp1, ptr [t2]);
 		lea(gp2, ptr [t0]);
-		lea(gp3, ptr [&ParamT<Fp2>::b_invxi]);
+		mov(gp3, (size_t)&ParamT<Fp2>::b_invxi);
 		call(p_Fp2_mul);
 #else
 		// Fp::add(t2.a_, t0.a_, t0.b_);
