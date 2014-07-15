@@ -1710,24 +1710,24 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 #ifdef BN_SUPPORT_SNARK
 	static void pow_neg_t(Fp12T &out, const Fp12T &in)
 	{
-		int64_t t = 4965661367192848881LL;
+		static const int tiTbl[] = {
+1, 0, 0, 0, 1, 0, 1, 0, 0, -1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 1
+};
+		static const size_t tiTblNum = 63;
+		assert(tiTblNum == sizeof(tiTbl)/sizeof(tiTbl[0]));
+
 		out = in;
+		Fp12T inConj;
+		inConj.a_ = in.a_;
+		Fp6::neg(inConj.b_, in.b_); // in^-1 == in^(p^6)
 
-		int64_t bitcount = 0, tcopy = t;
-		while (tcopy != 0)
-		{
-			tcopy >>= 1;
-			++bitcount;
-		}
-
-		for (int64_t b = bitcount - 2; b >= 0; --b)
+		for (size_t i = 1; i < tiTblNum; i++)
 		{
 			out.sqru();
-			// Fp12T::mul(out, out, out);
-
-			if ((t & (1ll << b)) != 0)
-			{
+			if (tiTbl[i] == 1) {
 				Fp12T::mul(out, out, in);
+			} else if (tiTbl[i] == -1) {
+				Fp12T::mul(out, out, inConj);
 			}
 		}
 
