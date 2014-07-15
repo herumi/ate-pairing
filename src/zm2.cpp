@@ -117,7 +117,7 @@ void detectCpu(int mode, bool useMulx)
 	s_pTbl[i] = ip        i < 7
 */
 
-const size_t pTblSize = 7;
+const size_t pTblSize = 10;
 const size_t pNtblSize = 4;
 struct Data {
 	Fp pTbl[pTblSize];
@@ -1460,11 +1460,56 @@ L("@@");
 		movq(gp1, xm0);
 		store_mr(gp1, gt10, gt9, gt8, gt4);
 	}
+#ifdef BN_SUPPORT_SNARK
+	/*
+		[mz] = ([mx] * 9 + [my]) mod p if doAdd is true
+		[mz] = ([mx] * 9 + p - [my]) mod p if doAdd is false
+	*/
+	void in_Fp_mul_xi_addsub(const RegExp& mz, const RegExp& mx, const RegExp& my, bool doAdd)
+	{
+		/*
+			x *= 9
+			pTop = (p >> 193) + 1  # 0x183227397098d015
+			pRev = (1<<124) / pTop # 0xa948e8c4c474094e
+			def f(x):
+				return ((x>>193) * pRev) >> 124
+		*/
+		const uint64_t pRev = uint64_t(0xa948e8c4c474094eLL);
+		mov(gt4, 9);
+		// [d:gt4:gt3:gt2:gt1] = [mx] * 9
+		mul4x1(mx, gt4, gt5, gt3, gt2, gt1, gt6);
+		if (doAdd) {
+			add_rm(gt4, gt3, gt2, gt1, my);
+			adc(d, 0);
+		} else {
+			mov(rax, (uint64_t)&s_pTbl[1]);
+			add_rm(gt4, gt3, gt2, gt1, rax);
+			adc(d, 0); // [mx] * 9 + p
+			sub_rm(gt4, gt3, gt2, gt1, my);
+			sbb(d, 0); // [mx] * 9 + p - [my]
+		}
+		// d = [d:gt4] >> 1 = x >> 193
+		shld(d, gt4, 63);
+		mov(rax, pRev);
+		mul(d);
+		shr(d, 60); // f(x)
+		shl(d, 5);
+		mov(rax, (uint64_t)&s_pTbl[1]);
+		sub_rm(gt4, gt3, gt2, gt1, rax - 32 + rdx); // 0 <= [gt4:gt3:gt2:gt1] < 2p
+		in_Fp_add_modp();
+		store_mr(mz, gt4, gt3, gt2, gt1);
+	}
+#endif
 
 	void in_Fp2_mul_xi(const RegExp& mz, const RegExp& mx)
 	{
 		mov(rax, (uint64_t)&s_pTbl[1]);
 #ifdef BN_SUPPORT_SNARK
+#if 1
+		// 133clk -> 66clk
+		in_Fp_mul_xi_addsub(mz, mx, mx + 32, false);
+		in_Fp_mul_xi_addsub(mz + 32, mx + 32, mx, true);
+#else
 		in_Fp_add(mz, mx, mx); // 2
 		in_Fp_add(mz, mz, mz); // 4
 		in_Fp_add(mz, mz, mz); // 8
@@ -1476,6 +1521,7 @@ L("@@");
 		in_Fp_add(mz + 32, mz + 32, mz + 32); // 8
 		in_Fp_add(mz + 32, mz + 32, mx + 32); // 9
 		in_Fp_add(mz + 32, mz + 32, mx);
+#endif
 #else
 		in_Fp_sub(mz, mx, mx + 32);
 		in_Fp_add(mz + 32, mx, mx + 32);
