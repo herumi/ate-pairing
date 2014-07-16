@@ -973,13 +973,16 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		Fp2::mul_xi(l.a_, t2);
 		Fp2::neg(l.b_, t3);
 	}
+	static void mulFp6_24_Fp_01(Fp6T& l, const Fp* P)
+	{
+		Fp2::mul_Fp_0(l.c_, l.c_, P[0]);
+		Fp2::mul_Fp_0(l.b_, l.b_, P[1]);
+	}
 	static void pointDblLineEvalC(Fp6T& l, Fp2* R, const Fp* P)
 	{
 		pointDblLineEvalWithoutP(l, R);
-		// # 16
-		Fp2::mul_Fp_0(l.c_, l.c_, P[0]);
-		// # 17
-		Fp2::mul_Fp_0(l.b_, l.b_, P[1]);
+		// # 16, #17
+		mulFp6_24_Fp_01(l, P);
 	}
 	/*
 		Algorithm 12 in App.B of Aranha et al. ePrint 2010/526
@@ -1042,10 +1045,8 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 	static void pointAddLineEval(Fp6T& l, Fp2* R, const Fp2* Q, const Fp* P)
 	{
 		pointAddLineEvalWithoutP(l, R, Q);
-		// # 13
-		Fp2::mul_Fp_0(l.c_, l.c_, P[0]);
-		// # 19
-		Fp2::mul_Fp_0(l.b_, l.b_, P[1]);
+		// # 13, #19
+		mulFp6_24_Fp_01(l, P);
 	}
 	static void mul_Fp_b(Fp6T& z, const Fp& x)
 	{
@@ -2973,6 +2974,103 @@ inline bool EcT<Fp>::isValid() const
 	return ecop::isOnECJac3(p);
 }
 
+namespace experimental {
+
+inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
+{
+	coeff.clear();
+    bn::ecop::NormalizeJac(Q, inQ);
+
+    Fp2 T[3];
+    T[0] = Q[0];
+    T[1] = Q[1];
+    T[2] = Fp2(1);
+
+    Fp6 d;
+    Fp6::pointDblLineEvalWithoutP(d, T);
+    coeff.push_back(d);
+
+    Fp6 e;
+    assert(Param::siTbl[1] == 1);
+    Fp6::pointAddLineEvalWithoutP(e, T, Q);
+    coeff.push_back(e);
+
+    bn::Fp6 l;
+    // 844kclk
+    for (size_t i = 2; i < Param::siTblNum; i++) {
+        Fp6::pointDblLineEvalWithoutP(l, T);
+        coeff.push_back(l);
+
+        if (Param::siTbl[i]) {
+            Fp6::pointAddLineEvalWithoutP(l, T, Q);
+            coeff.push_back(l);
+        }
+    }
+
+    // addition step
+    Fp2 Q1[2];
+    bn::ecop::FrobEndOnTwist_1(Q1, Q);
+    Fp2 Q2[2];
+    bn::ecop::FrobEndOnTwist_2(Q2, Q);
+    Fp2::neg(Q2[1], Q2[1]);
+    // @memo z < 0
+    if (0)
+    {
+        bn::Fp2::neg(T[1], T[1]);
+    }
+
+    Fp6::pointAddLineEvalWithoutP(d, T, Q1);
+    coeff.push_back(d);
+
+    Fp6::pointAddLineEvalWithoutP(e, T, Q2);
+    coeff.push_back(e);
+}
+
+inline void millerLoop(Fp12& f, const std::vector<Fp6>& Qcoeffs, const Fp precP[2])
+{
+    size_t idx = 0;
+
+    Fp6 d = Qcoeffs[idx++];
+	Fp6::mulFp6_24_Fp_01(d, precP);
+
+    Fp6 e = Qcoeffs[idx++];
+    assert(Param::siTbl[1] == 1);
+	Fp6::mulFp6_24_Fp_01(e, precP);
+
+    Fp12::Dbl::mul_Fp2_024_Fp2_024(f, d, e);
+    bn::Fp6 l;
+    for (size_t i = 2; i < Param::siTblNum; i++) {
+        l = Qcoeffs[idx++];
+        Fp12::square(f);
+		Fp6::mulFp6_24_Fp_01(l, precP);
+
+        Fp12::Dbl::mul_Fp2_024(f, l);
+
+        if (Param::siTbl[i]) {
+            l = Qcoeffs[idx++];
+			Fp6::mulFp6_24_Fp_01(l, precP);
+            Fp12::Dbl::mul_Fp2_024(f, l);
+        }
+    }
+
+    // @memo z < 0
+    if (0)
+    {
+        Fp6::neg(f.b_, f.b_);
+    }
+    Fp12 ft;
+
+    d = Qcoeffs[idx++];
+	Fp6::mulFp6_24_Fp_01(d, precP);
+
+    e = Qcoeffs[idx++];
+	Fp6::mulFp6_24_Fp_01(e, precP);
+
+    Fp12::Dbl::mul_Fp2_024_Fp2_024(ft, d, e);
+    Fp12::mul(f, f, ft);
+}
+
+} // experimental
 } // bn
 
 /***
