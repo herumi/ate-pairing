@@ -8,6 +8,10 @@ Abstruct
 The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
 where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = -(2^62 + 2^55 + 1).
 
+The library also supports another BN curve, chosen specifically for speeding up Succinct Non-interactive ARguments of Knowledge (SNARKs).
+This support builds on a patch provided by [SCIPR Lab](http://www.scipr-lab.org/).
+
+
 Operation costs
 -------------
 
@@ -101,6 +105,12 @@ Type:
 
 >Remark:The other binaries except bn are for only test.
 
+If you type
+
+    make -j SUPPORT_SNARK
+
+then, the parameters for SNARKs are used.
+
 Parameter
 -------------
 * elliptic curve : y^2 = x^3 + 2
@@ -154,7 +164,7 @@ modified new BSD License
 
 If you have any questions or problems, just let me know, then I'm happy.
 
-[A patch](https://github.com/scipr-lab/libsnark/blob/master/patches/ate-pairing-change-curve.diff)
+A patch for SNARKs
 is released under [modified new BSD License](http://opensource.org/licenses/BSD-3-Clause)
 by the [SCIPR Lab project](https://github.com/scipr-lab) and contributors.
 
@@ -162,11 +172,14 @@ Reference
 -------------
 
 * http://eprint.iacr.org/2010/354
+* [A Fast Implementation of the Optimal Ate Pairing over BN curve on Intel Haswell Processor](https://eprint.iacr.org/2013/362)
 * [High-speed software implementation of the optimal ate pairing over Barreto-Naehrig curves](http://dl.acm.org/citation.cfm?id=1948969)
-* http://homepage1.nifty.com/herumi/crypt/ate-pairing.html
+* [Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture](http://eprint.iacr.org/2013/879)
+* http://homepage1.nifty.com/herumi/crypt/ate-pairing.html (old page)
 
 History
 -------------
+* 2014/Jun/15 support a BN curve for SNARKs released by Ale and Madars
 * 2013/Jun/02 support mulx of Haswell
 * 2013/Mar/08 add elliptic curve class
 * 2012/Jan/30 rewrite ate pairing according to
@@ -176,8 +189,14 @@ History
 * 2010/Jul/15 use cyclotomic squaring for final_exp
 * 2010/Jun/18 first release
 
-AUTHOR
+Authors
 -------------
 
 * MITSUNARI Shigeo(herumi@nifty.com)
 * TERUYA Tadanori(tadanori.teruya@gmail.com)
+
+Contributors
+-------------
+
+* Alessandro Chiesa
+* Madars Virza
