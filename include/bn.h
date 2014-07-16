@@ -3026,28 +3026,32 @@ inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
     coeff.push_back(e);
 }
 
-inline void millerLoop(Fp12& f, const std::vector<Fp6>& Qcoeffs, const Fp precP[2])
+inline void millerLoop(Fp12& f, const std::vector<Fp6>& Qcoeff, const Fp precP[2])
 {
+    assert(Param::siTbl[1] == 1);
     size_t idx = 0;
 
-    Fp6 d = Qcoeffs[idx++];
+    Fp6 d = Qcoeff[idx];
 	Fp6::mulFp6_24_Fp_01(d, precP);
+	idx++;
 
-    Fp6 e = Qcoeffs[idx++];
-    assert(Param::siTbl[1] == 1);
+    Fp6 e = Qcoeff[idx];
 	Fp6::mulFp6_24_Fp_01(e, precP);
-
     Fp12::Dbl::mul_Fp2_024_Fp2_024(f, d, e);
+
+	idx++;
     bn::Fp6 l;
     for (size_t i = 2; i < Param::siTblNum; i++) {
-        l = Qcoeffs[idx++];
+        l = Qcoeff[idx];
+		idx++;
         Fp12::square(f);
 		Fp6::mulFp6_24_Fp_01(l, precP);
 
         Fp12::Dbl::mul_Fp2_024(f, l);
 
         if (Param::siTbl[i]) {
-            l = Qcoeffs[idx++];
+            l = Qcoeff[idx];
+			idx++;
 			Fp6::mulFp6_24_Fp_01(l, precP);
             Fp12::Dbl::mul_Fp2_024(f, l);
         }
@@ -3060,14 +3064,88 @@ inline void millerLoop(Fp12& f, const std::vector<Fp6>& Qcoeffs, const Fp precP[
     }
     Fp12 ft;
 
-    d = Qcoeffs[idx++];
+    d = Qcoeff[idx];
 	Fp6::mulFp6_24_Fp_01(d, precP);
+	idx++;
 
-    e = Qcoeffs[idx++];
+    e = Qcoeff[idx];
 	Fp6::mulFp6_24_Fp_01(e, precP);
 
     Fp12::Dbl::mul_Fp2_024_Fp2_024(ft, d, e);
     Fp12::mul(f, f, ft);
+}
+
+inline void millerLoop2(Fp12& f, const std::vector<Fp6>& Q1coeff, const Fp precP1[2],
+	const std::vector<Fp6>& Q2coeff, const Fp precP2[2])
+{
+    assert(Param::siTbl[1] == 1);
+    size_t idx = 0;
+
+    Fp6 d1 = Q1coeff[idx];
+	Fp6::mulFp6_24_Fp_01(d1, precP1);
+    Fp6 d2 = Q2coeff[idx];
+	Fp6::mulFp6_24_Fp_01(d2, precP2);
+	idx++;
+
+	Fp12 f1;
+    Fp6 e1 = Q1coeff[idx];
+	Fp6::mulFp6_24_Fp_01(e1, precP1);
+    Fp12::Dbl::mul_Fp2_024_Fp2_024(f1, d1, e1);
+
+	Fp12 f2;
+    Fp6 e2 = Q2coeff[idx];
+	Fp6::mulFp6_24_Fp_01(e2, precP2);
+    Fp12::Dbl::mul_Fp2_024_Fp2_024(f2, d2, e2);
+    Fp12::mul(f, f1, f2);
+
+	idx++;
+    bn::Fp6 l1, l2;
+    for (size_t i = 2; i < Param::siTblNum; i++) {
+        l1 = Q1coeff[idx];
+        l2 = Q2coeff[idx];
+		idx++;
+        Fp12::square(f);
+
+		Fp6::mulFp6_24_Fp_01(l1, precP1);
+		Fp6::mulFp6_24_Fp_01(l2, precP2);
+
+        Fp12::Dbl::mul_Fp2_024_Fp2_024(f1, l1, l2);
+		Fp12::mul(f, f, f1);
+
+        if (Param::siTbl[i]) {
+            l1 = Q1coeff[idx];
+            l2 = Q2coeff[idx];
+			idx++;
+			Fp6::mulFp6_24_Fp_01(l1, precP1);
+			Fp6::mulFp6_24_Fp_01(l2, precP2);
+            Fp12::Dbl::mul_Fp2_024_Fp2_024(f1, l1, l2);
+            Fp12::mul(f, f, f1);
+        }
+    }
+
+    // @memo z < 0
+    if (0)
+    {
+        Fp6::neg(f.b_, f.b_);
+    }
+
+    d1 = Q1coeff[idx];
+	Fp6::mulFp6_24_Fp_01(d1, precP1);
+
+    d2 = Q2coeff[idx];
+	Fp6::mulFp6_24_Fp_01(d2, precP2);
+	idx++;
+
+    e1 = Q1coeff[idx];
+	Fp6::mulFp6_24_Fp_01(e1, precP1);
+
+    e2 = Q2coeff[idx];
+	Fp6::mulFp6_24_Fp_01(e2, precP2);
+
+    Fp12::Dbl::mul_Fp2_024_Fp2_024(f1, d1, e1);
+    Fp12::Dbl::mul_Fp2_024_Fp2_024(f2, d2, e2);
+    Fp12::mul(f, f, f1);
+    Fp12::mul(f, f, f2);
 }
 
 } // experimental
