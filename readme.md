@@ -168,6 +168,9 @@ A patch for SNARKs
 is released under [modified new BSD License](http://opensource.org/licenses/BSD-3-Clause)
 by the [SCIPR Lab project](https://github.com/scipr-lab) and contributors.
 
+The original functions in bn::experimental are released under the MIT License
+by the [SCIPR Lab project](https://github.com/scipr-lab) and contributors.
+
 Reference
 -------------
 

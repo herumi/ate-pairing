@@ -2978,6 +2978,12 @@ inline bool EcT<Fp>::isValid() const
 
 namespace experimental {
 
+/*
+	These functions in experimental are moved from https://github.com/scipr-lab/libsnark
+	and modified to
+		use the asm version of pointDblLineEvalWithoutP and,
+		use naf in miller loop.
+*/
 inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
 {
 	coeff.clear();
