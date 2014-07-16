@@ -15,7 +15,7 @@
 */
 //#define BN_SUPPORT_SNARK
 
-//#define BN_SUPPORT_NAF_IN_ML
+#define BN_SUPPORT_NAF_IN_ML
 
 #ifdef MIE_ATE_USE_GMP
 #include <gmpxx.h>
@@ -2985,6 +2985,11 @@ inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
     T[0] = Q[0];
     T[1] = Q[1];
     T[2] = Fp2(1);
+#ifdef BN_SUPPORT_NAF_IN_ML
+	Fp2 Qneg[2];
+	Qneg[0] = Q[0];
+	Fp2::neg(Qneg[1], Q[1]);
+#endif
 
     Fp6 d;
     Fp6::pointDblLineEvalWithoutP(d, T);
@@ -3001,10 +3006,16 @@ inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
         Fp6::pointDblLineEvalWithoutP(l, T);
         coeff.push_back(l);
 
-        if (Param::siTbl[i]) {
+        if (Param::siTbl[i] == 1) {
             Fp6::pointAddLineEvalWithoutP(l, T, Q);
             coeff.push_back(l);
         }
+#ifdef BN_SUPPORT_NAF_IN_ML
+        else if (Param::siTbl[i] == -1) {
+            Fp6::pointAddLineEvalWithoutP(l, T, Qneg);
+            coeff.push_back(l);
+        }
+#endif
     }
 
     // addition step
