@@ -990,7 +990,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		l = (a,b,c) = (l00, l11, l02)
 		where Q[2] == 1, and P[2] == 1
 	*/
-	static void pointAddLineEval(Fp6T& l, Fp2* R, const Fp2* Q, const Fp* P)
+	static void pointAddLineEvalWithoutP(Fp6T& l, Fp2* R, const Fp2* Q)
 	{
 		Fp2 t1, t2, t3, t4;
 		Fp2Dbl T1, T2;
@@ -1025,10 +1025,8 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		Fp2Dbl::mod(R[1], T2);
 		Fp2::mul(R[0], t1, t4);
 		Fp2::mul(R[2], t3, R[2]);
-		// # 13
-		Fp2::mul_Fp_0(l.c_, t2, P[0]);
 		// # 14
-		Fp2::neg(l.c_, l.c_);
+		Fp2::neg(l.c_, t2);
 		// # 15
 		Fp2Dbl::mulOpt1(T1, t2, Q[0]);
 		Fp2Dbl::mulOpt1(T2, t1, Q[1]);
@@ -1039,8 +1037,15 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		// ### @note: Be careful, below fomulas are typo.
 		// # 18
 		Fp2::mul_xi(l.a_, t2);
+		l.b_ = t1;
+	}
+	static void pointAddLineEval(Fp6T& l, Fp2* R, const Fp2* Q, const Fp* P)
+	{
+		pointAddLineEvalWithoutP(l, R, Q);
+		// # 13
+		Fp2::mul_Fp_0(l.c_, l.c_, P[0]);
 		// # 19
-		Fp2::mul_Fp_0(l.b_, t1, P[1]);
+		Fp2::mul_Fp_0(l.b_, l.b_, P[1]);
 	}
 	static void mul_Fp_b(Fp6T& z, const Fp& x)
 	{
