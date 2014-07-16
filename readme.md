@@ -107,7 +107,7 @@ Type:
 
 If you type
 
-    make -j SUPPORT_SNARK
+    make -j SUPPORT_SNARK=1
 
 then, the parameters for SNARKs are used.
 
