@@ -3005,7 +3005,7 @@ L("@@");
 		call(p_Fp2Dbl_square);
 	}
 	// void pointDblLineEval(Fp6T<Fp2>& l, Fp2 *R, const typename Fp2::Fp *P);
-	void make_pointDblLineEval()
+	void make_pointDblLineEval(bool withoutP)
 	{
 		// Fp2 t0, t1, t2, t3, t4, t5;
 		// Fp2Dbl T0, T1, T2;
@@ -3170,6 +3170,11 @@ L("@@");
 		movq(l.r_, lsave);
 		in_Fp2_mul_xi(l, t2);
 
+		// Fp2::neg(t3, t3);
+		movq(l.r_, lsave);
+		in_Fp2_neg(l.b_, t3);
+		if (withoutP) return;
+
 		// Fp2::mul_Fp_0(l.c_, l.c_, P[0]);
 		lea(gp1, ptr [l.c_]);
 		mov(gp2, gp1);
@@ -3182,23 +3187,20 @@ L("@@");
 		call(p_Fp_mul);
 
 		// # 17
-		// Fp2::mul_Fp_0(l.b_, t3, P[1]);
+		// Fp2::mul_Fp_0(l.b_, l.b_, P[1]);
 		movq(l.r_, lsave);
 		movq(P, Psave);
 		lea(gp1, ptr [l.b_]);
-		lea(gp2, ptr [t3]);
+		mov(gp2, gp1);
 		lea(gp3, ptr [P + sizeof(Fp) * 1]);
 		call(p_Fp_mul);
 		movq(l.r_, lsave);
 		movq(P, Psave);
 		lea(gp1, ptr [l.b_.b_]);
-		lea(gp2, ptr [t3.b_]);
+		mov(gp2, gp1);
 		lea(gp3, ptr [P + sizeof(Fp) * 1]);
 		call(p_Fp_mul);
 
-		// Fp2::neg(t3, t3);
-		movq(l.r_, lsave);
-		in_Fp2_neg(l.b_, l.b_);
 	}
 
 	PairingCode(size_t size, void *userPtr)
@@ -3484,7 +3486,10 @@ L("@@");
 
 		align(16);
 		Fp6::pointDblLineEval = (void (*)(Fp6& l, Fp2 *R, const Fp *P))getCurr();
-		make_pointDblLineEval();
+		make_pointDblLineEval(false);
+		align(16);
+		Fp6::pointDblLineEvalWithoutP = (void (*)(Fp6& l, Fp2 *R))getCurr();
+		make_pointDblLineEval(true);
 
 		align(16);
 		Fp6Dbl::mul = (void (*)(Fp6Dbl&, const Fp6&, const Fp6&))getCurr();

@@ -895,6 +895,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 	static void (*mul)(Fp6T& z, const Fp6T& x, const Fp6T& y);
 
 	static void (*pointDblLineEval)(Fp6T& l, Fp2* R, const Fp* P);
+	static void (*pointDblLineEvalWithoutP)(Fp6T& l, Fp2* R);
 	/*
 		Algorithm 11 in App.B of Aranha et al. ePrint 2010/526
 
@@ -908,7 +909,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		l = (a,b,c) = (l00, l11, l02)
 		where P[2] == 1
 	*/
-	static void pointDblLineEvalC(Fp6T& l, Fp2* R, const Fp* P)
+	static void pointDblLineEvalWithoutPC(Fp6T& l, Fp2* R)
 	{
 		Fp2 t0, t1, t2, t3, t4, t5;
 		Fp2Dbl T0, T1, T2;
@@ -970,11 +971,15 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		t2 -= t1;
 		// # 15
 		Fp2::mul_xi(l.a_, t2);
+		Fp2::neg(l.b_, t3);
+	}
+	static void pointDblLineEvalC(Fp6T& l, Fp2* R, const Fp* P)
+	{
+		pointDblLineEvalWithoutP(l, R);
 		// # 16
 		Fp2::mul_Fp_0(l.c_, l.c_, P[0]);
 		// # 17
-		Fp2::mul_Fp_0(l.b_, t3, P[1]);
-		Fp2::neg(l.b_, l.b_);
+		Fp2::mul_Fp_0(l.b_, l.b_, P[1]);
 	}
 	/*
 		Algorithm 12 in App.B of Aranha et al. ePrint 2010/526
@@ -1236,6 +1241,9 @@ void (*Fp6T<Fp2>::mul)(Fp6T<Fp2>& z, const Fp6T<Fp2>& x, const Fp6T<Fp2>& y) = &
 
 template<class Fp2>
 void (*Fp6T<Fp2>::pointDblLineEval)(Fp6T<Fp2>& z, Fp2* x, const typename Fp2::Fp* y) = &(Fp6T<Fp2>::pointDblLineEvalC);
+
+template<class Fp2>
+void (*Fp6T<Fp2>::pointDblLineEvalWithoutP)(Fp6T<Fp2>& z, Fp2* x) = &(Fp6T<Fp2>::pointDblLineEvalWithoutPC);
 
 template<class Fp2>
 void (*Fp6T<Fp2>::Dbl::mul)(Dbl& z, const Fp6T& x, const Fp6T& y) = &(Fp6T<Fp2>::Dbl::mulC);
