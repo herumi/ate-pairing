@@ -15,7 +15,9 @@
 */
 //#define BN_SUPPORT_SNARK
 
-#define BN_SUPPORT_NAF_IN_ML
+#ifdef BN_SUPPORT_SNARK
+	#define BN_SUPPORT_NAF_IN_ML
+#endif
 
 #ifdef MIE_ATE_USE_GMP
 #include <gmpxx.h>
