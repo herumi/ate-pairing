@@ -2,47 +2,146 @@
 High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves
 =============
 
-Abstruct
+This library provides functionality to compute the optimal ate pairing over Barreto-Naehrig (BN) curves. It is released under the [BSD 3-Clause License](http://opensource.org/licenses/BSD-3-Clause).
+
+History
 -------------
 
-The library is able to compute the optimal ate pairing over a Barreto-Naerig curve defined over a 254-bit prime field Fp,
-where p = 36z^4 + 36z^3 + 24z^2 + 6z + 1, z = -(2^62 + 2^55 + 1).
+* 2014/Jun/15: support a BN curve for SNARKs, incorporating code from [libsnark](https://github.com/scipr-lab/libsnark)
+* 2013/Jun/02: support `mulx` on [Haswell](http://en.wikipedia.org/wiki/Haswell_%28microarchitecture%29)
+* 2013/Mar/08: add elliptic curve class
+* 2012/Jan/30: rewrite ate pairing according to [Faster explicit formulas for computing pairings over ordinary curves](http://www.patricklonga.bravehost.com/speed_pairing.html)
+* 2010/Sep/8: change twist xi from u + 12 to u
+* 2010/Jul/15: use cyclotomic squaring for final exponentiation
+* 2010/Jun/18: first release
 
-The library also supports another BN curve, chosen specifically for speeding up Succinct Non-interactive ARguments of Knowledge (SNARKs).
-This support builds on a patch provided by [SCIPR Lab](http://www.scipr-lab.org/).
+Overview
+-------------
+
+The following two BN curves are supported:
+
+1. a BN curve over the 254-bit prime p = 36z^4 + 36z^3 + 24z^2 + 6z + 1 where z = -(2^62 + 2^55 + 1); and
+2. a BN curve over a 254-bit prime p such that n := p + 1 - t has high 2-adicity.
+
+By default, the first curve is used; when setting the flag `SUPPORT_SNARK`, the second curve is used instead. Support for the second curve builds on code provided by [SCIPR Lab](http://www.scipr-lab.org/) in [libsnark](https://github.com/scipr-lab/libsnark). The curve was specifically selected for speeding up __Succinct Non-interactive ARguments of Knowledge__ (SNARKs), which benefit from its high 2-adicity (see [\[BCGTV13\]](http://eprint.iacr.org/2013/507) and [\[BCTV14\]](http://eprint.iacr.org/2013/879)).
+
+Pairing computations on the first curve are more efficient, and the performance numbers reported below (and in our papers) are achieved using this curve (which is prefered for applications that do not benefit from high 2-adicity).
+
+
+Parameters
+-------------
+
+The curve equation for a BN curve is:
+
+	E/Fp: y^2 = x^3 + b .
+
+The two supported BN curves have the following parameters:
+
+1. b = 2 and p = 16798108731015832284940804142231733909889187121439069848933715426072753864723; and
+2. b = 3 and p = 21888242871839275222246405745257275088696311157297823662689037894645226208583.
+
+As usual,
+
+* the cyclic group G1 (aka Ec1) is instantiated as E(Fp)[n] where n := p + 1 - t;
+* the cyclic group G2 (aka Ec2) is instantiated as the inverse image of E'(Fp^2)[n] under a twisting isomorphism from E' to E; and
+* the pairing e: G1 x G2 -> Fp12 is the optimal ate pairing.
+
+The field Fp12 is constructed via the following tower:
+
+* Fp2 = Fp[u] / (u^2 + 1)
+* Fp6 = Fp2[v] / (v^3 - Xi) where Xi = - (u + 1)
+* Fp12 = Fp6[w] / (w^2 - v)
+
+Requirements
+-------------
+
+* OS: 64-bit Windows; 64-bit Linux; Mac OS X
+* CPU: x64 Intel; AMD processor
+* C++ compiler: Visual Studio 2008; gcc 4.4.1 or later
+
+
+Build instructions
+-------------
+
+### Windows
+
+Open `ate/ate.sln` and compile `test_bn` with Release mode. The produced binary is `ate/x64/Release/test_bn.exe`.
+
+### Cygwin
+
+Install `mingw64-x86_64-gcc-g++` (run Cygwin setup and search `mingw64`). Then use the following commands:
+
+    PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/bin/:$PATH
+    make -j
+    test/bn.exe
+
+Note that `test/bn.exe` uses `mulx` if possible; if you do not want to use it, run the executable as `test/bn.exe -mulx 0`. (This allows you to verify the difference with/without mulx on Haswell.)
+
+### Linux
+
+Use the following commands:
+
+    $ git clone git://github.com/herumi/xbyak.git
+    $ git clone git://github.com/herumi/ate-pairing.git
+    $ cd ate-pairing
+    $ make -j
+    $ test/bn
+
+The library [xbyak](https://github.com/herumi/xbyak) is a x86/x86-64 JIT assembler for C++, developed for efficient pairing implementations. (See also [this webpage](http://homepage1.nifty.com/herumi/soft/xbyak_e.html).) Note that binaries other than `test/bn` are used for testing purposes only.
+
+* This implementation uses dynamically-generated code, so you will get the error
+`zmInit ERR:can't protect` if excecution of code on the heap is disallowed by
+some modern systems.
+For example, on Fedora 20, run `sudo setsebool -P allow_execheap 1` to allow execution to solve this.
+
+By the default, the first BN curve is used. If instead you want to use the second BN curve (specialized to SNARKs), modify the fourth line above to:
+
+    $ make -j SUPPORT_SNARK=1
+
+
+Usage
+-------------
+
+See the function `sample2()` in [sample.cpp](https://github.com/herumi/ate-pairing/blob/master/test/sample.cpp). Also, use can use `mpz_class` for scalar multiplication of points on the elliptic curves,
+if `MIE_ATE_USE_GMP` is defined. For instance:
+
+    using namespace bn;
+    Param::init();
+    const Ec2 g2(...);
+    const Ec1 g1(...);
+    mpz_class a("123456789");
+    mpz_class b("98765432");
+    Ec1 g1a = g1 * a;
+    Ec2 g2b = g2 * b;
+    Fp12 e;
+    opt_atePairing(e, g2b, g1a);
 
 
 Operation costs
 -------------
 
-We compare our library with Aranha et al.(http://eprint.iacr.org/2010/526).
+Let mu be the cost of _unreduced multiplication_ producing double-precision result (i.e., 256-bit int x 256-bit int to 512-bit int); and let r be the cost of _modular reduction_ of double-precision integers (i.e., 512-bit int to 256-bit int in Fp). Then, for us,
 
-* mu ; unreduced multiplication producing double-precision result(256-bit int x 256-bit int to 512-bit int).
-* r : modular reduction of double-precision integers(512-bit int to 256-bit int in Fp).
-* Fp:mul = mu + r
-* Fp2:mul = 3mu + 2r
-* Fp2:square = 2mu + 2r
+* Fp::mul = mu + r
+* Fp2::mul = 3mu + 2r
+* Fp2::square = 2mu + 2r
 
+Next, we compare the costs of our library with the one of [\[AKLGL10\]](http://eprint.iacr.org/2010/526):
 
-Phase               | Aranha et al. | This work
+Phase               | [AKLGL10]     | This work
 --------------------|---------------|---------------
-Miller Loop         | 6792mu + 3022r| 6785mu + 3022r
-Final Exponentiation| 3753mu + 2006r| 3526mu + 1932r
-Optimal Ate Pairing |10545mu + 5028r|10311mu + 4954r
+Miller loop         | 6792mu + 3022r| 6785mu + 3022r
+Final exponentiation| 3753mu + 2006r| 3526mu + 1932r
+Optimal ate pairing |10545mu + 5028r|10311mu + 4954r
 
-Remark : Their Table 2 in p.17 does not contain the cost of (m, r) so
-I add the costs of (282m + 6mu + 4r), (30m + 75mu + 50r) for ML and FE respectively.
+Note: [\[Table 2 in p. 17, AKLGL10\]](http://eprint.iacr.org/2010/526) does not contain the cost of (m, r) so we have added the costs of (282m + 6mu + 4r) and (30m + 75mu + 50r) to ML and FE respectively.
 
-Our current implementation does not support the algoirthm in Pereira et al.
-[A family of mplementation-friendly BN elliptic curves](http://www.sciencedirect.com/science/article/pii/S0164121211000914).
+Finally, at the moment, our implementation does not support the algorithm in [PSNB10](https://eprint.iacr.org/2010/429).
 
 Benchmark
 -------------
 
-1.17M clock cycles on Core i7 4700MQ (Haswell) 2.4GHz processor with TurboBoost technology disable
-(see http://eprint.iacr.org/2013/362).
-
-Clock cycle counts of operations on Core i7 2600 3.4GHz/Xeon X5650 2.6GHz/Core i7 4700MQ 2.4GHz.
+The cost of a pairing is __1.17M__ clock cycles on Core i7 4700MQ (Haswell) 2.4GHz processor with TurboBoost disabled. Below, we also include clock cycle counts on Core i7 2600 3.4GHz, Xeon X5650 2.6GHz, and Core i7 4700MQ 2.4GHz.
 
 operation   | i7 2600|Xeon X5650|Haswell|Haswell with mulx
 ------------|--------|----------|-------|-----------------
@@ -66,140 +165,34 @@ final_exp   |0.53M   |0.63M     |0.51M  |0.46M
             |        |          |       |
 pairing     |1.36M   |1.60M     |1.33M  |1.17M
 
-Requirements
+
+
+References
 -------------
 
-* OS : 64-bit Windows/64-bit Linux/Mac OS X
-* CPU : x64 Intel/AMD processor
-* C++ compiler : Visual Studio 2008, gcc 4.4.1 or later
+* [_High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves_](http://eprint.iacr.org/2010/354)
+   Jean-Luc Beuchat, Jorge Enrique González Díaz, Shigeo Mitsunari, Eiji Okamoto, Francisco Rodríguez-Henríquez, Tadanori Teruya
+  Pairing 2010 \[[conference version](http://dl.acm.org/citation.cfm?id=1948969)]
 
-Build
--------------
+* [_A Fast Implementation of the Optimal Ate Pairing over BN curve on Intel Haswell Processor_](http://eprint.iacr.org/2013/362)
+  Shigeo Mitsunari
+  ePrint 2013/362
 
-### Windows
+* [_Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture_](http://eprint.iacr.org/2013/879)
+  Eli Ben-Sasson, Alessandro Chiesa, Eran Tromer, Madars Virza
+  USENIX Security 2014
 
-Open ate/ate.sln and compile test_bn with Release mode,
-then you can get the binary in ate/x64/Release/test_bn.exe .
+* [This library's old webpage](http://homepage1.nifty.com/herumi/crypt/ate-pairing.html)
 
-### Windows with cygwin
-
-* Install mingw64-x86_64-gcc-g++ (run cygwin setup and search mingw64)
-* PATH=/usr/x86_64-w64-mingw32/sys-root/mingw/bin/:$PATH
-* make -j
-* test/bn.exe
-
-### mulx supported with Haswell
-
-test/bn.exe use mulx if possible and test/bn.exe -mulx 0 does not use mulx.
-You can verify the difference with/without mulx on Haswell.
-
-### Linux
-
-Type:
-
-    $ git clone git://github.com/herumi/xbyak.git
-    $ git clone git://github.com/herumi/ate-pairing.git
-    $ cd ate-pairing
-    $ make -j
-    $ test/bn
-
->Remark:The other binaries except bn are for only test.
-
-If you type
-
-    make -j SUPPORT_SNARK=1
-
-then, the parameters for SNARKs are used.
-
-Parameter
--------------
-* elliptic curve : y^2 = x^3 + 2
-* Fp : an finite field of characteristic p = 16798108731015832284940804142231733909889187121439069848933715426072753864723
-* Fp2 : Fp[u] / (u^2 + 1)
-* Fp6 = Fp2[v] / (v^3 - Xi), Xi = -u - 1
-* Fp12 : Fp6[w] / (w^2 - v)
-* Ec1 : E(Fp)[n]
-* Ec2 : inverse image of E'(Fp^2)[n] under twisting iso E' to E.
-* opt_atePairing : Ec2 x Ec1 to Fp12
-
-How to use
--------------
-
-see sample2() in https://github.com/herumi/ate-pairing/blob/master/test/sample.cpp
-
-gmp
--------------
-You can use mpz_class for scalar multiplication of points on the elliptic curves,
-if MIE_ATE_USE_GMP is defined.
-
-    using namespace bn;
-    Param::init();
-    const Ec2 g2(...);
-    const Ec1 g1(...);
-    mpz_class a("123456789");
-    mpz_class b("98765432");
-    Ec1 g1a = g1 * a;
-    Ec2 g2b = g2 * b;
-    Fp12 e;
-    // calc e : G2 x G1 -> G3 pairing
-    opt_atePairing(e, g2b, g1a);
-
-
-Xbyak
--------------
-
-Xbyak is a x86/x86-64 JIT assembler for C++.
-I made this library for developping pairing functions efficiently.
-
->http://homepage1.nifty.com/herumi/soft/xbyak_e.html
-
->https://github.com/heurmi/xbyak/
-
-License
--------------
-
-modified new BSD License
-
->http://opensource.org/licenses/BSD-3-Clause
-
-If you have any questions or problems, just let me know, then I'm happy.
-
-A patch for SNARKs
-is released under [modified new BSD License](http://opensource.org/licenses/BSD-3-Clause)
-by the [SCIPR Lab project](https://github.com/scipr-lab) and contributors.
-
-The original functions in bn::experimental are released under the MIT License
-by the [SCIPR Lab project](https://github.com/scipr-lab) and contributors.
-
-Reference
--------------
-
-* http://eprint.iacr.org/2010/354
-* [A Fast Implementation of the Optimal Ate Pairing over BN curve on Intel Haswell Processor](https://eprint.iacr.org/2013/362)
-* [High-speed software implementation of the optimal ate pairing over Barreto-Naehrig curves](http://dl.acm.org/citation.cfm?id=1948969)
-* [Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture](http://eprint.iacr.org/2013/879)
-* http://homepage1.nifty.com/herumi/crypt/ate-pairing.html (old page)
-
-History
--------------
-* 2014/Jun/15 support a BN curve for SNARKs released by Ale and Madars
-* 2013/Jun/02 support mulx of Haswell
-* 2013/Mar/08 add elliptic curve class
-* 2012/Jan/30 rewrite ate pairing according to
-  "Faster explicit formulas for computing pairings over ordinary curves.
-  see http://www.patricklonga.bravehost.com/speed_pairing.html
-* [2010/Sep/8 change xi from u + 12 to u
-* 2010/Jul/15 use cyclotomic squaring for final_exp
-* 2010/Jun/18 first release
 
 Authors
 -------------
 
-* MITSUNARI Shigeo(herumi@nifty.com)
-* TERUYA Tadanori(tadanori.teruya@gmail.com)
+* MITSUNARI Shigeo (`herumi@nifty.com`)
+* TERUYA Tadanori (`tadanori.teruya@gmail.com`)
 
 Contributors
 -------------
 
-* Alessandro Chiesa
-* Madars Virza
+* Alessandro Chiesa (`alexch@mit.edu`)
+* Madars Virza (`madars@mit.edu`)
