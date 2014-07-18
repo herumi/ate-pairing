@@ -1,6 +1,6 @@
 include ../common.mk
 
-HEADER= ../include/zm.h ../include/bn.h
+HEADER= ../include/zm.h ../include/bn.h ../include/zm2.h
 TARGET=test_zm bn ../lib/libzm.a
 
 ifeq ($(BIT),-m64)
@@ -23,7 +23,7 @@ sample: sample.o ../lib/libzm.a
 bench_test: bench.o ../lib/libzm.a
 	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
 
-../lib/libzm.a:
+../lib/libzm.a: $(HEADER)
 	$(MAKE) -C ../src ../lib/libzm.a
 
 clean:
@@ -36,4 +36,5 @@ test: $(TARGET)
 test_zm.o: test_zm.cpp $(HEADER)
 bn.o: bn.cpp $(HEADER)
 bench.o: bench.cpp $(HEADER)
+sample.o: sample.cpp $(HEADER)
 

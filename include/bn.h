@@ -17,6 +17,7 @@
 
 #ifdef BN_SUPPORT_SNARK
 	#define BN_SUPPORT_NAF_IN_ML
+//	#define BN_USE_B_82
 #endif
 
 #ifdef MIE_ATE_USE_GMP
@@ -117,16 +118,28 @@ struct ParamT {
 		largest_c = 6 * z + 2;
 		Fp::setModulo(p, mode, useMulx);
 		half = Fp(1) / Fp(2);
-#ifdef BN_SUPPORT_SNARK
-		b = 3;
-		Fp2 xi(9, 1);
 		/*
-			b_invxi = 3 * xi.inverse(),
-			b/xi = 266929791119991161246907387137283842545076965332900288569378510910307636690*U +
-			       19485874751759354771024239261021720505790618469301721065564631296452457478373
+			b_invxi = b / xi
 		*/
-		b_invxi = Fp2(Fp("19485874751759354771024239261021720505790618469301721065564631296452457478373"),
-					  Fp("266929791119991161246907387137283842545076965332900288569378510910307636690"));
+#ifdef BN_SUPPORT_SNARK
+#ifdef BN_USE_B_82
+		b = 82;
+#else
+		b = 3;
+#endif
+		Fp2 xi(9, 1);
+		b_invxi = xi;
+		b_invxi.inverse();
+		b_invxi *= Fp2(b, 0);
+		/*
+			// b = 82
+			b_invxi = Fp2(9, -1);
+			// b = 3
+			b_invxi = Fp2(
+				Fp("19485874751759354771024239261021720505790618469301721065564631296452457478373"),
+				Fp("266929791119991161246907387137283842545076965332900288569378510910307636690")
+			);
+		*/
 #else
 		b = 2;
 		Fp2 xi(1, 1);
@@ -222,6 +235,7 @@ Fp2 ParamT<Fp2>::gammar3[5];
 // Loop parameter for ate pairing.
 template<class Fp2>
 const int ParamT<Fp2>::siTbl[] = {
+// binary repl of 6z+2
 #ifdef BN_SUPPORT_SNARK
 // XITAG
 #ifdef BN_SUPPORT_NAF_IN_ML
