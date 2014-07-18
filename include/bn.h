@@ -17,7 +17,7 @@
 
 #ifdef BN_SUPPORT_SNARK
 	#define BN_SUPPORT_NAF_IN_ML
-//	#define BN_USE_B_82
+//	#define BN_USE_B_82 // 1.842Mclk -> 1.827Mclk
 #endif
 
 #ifdef MIE_ATE_USE_GMP
@@ -944,8 +944,17 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 		t0 += t3;
 		// # 4
 #ifdef BN_SUPPORT_SNARK
+#ifdef BN_USE_B_82
+		// (a + bu) * (9 - u) = (9a + b) + (9b - a)u
+		t3.a_ = t0.b_;
+		t3.b_ = t0.a_;
+		Fp2::mul_xi(t0, t3);
+		t2.a_ = t0.b_;
+		t2.b_ = t0.a_;
+#else
 		// (a + bu) * binv_xi
 		Fp2::mul(t2, t0, ParamT<Fp2>::b_invxi);
+#endif
 #else
 		// (a + bu)(1 - u) = (a + b) + (b - a)u
 		Fp::add(t2.a_, t0.a_, t0.b_);
