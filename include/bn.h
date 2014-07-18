@@ -10,9 +10,6 @@
 #include <stdexcept>
 #include "zm2.h"
 
-/*
-	https://github.com/scipr-lab/libsnark/blob/master/patches/ate-pairing-change-curve.diff
-*/
 //#define BN_SUPPORT_SNARK
 
 #ifdef BN_SUPPORT_SNARK

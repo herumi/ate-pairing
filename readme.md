@@ -182,6 +182,10 @@ References
   Eli Ben-Sasson, Alessandro Chiesa, Eran Tromer, Madars Virza
   USENIX Security 2014
 
+* [_Software implementation of an Attribute-Based Encryption scheme](https://eprint.iacr.org/2014/401)
+  Eric Zavattoni and Luis J. Dominguez Perez and Shigeo Mitsunari and Ana H. Sanchez-Ramirez and Tadanori Teruya and Francisco Rodriguez-Henriquez
+  IEEE Transactions on Computers, 13 June 2014
+
 * [This library's old webpage](http://homepage1.nifty.com/herumi/crypt/ate-pairing.html)
 
 
