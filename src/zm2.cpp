@@ -3067,16 +3067,16 @@ L("@@");
 
 #ifdef BN_SUPPORT_SNARK
 		// (a + bu) * binv_xi
-#ifdef BN_USE_B_82
-		// (a + bu) * (9 - u) = (9a + b) + (9b - a)u
-		in_Fp_mul_xi_addsub(t2, t0, t0 + 32, true);
-		in_Fp_mul_xi_addsub(t2 + 32, t0 + 32, t0, false);
-#else
-		lea(gp1, ptr [t2]);
-		lea(gp2, ptr [t0]);
-		mov(gp3, (size_t)&ParamT<Fp2>::b_invxi);
-		call(p_Fp2_mul);
-#endif
+		if (ParamT<Fp2>::b == 82) {
+			// (a + bu) * (9 - u) = (9a + b) + (9b - a)u
+			in_Fp_mul_xi_addsub(t2, t0, t0 + 32, true);
+			in_Fp_mul_xi_addsub(t2 + 32, t0 + 32, t0, false);
+		} else {
+			lea(gp1, ptr [t2]);
+			lea(gp2, ptr [t0]);
+			mov(gp3, (size_t)&ParamT<Fp2>::b_invxi);
+			call(p_Fp2_mul);
+		}
 #else
 		// Fp::add(t2.a_, t0.a_, t0.b_);
 		in_Fp_add(t2.a_, t0.a_, t0.b_);
