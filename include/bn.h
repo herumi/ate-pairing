@@ -3255,6 +3255,15 @@ inline void millerLoop2(Fp12& f, const std::vector<Fp6>& Q1coeff, const Fp precP
 }
 
 } // experimental
+
+namespace components {
+
+using experimental::precomputeG2;
+using experimental::millerLoop;
+using experimental::millerLoop2;
+
+} // components
+
 } // bn
 
 /***

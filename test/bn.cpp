@@ -75,6 +75,16 @@ void test_pairing(const bn::CurveParam& cp)
 	benchFp2();
 	CYBOZU_BENCH("finalexp", e.final_exp);
 	CYBOZU_BENCH("pairing", opt_atePairingJac<Fp>, e, g2, g1);
+
+	Fp12 e2;
+	std::vector<Fp6> Qcoeff;
+	Fp2 precQ[2];
+	bn::components::precomputeG2(Qcoeff, precQ, g2);
+	Fp precP[2];
+	bn::ecop::NormalizeJac(precP, g1);
+	bn::components::millerLoop(e2, Qcoeff, precP);
+	e2.final_exp();
+	TEST_EQUAL(e, e2);
 }
 int main(int argc, char *argv[])
 {
