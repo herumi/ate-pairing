@@ -194,6 +194,15 @@ struct ParamT {
 
 	static inline void init(const CurveParam& cp, int mode = -1, bool useMulx = true)
 	{
+#ifdef BN_SUPPORT_SNARK
+		bool supported = cp == CurveSNARK1 || cp == CurveSNARK2;
+#else
+		bool supported = cp == CurveAranha;
+#endif
+		if (!supported) {
+			fprintf(stderr, "not supported parameter\n");
+			exit(1);
+		}
 		mie::zmInit();
 		const int64_t org_z = cp.z; // NOTE: hard-coded Fp12::pow_neg_t too.
 		const int pCoff[] = { 1, 6, 24, 36, 36 };
