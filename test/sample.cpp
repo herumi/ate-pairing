@@ -5,6 +5,7 @@
 	#define MIE_ATE_USE_GMP
 #endif
 #include "bn.h"
+#include "test_point.hpp"
 
 static int errNum = 0;
 
@@ -21,67 +22,19 @@ void verify(const char *msg, const T& a, const S& b)
 	}
 }
 
-const struct G2 {
-	const char *aa;
-	const char *ab;
-	const char *ba;
-	const char *bb;
-} g2Tbl[] = {
-#ifdef BN_SUPPORT_SNARK
-	{
-		// b = 3
-		"15267802884793550383558706039165621050290089775961208824303765753922461897946",
-		"9034493566019742339402378670461897774509967669562610788113215988055021632533",
-		"644888581738283025171396578091639672120333224302184904896215738366765861164",
-		"20532875081203448695448744255224543661959516361327385779878476709582931298750",
-	},
-	{
-		// b = 82
-		"7281644703356799059368313064438243279269372005747477888712173236228325795991",
-		"15160700668152503952980485502602536850541312794041965342451842375663084147486",
-		"13523979532236795535820810482891703536907572704519492618036353386190612673074",
-		"15929067770616689398844794432758732907995965312283969374632681891490787470887",
-	},
-#else
-	{
-		"12723517038133731887338407189719511622662176727675373276651903807414909099441",
-		"4168783608814932154536427934509895782246573715297911553964171371032945126671",
-		"13891744915211034074451795021214165905772212241412891944830863846330766296736",
-		"7937318970632701341203597196594272556916396164729705624521405069090520231616",
-	},
-#endif
-};
-
 void sample1(const bn::CurveParam& cp)
 {
 	using namespace bn;
 	// init my library
 	Param::init(cp);
 	// prepair a generator
-#ifdef BN_SUPPORT_SNARK
-	const G2& g2p = g2Tbl[cp.b == 3 ? 0 : 1];
-	Fp g1[3];
-	if (cp.b == 3) {
-		g1[0] = 1;
-		g1[1] = 2;
-	} else {
-		g1[0] = -1;
-		g1[1] = 9;
-	}
-	g1[2] = 1;
-#else
-	const G2& g2p = g2Tbl[0];
-	const Fp g1[3] = {
-		Fp("1674578968009266105367653690721407808692458796109485353026408377634195183292"),
-		Fp("8299158460239932124995104248858950945965255982743525836869552923398581964065"),
-		1
-	};
-#endif
+	const Point& pt = selectPoint(cp);
 	const Fp2 g2[3] = {
-		Fp2(Fp(g2p.aa), Fp(g2p.ab)),
-		Fp2(Fp(g2p.ba), Fp(g2p.bb)),
+		Fp2(Fp(pt.g2.aa), Fp(pt.g2.ab)),
+		Fp2(Fp(pt.g2.ba), Fp(pt.g2.bb)),
 		Fp2(1, 0),
 	};
+	const Fp g1[3] = { pt.g1.a, pt.g1.b, 1 };
 	// verify g2 and g1 on curve
 	verify("g1 is on EC", ecop::isOnECJac3(g1), true);
 	verify("g2 is on twist EC", ecop::isOnTwistECJac3(g2), true);
@@ -181,25 +134,12 @@ void sample2(const bn::CurveParam& cp)
 	using namespace bn;
 	// init my library
 	Param::init(cp);
-#ifdef BN_SUPPORT_SNARK
-	const G2& g2p = g2Tbl[cp.b == 3 ? 0 : 1];
-	Ec1 g1;
-	if (cp.b == 3) {
-		g1.set(1, 2);
-	} else {
-		g1.set(-1, 9);
-	}
-#else
-	const G2& g2p = g2Tbl[0];
-	const Ec1 g1(
-		Fp("1674578968009266105367653690721407808692458796109485353026408377634195183292"),
-		Fp("8299158460239932124995104248858950945965255982743525836869552923398581964065")
-	);
-#endif
+	const Point& pt = selectPoint(cp);
 	const Ec2 g2(
-		(Fp2(Fp(g2p.aa), Fp(g2p.ab))),
-		(Fp2(Fp(g2p.ba), Fp(g2p.bb)))
+		Fp2(Fp(pt.g2.aa), Fp(pt.g2.ab)),
+		Fp2(Fp(pt.g2.ba), Fp(pt.g2.bb))
 	);
+	const Ec1 g1(pt.g1.a, pt.g1.b);
 	// verify g2 and g1 on curve
 	verify("g1 is on EC", g1.isValid(), true);
 	verify("g2 is on twist EC", g2.isValid(), true);
@@ -299,6 +239,10 @@ int main(int argc, char *argv[])
 	bn::CurveParam cp = bn::CurveSNARK1;
 	cp.b = b;
 #else
+	if (argc > 1 && argv[1]) {
+		printf("not support\n");
+		return 1;
+	}
 	bn::CurveParam cp = bn::CurveAranha;
 #endif
 	puts("sample1");

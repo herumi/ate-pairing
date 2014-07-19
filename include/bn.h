@@ -14,10 +14,6 @@
 
 //#define BN_SUPPORT_SNARK
 
-#ifdef BN_SUPPORT_SNARK
-//	#define BN_USE_B_82 // 1.842Mclk -> 1.827Mclk
-#endif
-
 #ifdef MIE_ATE_USE_GMP
 #include <gmpxx.h>
 
@@ -72,6 +68,8 @@ struct CurveParam {
 	int b; // Y^2 + X^3 + b
 	int xi_a;
 	int xi_b; // xi = xi_a + xi_b u
+	bool operator==(const CurveParam& rhs) const { return z == rhs.z && b == rhs.b && xi_a == rhs.xi_a && xi_b == rhs.xi_b; }
+	bool operator!=(const CurveParam& rhs) const { return !operator==(rhs); }
 };
 
 /*
@@ -206,12 +204,12 @@ struct ParamT {
 		eval(r, z, rCoff);
 		eval(t, z, tCoff);
 		largest_c = 6 * z + 2;
+		b = cp.b; // set b before calling Fp::setModulo
 		Fp::setModulo(p, mode, useMulx);
 		half = Fp(1) / Fp(2);
 		/*
 			b_invxi = b / xi
 		*/
-		b = cp.b;
 		Fp2 xi(cp.xi_a, cp.xi_b);
 		b_invxi = xi;
 		b_invxi.inverse();

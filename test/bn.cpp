@@ -6,6 +6,7 @@ extern Xbyak::util::Clock sclk;
 #include <iostream>
 #include "util.h"
 #include <cybozu/benchmark.hpp>
+#include "test_point.hpp"
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(*x))
 
@@ -60,40 +61,36 @@ void benchFp2()
 
 #ifdef BN_SUPPORT_SNARK
 
-#ifdef BN_USE_B_82
-const char *g2_aa = "7281644703356799059368313064438243279269372005747477888712173236228325795991";
-const char *g2_ab = "15160700668152503952980485502602536850541312794041965342451842375663084147486";
-const char *g2_ba = "13523979532236795535820810482891703536907572704519492618036353386190612673074";
-const char *g2_bb = "15929067770616689398844794432758732907995965312283969374632681891490787470887";
-#else
-const char *g2_aa = "15267802884793550383558706039165621050290089775961208824303765753922461897946";
-const char *g2_ab = "9034493566019742339402378670461897774509967669562610788113215988055021632533";
-const char *g2_ba = "644888581738283025171396578091639672120333224302184904896215738366765861164";
-const char *g2_bb = "20532875081203448695448744255224543661959516361327385779878476709582931298750";
-#endif
-
-void test_pairing()
+void test_pairing(const bn::CurveParam& cp)
 {
+	const Point& pt = selectPoint(cp);
 	const Fp2 g2[3] = {
-		Fp2(Fp(g2_aa), Fp(g2_ab)),
-		Fp2(Fp(g2_ba), Fp(g2_bb)),
+		Fp2(Fp(pt.g2.aa), Fp(pt.g2.ab)),
+		Fp2(Fp(pt.g2.ba), Fp(pt.g2.bb)),
 		Fp2(1, 0),
 	};
-#ifdef BN_USE_B_82
-	const Fp g1[3] = {-1, 9, 1};
-#else
-	const Fp g1[3] = {1, 2, 1};
-#endif
+	const Fp g1[3] = { pt.g1.a, pt.g1.b, 1 };
 	Fp12 e;
 	benchFp();
 	benchFp2();
 	CYBOZU_BENCH("finalexp", e.final_exp);
 	CYBOZU_BENCH("pairing", opt_atePairingJac<Fp>, e, g2, g1);
 }
-int main()
+int main(int argc, char *argv[])
 {
-	bn::Param::init();
-	test_pairing();
+	int b = 3;
+	if (argc >= 2) {
+		b = atoi(argv[1]);
+		if (b != 3 && b != 82) {
+			printf("not support b=%d\n", b);
+			return 1;
+		}
+	}
+	printf("SNARK b = %d\n", b);
+	bn::CurveParam cp = bn::CurveSNARK1;
+	cp.b = b;
+	bn::Param::init(cp);
+	test_pairing(cp);
 	if (sclk.getCount()) printf("sclk:%.2fclk(%dtimes)\n", sclk.getClock() / double(sclk.getCount()), sclk.getCount());
 	printf("err=%d(test=%d)\n", s_errNum, s_testNum);
 }
