@@ -8,6 +8,8 @@
 	http://opensource.org/licenses/BSD-3-Clause
 */
 #include <stdexcept>
+#include <vector>
+
 #include "zm2.h"
 
 //#define BN_SUPPORT_SNARK
@@ -93,9 +95,8 @@ struct ParamT {
 	static Fp half;
 
 	// Loop parameter for the Miller loop part of opt. ate pairing.
-	static const int siTbl[];
-	// avoid to a bug of VC that sizeof can't be applied to siTbl[]
-	static const size_t siTblNum = 65; // sizeof(siTbl) / sizeof(siTbl[0]);
+	typedef std::vector<signed char> SignVec;
+	static SignVec siTbl;
 
 	static inline void init(int mode = -1, bool useMulx = true)
 	{
@@ -176,6 +177,29 @@ struct ParamT {
 		Fp::square(Z, -temp.a_);
 		i0 = 0;
 		i1 = 1;
+
+		const signed char tbl[] = {
+		// binary repl of 6z+2
+#ifdef BN_SUPPORT_SNARK
+#ifdef BN_SUPPORT_NAF_IN_ML
+		1, 1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 1, 0, 1, 0, 0, 0
+#else
+		1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0
+#endif
+#else
+			1, 1, 0, 0, 0,
+			0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+#endif
+		};
+		siTbl.clear();
+		for (size_t i = 0; i < sizeof(tbl)/sizeof(*tbl); i++) {
+			siTbl.push_back(tbl[i]);
+		}
 	}
 
 	// y = sum_{i=0}^4 c_i x^i
@@ -230,6 +254,7 @@ template<class Fp2>
 Fp2 ParamT<Fp2>::gammar3[5];
 
 // Loop parameter for ate pairing.
+#if 0
 template<class Fp2>
 const int ParamT<Fp2>::siTbl[] = {
 // binary repl of 6z+2
@@ -250,6 +275,11 @@ const int ParamT<Fp2>::siTbl[] = {
 	0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
 #endif
 };
+#else
+template<class Fp2>
+typename ParamT<Fp2>::SignVec ParamT<Fp2>::siTbl;
+
+#endif
 
 /*
 	mul_gamma(z, x) + z += y;
@@ -2750,7 +2780,7 @@ void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P
 	// loop from 2.
 	Fp6 l;
 	// 844kclk
-	for (size_t i = 2; i < Param::siTblNum; i++) {
+	for (size_t i = 2; i < Param::siTbl.size(); i++) {
 		// 3.6k x 63
 		Fp6::pointDblLineEval(l, T, P);
 		// 4.7k x 63
@@ -3030,7 +3060,7 @@ inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
 
 	bn::Fp6 l;
 	// 844kclk
-	for (size_t i = 2; i < Param::siTblNum; i++) {
+	for (size_t i = 2; i < Param::siTbl.size(); i++) {
 		Fp6::pointDblLineEvalWithoutP(l, T);
 		coeff.push_back(l);
 
@@ -3079,7 +3109,7 @@ inline void millerLoop(Fp12& f, const std::vector<Fp6>& Qcoeff, const Fp precP[2
 
 	idx++;
 	bn::Fp6 l;
-	for (size_t i = 2; i < Param::siTblNum; i++) {
+	for (size_t i = 2; i < Param::siTbl.size(); i++) {
 		l = Qcoeff[idx];
 		idx++;
 		Fp12::square(f);
@@ -3137,7 +3167,7 @@ inline void millerLoop2(Fp12& f, const std::vector<Fp6>& Q1coeff, const Fp precP
 
 	idx++;
 	bn::Fp6 l1, l2;
-	for (size_t i = 2; i < Param::siTblNum; i++) {
+	for (size_t i = 2; i < Param::siTbl.size(); i++) {
 		l1 = Q1coeff[idx];
 		l2 = Q2coeff[idx];
 		idx++;
