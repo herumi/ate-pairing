@@ -88,12 +88,55 @@ void put(const T& x)
 template<class Vec>
 void convertToBinary(Vec& v, const mie::Vuint& x)
 {
-	size_t len = x.bitLen();
-	v.resize(len);
+	const size_t len = x.bitLen();
+	v.clear();
 	for (size_t i = 0; i < len; i++) {
-		v[i] = x.testBit(len - 1 - i);
+		v.push_back(x.testBit(len - 1 - i) ? 1 : 0);
 	}
 }
+template<class Vec>
+size_t getContinuousVal(const Vec& v, size_t pos, int val)
+{
+	while (pos >= 2) {
+		if (v[pos] != val) break;
+		pos--;
+	}
+	return pos;
+}
+template<class Vec>
+void convertToNAF(Vec& v, const Vec& in)
+{
+	v = in;
+	size_t pos = v.size() - 1;
+	for (;;) {
+		size_t p = getContinuousVal(v, pos, 0);
+		if (p == 1) return;
+		assert(v[p] == 1);
+		size_t q = getContinuousVal(v, p, 1);
+		if (q == 1) return;
+		assert(v[q] == 0);
+		if (p - q <= 1) {
+			pos = p - 1;
+			continue;
+		}
+		v[q] = 1;
+		for (size_t i = q + 1; i < p; i++) {
+			v[i] = 0;
+		}
+		v[p] = -1;
+		pos = q;
+	}
+}
+template<class Vec>
+size_t getNumOfNonZeroElement(const Vec& v)
+{
+	size_t w = 0;
+	for (size_t i = 0; i < v.size(); i++) {
+		if (v[i]) w++;
+	}
+	return w;
+}
+
 } // bn::util
 
 template<class Fp2>
@@ -204,17 +247,17 @@ struct ParamT {
 		i0 = 0;
 		i1 = 1;
 
-#ifdef BN_SUPPORT_NAF_IN_ML
-		const signed char tbl[] = {
-			1, 1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 1, 0, 1, 0, 0, 0
-		};
-		siTbl.clear();
-		for (size_t i = 0; i < sizeof(tbl)/sizeof(*tbl); i++) {
-			siTbl.push_back(tbl[i]);
+		/*
+			compare binary rep with naf rep of 6z+2
+		*/
+		util::convertToBinary(siTbl, largest_c.abs());
+		SignVec naf;
+		util::convertToNAF(naf, siTbl);
+		const size_t binH = util::getNumOfNonZeroElement(siTbl);
+		const size_t nafW = util::getNumOfNonZeroElement(naf);
+		if (nafW < binH) {
+			siTbl.swap(naf);
 		}
-#else
-		convertToBinary(siTbl, largest_c.abs());
-#endif
 	}
 
 	// y = sum_{i=0}^4 c_i x^i
@@ -268,33 +311,8 @@ Fp2 ParamT<Fp2>::gammar2[5];
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar3[5];
 
-// Loop parameter for ate pairing.
-#if 0
-template<class Fp2>
-const int ParamT<Fp2>::siTbl[] = {
-// binary repl of 6z+2
-#ifdef BN_SUPPORT_SNARK
-// XITAG
-#ifdef BN_SUPPORT_NAF_IN_ML
-1, 1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 1, 0, 1, 0, 0, 0
-#else
-1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0
-#endif
-#else
-	1, 1, 0, 0, 0,
-	0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-#endif
-};
-#else
 template<class Fp2>
 typename ParamT<Fp2>::SignVec ParamT<Fp2>::siTbl;
-
-#endif
 
 /*
 	mul_gamma(z, x) + z += y;
