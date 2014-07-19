@@ -61,7 +61,9 @@ extern uint64_t debug_buf[128]; // for debug
 
 namespace bn {
 
-static inline bool supportSNARK()
+namespace util {
+
+inline bool supportSNARK()
 {
 #ifdef BN_SUPPORT_SNARK
 	return true;
@@ -69,6 +71,30 @@ static inline bool supportSNARK()
 	return false;
 #endif
 }
+
+template<class T>
+void put(const T& x, size_t len)
+{
+	for (size_t i = 0; i < len; i++) {
+		printf("% 2d,", x[i]);
+	}
+	printf("\n");
+}
+template<class T>
+void put(const T& x)
+{
+	put(x, x.size());
+}
+template<class Vec>
+void convertToBinary(Vec& v, const mie::Vuint& x)
+{
+	size_t len = x.bitLen();
+	v.resize(len);
+	for (size_t i = 0; i < len; i++) {
+		v[i] = x.testBit(len - 1 - i);
+	}
+}
+} // bn::util
 
 template<class Fp2>
 struct ParamT {
@@ -178,28 +204,17 @@ struct ParamT {
 		i0 = 0;
 		i1 = 1;
 
-		const signed char tbl[] = {
-		// binary repl of 6z+2
-#ifdef BN_SUPPORT_SNARK
 #ifdef BN_SUPPORT_NAF_IN_ML
-		1, 1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 1, 0, 1, 0, 0, 0
-#else
-		1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0
-#endif
-#else
-			1, 1, 0, 0, 0,
-			0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-#endif
+		const signed char tbl[] = {
+			1, 1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -1, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 1, 0, 1, 0, 0, 0
 		};
 		siTbl.clear();
 		for (size_t i = 0; i < sizeof(tbl)/sizeof(*tbl); i++) {
 			siTbl.push_back(tbl[i]);
 		}
+#else
+		convertToBinary(siTbl, largest_c.abs());
+#endif
 	}
 
 	// y = sum_{i=0}^4 c_i x^i

@@ -3592,11 +3592,12 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 #else
 	const bool scipr = false;
 #endif
-	if (scipr != bn::supportSNARK()) {
+	const bool sciprInHeader = bn::util::supportSNARK();
+	if (scipr != sciprInHeader) {
 		fprintf(stderr, "use -DBN_SUPPORT_SNARK for all sources\n");
 		exit(1);
 	}
-	if (bn::supportSNARK()) {
+	if (scipr) {
 		fprintf(stderr, "support SNARK\n");
 	}
 	static bool init = false;
