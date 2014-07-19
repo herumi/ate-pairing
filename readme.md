@@ -49,7 +49,7 @@ As usual,
 The field Fp12 is constructed via the following tower:
 
 * Fp2 = Fp[u] / (u^2 + 1)
-* Fp6 = Fp2[v] / (v^3 - Xi) where Xi = - (u + 1)
+* Fp6 = Fp2[v] / (v^3 - Xi) where Xi = u + 1
 * Fp12 = Fp6[w] / (w^2 - v)
 
 Requirements

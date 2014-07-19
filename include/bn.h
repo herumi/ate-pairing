@@ -60,6 +60,33 @@ extern uint64_t debug_buf[128]; // for debug
 
 namespace bn {
 
+struct CurveParam {
+	/*
+		y^2 = x^3 + b
+		u^2 = -1
+		xi = xi_a + xi_b u
+		v^3 = xi
+		w^2 = v
+	*/
+	int64_t z;
+	int b; // Y^2 + X^3 + b
+	int xi_a;
+	int xi_b; // xi = xi_a + xi_b u
+};
+
+/*
+	the current version supports only the following parameters
+*/
+#ifdef BN_SUPPORT_SNARK
+const CurveParam CurveSNARK1 = { 4965661367192848881, 3, 9, 1 };
+
+// b/xi = 82 / (9 + u) = 9 - u
+const CurveParam CurveSNARK2 = { 4965661367192848881, 82, 9, 1 };
+#else
+// b/xi = 2 / (1 - u) = 1 + u
+const CurveParam CurveAranha = { -((1LL << 62) + (1LL << 55) + (1LL << 0)), 2, 1, 1 };
+#endif
+
 namespace util {
 
 inline bool supportSNARK()
@@ -167,14 +194,10 @@ struct ParamT {
 	static SignVec siTbl;
 	static bool useNAF;
 
-	static inline void init(int mode = -1, bool useMulx = true)
+	static inline void init(const CurveParam& cp, int mode = -1, bool useMulx = true)
 	{
 		mie::zmInit();
-#ifdef BN_SUPPORT_SNARK
-		const int64_t org_z = 4965661367192848881LL; // NOTE: hard-coded Fp12::pow_neg_t too.
-#else
-		const int64_t org_z = -((1LL << 62) + (1LL << 55) + (1LL << 0));
-#endif
+		const int64_t org_z = cp.z; // NOTE: hard-coded Fp12::pow_neg_t too.
 		const int pCoff[] = { 1, 6, 24, 36, 36 };
 		const int rCoff[] = { 1, 6, 18, 36, 36 };
 		const int tCoff[] = { 1, 0,  6,  0,  0 };
@@ -188,34 +211,11 @@ struct ParamT {
 		/*
 			b_invxi = b / xi
 		*/
-#ifdef BN_SUPPORT_SNARK
-#ifdef BN_USE_B_82
-		b = 82;
-#else
-		b = 3;
-#endif
-		Fp2 xi(9, 1);
+		b = cp.b;
+		Fp2 xi(cp.xi_a, cp.xi_b);
 		b_invxi = xi;
 		b_invxi.inverse();
 		b_invxi *= Fp2(b, 0);
-		/*
-			// b = 82
-			b_invxi = Fp2(9, -1);
-			// b = 3
-			b_invxi = Fp2(
-				Fp("19485874751759354771024239261021720505790618469301721065564631296452457478373"),
-				Fp("266929791119991161246907387137283842545076965332900288569378510910307636690")
-			);
-		*/
-#else
-		b = 2;
-		Fp2 xi(1, 1);
-		/*
-			b_invxi = 2 * xi.inverse(),
-			b/xi = [1, -1].
-		*/
-		b_invxi = Fp2(Fp("1"), -Fp("1"));
-#endif
 #ifdef BN_SUPPORT_SNARK
 		gammar[0] = 1;
 		gammar[1] = mie::power(xi, (p - 1) / 6);
@@ -261,6 +261,14 @@ struct ParamT {
 		} else {
 			useNAF = false;
 		}
+	}
+	static inline void init(int mode = -1, bool useMulx = true)
+	{
+#ifdef BN_SUPPORT_SNARK
+		init(CurveSNARK1, mode, useMulx);
+#else
+		init(CurveAranha, mode, useMulx);
+#endif
 	}
 
 	// y = sum_{i=0}^4 c_i x^i
