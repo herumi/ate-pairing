@@ -161,6 +161,28 @@ size_t getNumOfNonZeroElement(const Vec& v)
 	return w;
 }
 
+/*
+	compute a repl of x which has smaller Hamming weights.
+	return true if naf is selected
+*/
+template<class Vec>
+bool getGoodRepl(Vec& v, const mie::Vuint& x)
+{
+	Vec bin;
+	util::convertToBinary(bin, x);
+	Vec naf;
+	util::convertToNAF(naf, bin);
+	const size_t binW = util::getNumOfNonZeroElement(bin);
+	const size_t nafW = util::getNumOfNonZeroElement(naf);
+	if (nafW < binW) {
+		v.swap(naf);
+		return true;
+	} else {
+		v.swap(bin);
+		return false;
+	}
+}
+
 } // bn::util
 
 template<class Fp2>
@@ -191,6 +213,9 @@ struct ParamT {
 	typedef std::vector<signed char> SignVec;
 	static SignVec siTbl;
 	static bool useNAF;
+#ifdef BN_SUPPORT_SNARK
+	static SignVec zReplTbl;
+#endif
 
 	static inline void init(const CurveParam& cp, int mode = -1, bool useMulx = true)
 	{
@@ -254,20 +279,10 @@ struct ParamT {
 		i0 = 0;
 		i1 = 1;
 
-		/*
-			compare binary rep with naf rep of 6z+2
-		*/
-		util::convertToBinary(siTbl, largest_c.abs());
-		SignVec naf;
-		util::convertToNAF(naf, siTbl);
-		const size_t binH = util::getNumOfNonZeroElement(siTbl);
-		const size_t nafW = util::getNumOfNonZeroElement(naf);
-		if (nafW < binH) {
-			siTbl.swap(naf);
-			useNAF = true;
-		} else {
-			useNAF = false;
-		}
+		useNAF = util::getGoodRepl(siTbl, largest_c.abs());
+#ifdef BN_SUPPORT_SNARK
+		util::getGoodRepl(zReplTbl, z.abs());
+#endif
 	}
 	static inline void init(int mode = -1, bool useMulx = true)
 	{
@@ -333,6 +348,11 @@ template<class Fp2>
 typename ParamT<Fp2>::SignVec ParamT<Fp2>::siTbl;
 template<class Fp2>
 bool ParamT<Fp2>::useNAF;
+
+#ifdef BN_SUPPORT_SNARK
+template<class Fp2>
+typename ParamT<Fp2>::SignVec ParamT<Fp2>::zReplTbl;
+#endif
 
 /*
 	mul_gamma(z, x) + z += y;
@@ -1834,27 +1854,19 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 #ifdef BN_SUPPORT_SNARK
 	static void pow_neg_t(Fp12T &out, const Fp12T &in)
 	{
-		static const int tiTbl[] = {
-1, 0, 0, 0, 1, 0, 1, 0, 0, -1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 1
-};
-		static const size_t tiTblNum = 63;
-		assert(tiTblNum == sizeof(tiTbl)/sizeof(tiTbl[0]));
-
 		out = in;
 		Fp12T inConj;
 		inConj.a_ = in.a_;
 		Fp6::neg(inConj.b_, in.b_); // in^-1 == in^(p^6)
 
-		for (size_t i = 1; i < tiTblNum; i++)
-		{
+		for (size_t i = 1; i < Param::zReplTbl.size(); i++) {
 			out.sqru();
-			if (tiTbl[i] == 1) {
+			if (Param::zReplTbl[i] > 0) {
 				Fp12T::mul(out, out, in);
-			} else if (tiTbl[i] == -1) {
+			} else if (Param::zReplTbl[i] < 0) {
 				Fp12T::mul(out, out, inConj);
 			}
 		}
-
 		// invert by conjugation
 		Fp6::neg(out.b_, out.b_);
 	}
