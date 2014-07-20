@@ -27,7 +27,7 @@ The following two BN curves are supported:
 By default, the first curve (we call it as CurveFp254BNb) is used; when setting the flag `SUPPORT_SNARK`, the second curve (we call it as CurveSNARK) is used instead.
 
 * __CurveFp254BNb__
-The value of z is proposed by \[NASKM] first. See \[PSNB] suitable parameters of BN curves for ellicient implementation, and \[AKLGL] for fast algorithm.
+The value of z is proposed by \[NASKM\] first. See [\[PSNB\]](http://eprint.iacr.org/2010/42) suitable parameters of BN curves for ellicient implementation, and [\[AKLGL\]]((http://eprint.iacr.org/2010/526) for fast algorithm.
 This library is perhaps the fastest 126-bit security BN pairing implementation in the open source.
 
 * __CurveSNARK__
@@ -178,36 +178,32 @@ pairing     |1.36M   |1.60M     |1.33M  |1.17M
 References
 -------------
 
-\[NASKM] __Integer Variable chi-Based Ate Pairing__,
+* \[NASKM\] __Integer Variable chi-Based Ate Pairing__,
  Y. Nogami, M. Akane, Y. Sakemi, H. Kato, and Y. Morikawa,
- Pairing 2008.
+ Pairing 2008
 
-\[PSNB] [
- __A Family of Implementation-Friendly BN Elliptic Curves__
-](http://eprint.iacr.org/2010/429),
+* \[PSNB\] [_A Family of Implementation-Friendly BN Elliptic Curves_](http://eprint.iacr.org/2010/429),
  G.C.C.F. Pereira, M.A. Simplicio Jr, M. Naehrig, P.S.L.M. Barreto,
- Systems and Software 2011.
+ Systems and Software 2011
 
-\[AKLGL] [
- __Faster Explicit Formulas for Computing Pairings over Ordinary Curves__
-](http://eprint.iacr.org/2010/526),
+* \[AKLGL\] [_Faster Explicit Formulas for Computing Pairings over Ordinary Curves_](http://eprint.iacr.org/2010/526),
  D.F. Aranha, K. Karabina, P. Longa, C.H. Gebotys, J. Lopez,
- EUROCRYPTO 2011,
+ EUROCRYPTO 2011
 
-* [_High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves_](http://eprint.iacr.org/2010/354)
-   Jean-Luc Beuchat, Jorge Enrique González Díaz, Shigeo Mitsunari, Eiji Okamoto, Francisco Rodríguez-Henríquez, Tadanori Teruya
+* [_High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves_](http://eprint.iacr.org/2010/354),
+   Jean-Luc Beuchat, Jorge Enrique González Díaz, Shigeo Mitsunari, Eiji Okamoto, Francisco Rodríguez-Henríquez, Tadanori Teruya,
   Pairing 2010 \[[conference version](http://dl.acm.org/citation.cfm?id=1948969)]
 
-* [_A Fast Implementation of the Optimal Ate Pairing over BN curve on Intel Haswell Processor_](http://eprint.iacr.org/2013/362)
-  Shigeo Mitsunari
+* [_A Fast Implementation of the Optimal Ate Pairing over BN curve on Intel Haswell Processor_](http://eprint.iacr.org/2013/362),
+  Shigeo Mitsunari,
   ePrint 2013/362
 
-* [_Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture_](http://eprint.iacr.org/2013/879)
-  Eli Ben-Sasson, Alessandro Chiesa, Eran Tromer, Madars Virza
+* [_Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture_](http://eprint.iacr.org/2013/879),
+  Eli Ben-Sasson, Alessandro Chiesa, Eran Tromer, Madars Virza,
   USENIX Security 2014
 
-* [_Software implementation of an Attribute-Based Encryption scheme_](https://eprint.iacr.org/2014/401)
-  Eric Zavattoni and Luis J. Dominguez Perez and Shigeo Mitsunari and Ana H. Sanchez-Ramirez and Tadanori Teruya and Francisco Rodriguez-Henriquez
+* [_Software implementation of an Attribute-Based Encryption scheme_](https://eprint.iacr.org/2014/401),
+  Eric Zavattoni and Luis J. Dominguez Perez and Shigeo Mitsunari and Ana H. Sanchez-Ramirez and Tadanori Teruya and Francisco Rodriguez-Henriquez,
   IEEE Transactions on Computers, 13 June 2014
 
 * [This library's old webpage](http://homepage1.nifty.com/herumi/crypt/ate-pairing.html)
