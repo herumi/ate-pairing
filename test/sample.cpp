@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
 		printf("not support\n");
 		return 1;
 	}
-	bn::CurveParam cp = bn::CurveAranha;
+	bn::CurveParam cp = bn::CurveFp254BNb;
 #endif
 	puts("sample1");
 	sample1(cp);

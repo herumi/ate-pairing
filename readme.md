@@ -2,7 +2,8 @@
 High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves
 =============
 
-This library provides functionality to compute the optimal ate pairing over Barreto-Naehrig (BN) curves. It is released under the [BSD 3-Clause License](http://opensource.org/licenses/BSD-3-Clause).
+This library provides functionality to compute the optimal ate pairing over Barreto-Naehrig (BN) curves.
+It is released under the [BSD 3-Clause License](http://opensource.org/licenses/BSD-3-Clause).
 
 History
 -------------
@@ -23,7 +24,14 @@ The following two BN curves are supported:
 1. a BN curve over the 254-bit prime p = 36z^4 + 36z^3 + 24z^2 + 6z + 1 where z = -(2^62 + 2^55 + 1); and
 2. a BN curve over a 254-bit prime p such that n := p + 1 - t has high 2-adicity.
 
-By default, the first curve is used; when setting the flag `SUPPORT_SNARK`, the second curve is used instead. Support for the second curve builds on code provided by [SCIPR Lab](http://www.scipr-lab.org/) in [libsnark](https://github.com/scipr-lab/libsnark). The curve was specifically selected for speeding up __Succinct Non-interactive ARguments of Knowledge__ (SNARKs), which benefit from its high 2-adicity (see [\[BCGTV13\]](http://eprint.iacr.org/2013/507) and [\[BCTV14\]](http://eprint.iacr.org/2013/879)).
+By default, the first curve (we call it as CurveFp254BNb) is used; when setting the flag `SUPPORT_SNARK`, the second curve (we call it as CurveSNARK) is used instead.
+
+* __CurveFp254BNb__
+The value of z is proposed by \[NASKM] first. See \[PSNB] suitable parameters of BN curves for ellicient implementation, and \[AKLGL] for fast algorithm.
+This library is perhaps the fastest 126-bit security BN pairing implementation in the open source.
+
+* __CurveSNARK__
+Support for the second curve builds on code provided by [SCIPR Lab](http://www.scipr-lab.org/) in [libsnark](https://github.com/scipr-lab/libsnark). The curve was specifically selected for speeding up __Succinct Non-interactive ARguments of Knowledge__ (SNARKs), which benefit from its high 2-adicity (see [\[BCGTV13\]](http://eprint.iacr.org/2013/507) and [\[BCTV14\]](http://eprint.iacr.org/2013/879)).
 
 Pairing computations on the first curve are more efficient, and the performance numbers reported below (and in our papers) are achieved using this curve (which is prefered for applications that do not benefit from high 2-adicity).
 
@@ -169,6 +177,22 @@ pairing     |1.36M   |1.60M     |1.33M  |1.17M
 
 References
 -------------
+
+\[NASKM] __Integer Variable chi-Based Ate Pairing__,
+ Y. Nogami, M. Akane, Y. Sakemi, H. Kato, and Y. Morikawa,
+ Pairing 2008.
+
+\[PSNB] [
+ __A Family of Implementation-Friendly BN Elliptic Curves__
+](http://eprint.iacr.org/2010/429),
+ G.C.C.F. Pereira, M.A. Simplicio Jr, M. Naehrig, P.S.L.M. Barreto,
+ Systems and Software 2011.
+
+\[AKLGL] [
+ __Faster Explicit Formulas for Computing Pairings over Ordinary Curves__
+](http://eprint.iacr.org/2010/526),
+ D.F. Aranha, K. Karabina, P. Longa, C.H. Gebotys, J. Lopez,
+ EUROCRYPTO 2011,
 
 * [_High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves_](http://eprint.iacr.org/2010/354)
    Jean-Luc Beuchat, Jorge Enrique González Díaz, Shigeo Mitsunari, Eiji Okamoto, Francisco Rodríguez-Henríquez, Tadanori Teruya

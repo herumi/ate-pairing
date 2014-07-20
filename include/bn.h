@@ -82,7 +82,7 @@ const CurveParam CurveSNARK1 = { 4965661367192848881, 3, 9, 1 };
 const CurveParam CurveSNARK2 = { 4965661367192848881, 82, 9, 1 };
 #else
 // b/xi = 2 / (1 - u) = 1 + u
-const CurveParam CurveAranha = { -((1LL << 62) + (1LL << 55) + (1LL << 0)), 2, 1, 1 };
+const CurveParam CurveFp254BNb = { -((1LL << 62) + (1LL << 55) + (1LL << 0)), 2, 1, 1 };
 #endif
 
 namespace util {
@@ -222,7 +222,7 @@ struct ParamT {
 #ifdef BN_SUPPORT_SNARK
 		bool supported = cp == CurveSNARK1 || cp == CurveSNARK2;
 #else
-		bool supported = cp == CurveAranha;
+		bool supported = cp == CurveFp254BNb;
 #endif
 		if (!supported) {
 			fprintf(stderr, "not supported parameter\n");
@@ -289,7 +289,7 @@ struct ParamT {
 #ifdef BN_SUPPORT_SNARK
 		init(CurveSNARK1, mode, useMulx);
 #else
-		init(CurveAranha, mode, useMulx);
+		init(CurveFp254BNb, mode, useMulx);
 #endif
 	}
 

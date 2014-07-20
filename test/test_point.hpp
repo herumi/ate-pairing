@@ -63,8 +63,8 @@ inline const Point& selectPoint(const bn::CurveParam& cp)
 	}
 	return g_pointTbl[cp.b == 3 ? 0 : 1];
 #else
-	if (cp != bn::CurveAranha) {
-		printf("not support except for CurveAranha");
+	if (cp != bn::CurveFp254BNb) {
+		printf("not support except for CurveFp254BNb");
 		exit(1);
 	}
 	return g_pointTbl[0];
