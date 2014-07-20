@@ -2,13 +2,13 @@
 #include "bn.h"
 
 const struct Point {
-	const struct G2 {
+	struct G2 {
 		const char *aa;
 		const char *ab;
 		const char *ba;
 		const char *bb;
 	} g2;
-	const struct G1 {
+	struct G1 {
 		int a;
 		int b;
 	} g1;
