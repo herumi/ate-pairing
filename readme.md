@@ -27,7 +27,8 @@ The following two BN curves are supported:
 By default, the first curve (we call it as CurveFp254BNb) is used; when setting the flag `SUPPORT_SNARK`, the second curve (we call it as CurveSNARK) is used instead.
 
 * __CurveFp254BNb__
-The value of z is proposed by \[NASKM\] first. See [\[PSNB\]](http://eprint.iacr.org/2010/42) suitable parameters of BN curves for ellicient implementation, and [\[AKLGL\]]((http://eprint.iacr.org/2010/526) for fast algorithm.
+The value of z is proposed by \[NASKM\] first. See [\[PSNB\]](http://eprint.iacr.org/2010/42) suitable parameters of BN curves for ellicient implementation,
+and [\[AKLGL\]](http://eprint.iacr.org/2010/526) for fast algorithm.
 This library is perhaps the fastest 126-bit security BN pairing implementation in the open source.
 
 * __CurveSNARK__
