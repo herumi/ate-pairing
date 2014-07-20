@@ -3089,14 +3089,11 @@ inline bool EcT<Fp>::isValid() const
 	return ecop::isOnECJac3(p);
 }
 
-namespace experimental {
-
 /*
-	These functions in experimental are moved from https://github.com/scipr-lab/libsnark
-	and modified to
-		use the asm version of pointDblLineEvalWithoutP and,
-		use naf in miller loop.
+	see https://github.com/herumi/ate-pairing/blob/master/test/bn.cpp
 */
+namespace components {
+
 inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
 {
 	coeff.clear();
@@ -3274,14 +3271,6 @@ inline void millerLoop2(Fp12& f, const std::vector<Fp6>& Q1coeff, const Fp precP
 	Fp12::mul(f, f, f1);
 	Fp12::mul(f, f, f2);
 }
-
-} // experimental
-
-namespace components {
-
-using experimental::precomputeG2;
-using experimental::millerLoop;
-using experimental::millerLoop2;
 
 } // components
 
