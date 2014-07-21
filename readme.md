@@ -30,7 +30,7 @@ By default, the first curve (we call it as CurveFp254BNb) is used; when setting 
 The value of z is found by [\[NASKM\]](http://dx.doi.org/10.1007/978-3-540-85538-5_13) first.
 The curve instantiated by z is investigated by [\[PSNB\]](http://eprint.iacr.org/2010/429) for an efficient implementation.
 Our library implements a fast algorithm, which is proposed by [\[AKLGL\]](http://eprint.iacr.org/2010/526) for this curve.
-The performance of this library is competitive to the state-of-the-art implementation report [Baretto et al. in SAC 2013](http://sac2013.irmacs.sfu.ca/slides/s1.pdf).
+The performance of this library is competitive to the state-of-the-art implementation report in [\[ABLR\]](http://sac2013.irmacs.sfu.ca/slides/s1.pdf).
 
 * __CurveSNARK__
 Support for the second curve builds on code provided by [SCIPR Lab](http://www.scipr-lab.org/) in [libsnark](https://github.com/scipr-lab/libsnark). The curve was specifically selected for speeding up __Succinct Non-interactive ARguments of Knowledge__ (SNARKs), which benefit from its high 2-adicity (see [\[BCGTV13\]](http://eprint.iacr.org/2013/507) and [\[BCTV14\]](http://eprint.iacr.org/2013/879)).
@@ -180,12 +180,15 @@ pairing     |1.36M   |1.60M     |1.33M  |1.17M
 References
 -------------
 
+* \[ABLR\] [_The Realm of the Pairings_](http://dx.doi.org/10.1007/978-3-662-43414-7_1) (Invited Talk),
+ Diego F. Aranha, Paulo S. L. M. Barreto, Patrick Longa, and Jefferson E. Ricardini,
+ SAC 2013, ([preprint](http://eprint.iacr.org/2013/722), [slide](http://sac2013.irmacs.sfu.ca/slides/s1.pdf))
+
 * \[NASKM\] [_Integer Variable chi-Based Ate Pairing_](http://dx.doi.org/10.1007/978-3-540-85538-5_13), Y. Nogami, M. Akane, Y. Sakemi, H. Kato, and Y. Morikawa,
  Pairing 2008
 
 * \[PSNB\] [_A Family of Implementation-Friendly BN Elliptic Curves_](http://dx.doi.org/10.1016/j.jss.2011.03.083),
- G.C.C.F. Pereira, M.A. Simplicio Jr, M. Naehrig, P.S.L.M. Barreto,
- J. Systems and Software 2011, ([preprint](http://eprint.iacr.org/2010/429))
+ G.C.C.F. Pereira, M.A. Simplicio Jr, M. Naehrig, P.S.L.M. Barreto, J. Systems and Software 2011, ([preprint](http://eprint.iacr.org/2010/429))
 
 * \[AKLGL\] [_Faster Explicit Formulas for Computing Pairings over Ordinary Curves_](http://dx.doi.org/10.1007/978-3-642-20465-4_5),
  D.F. Aranha, K. Karabina, P. Longa, C.H. Gebotys, J. Lopez,
