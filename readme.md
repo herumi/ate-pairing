@@ -27,9 +27,10 @@ The following two BN curves are supported:
 By default, the first curve (we call it as CurveFp254BNb) is used; when setting the flag `SUPPORT_SNARK`, the second curve (we call it as CurveSNARK) is used instead.
 
 * __CurveFp254BNb__
-The value of z is proposed by [\[NASKM\]](http://dx.doi.org/10.1007/978-3-540-85538-5_13) first. See [\[PSNB\]](http://eprint.iacr.org/2010/429) suitable parameters of BN curves for ellicient implementation,
-and [\[AKLGL\]](http://eprint.iacr.org/2010/526) for fast algorithm.
-This library is perhaps the fastest 126-bit security BN pairing implementation in the open source.
+The value of z is found by [\[NASKM\]](http://dx.doi.org/10.1007/978-3-540-85538-5_13) first.
+The curve instantiated by z is investigated by [\[PSNB\]](http://eprint.iacr.org/2010/429) for an efficient implementation.
+Our library implements a fast algorithm, which is proposed by [\[AKLGL\]](http://eprint.iacr.org/2010/526) for this curve.
+The performance of this library is competitive to the state-of-the-art implementation report [Baretto et al. in SAC 2013](http://sac2013.irmacs.sfu.ca/slides/s1.pdf).
 
 * __CurveSNARK__
 Support for the second curve builds on code provided by [SCIPR Lab](http://www.scipr-lab.org/) in [libsnark](https://github.com/scipr-lab/libsnark). The curve was specifically selected for speeding up __Succinct Non-interactive ARguments of Knowledge__ (SNARKs), which benefit from its high 2-adicity (see [\[BCGTV13\]](http://eprint.iacr.org/2013/507) and [\[BCTV14\]](http://eprint.iacr.org/2013/879)).
