@@ -185,7 +185,7 @@ References
 
 * \[PSNB\] [_A Family of Implementation-Friendly BN Elliptic Curves_](http://dx.doi.org/10.1016/j.jss.2011.03.083),
  G.C.C.F. Pereira, M.A. Simplicio Jr, M. Naehrig, P.S.L.M. Barreto,
- Systems and Software 2011, ([preprint](http://eprint.iacr.org/2010/429))
+ J. Systems and Software 2011, ([preprint](http://eprint.iacr.org/2010/429))
 
 * \[AKLGL\] [_Faster Explicit Formulas for Computing Pairings over Ordinary Curves_](http://dx.doi.org/10.1007/978-3-642-20465-4_5),
  D.F. Aranha, K. Karabina, P. Longa, C.H. Gebotys, J. Lopez,
@@ -197,7 +197,7 @@ References
 
 * [_A Fast Implementation of the Optimal Ate Pairing over BN curve on Intel Haswell Processor_](http://eprint.iacr.org/2013/362),
   Shigeo Mitsunari,
-  ePrint 2013/362
+  IACR ePrint 2013/362
 
 * [_Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture_](http://eprint.iacr.org/2013/879),
   Eli Ben-Sasson, Alessandro Chiesa, Eran Tromer, Madars Virza,
@@ -205,7 +205,7 @@ References
 
 * [_Software implementation of an Attribute-Based Encryption scheme_](http://dx.doi.org/10.1109/TC.2014.2329681),
   Eric Zavattoni and Luis J. Dominguez Perez and Shigeo Mitsunari and Ana H. Sanchez-Ramirez and Tadanori Teruya and Francisco Rodriguez-Henriquez,
-  IEEE Transactions on Computers, 13 June 2014, ([preprint](https://eprint.iacr.org/2014/401), [project Web page and source code](http://sandia.cs.cinvestav.mx/index.php?n=Site.CPABE))
+  IEEE Transactions on Computers, To appear, ([preprint](https://eprint.iacr.org/2014/401), [project Web page and source code](http://sandia.cs.cinvestav.mx/index.php?n=Site.CPABE))
 
 * [This library's old webpage](http://homepage1.nifty.com/herumi/crypt/ate-pairing.html)
 
