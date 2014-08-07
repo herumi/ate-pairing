@@ -45,5 +45,5 @@ endif
 .c.o:
 	$(CC) -c $< -o $@ $(CFLAGS) $(CFLAGS_WARN) $(CFLAGS_ALWAYS) $(INC_DIR) $(BIT)
 
-INC_DIR= -I../src -I../../xbyak -I../include
-LIB_DIR= -L../lib
+INC_DIR+= -I../src -I../../xbyak -I../include
+LIB_DIR+= -L../lib
