@@ -283,7 +283,7 @@ public:
 		local::comparable<Dbl,
 		local::hasNegative<Dbl> > > {
 		enum {
-			SIZE = sizeof(Fp) * 2
+			SIZE = sizeof(Unit) * N * 2
 		};
 		static MIE_FORCE_INLINE void setDirect(Dbl &out, const mie::Vuint &in)
 		{
