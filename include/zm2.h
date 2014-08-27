@@ -7,12 +7,6 @@
 */
 #include "zm.h"
 
-//#define MIE_ZMZ_2_USE_INTRIN
-
-#ifdef MIE_ZMZ_2_USE_INTRIN
-#include "v128.h"
-#endif
-
 namespace mie {
 
 class Fp : public local::addsubmul<Fp,
@@ -85,12 +79,7 @@ public:
 	}
 	MIE_FORCE_INLINE void set(const Fp& x)
 	{
-#ifdef MIE_ZMZ_2_USE_INTRIN
-		((V128*)this)[0] = ((V128*)&x)[0];
-		((V128*)this)[1] = ((V128*)&x)[1];
-#else
 		std::copy(x.v_, x.v_ + N, v_);
-#endif
 	}
 	static inline int compare(const Fp& x, const Fp& y)
 	{
@@ -150,13 +139,7 @@ public:
 	}
 	MIE_FORCE_INLINE void clear()
 	{
-#ifdef MIE_ZMZ_2_USE_INTRIN
-		V128 x; x.clear();
-		((V128 *)this)[0] = x;
-		((V128 *)this)[1] = x;
-#else
 		std::fill(v_, v_ + N, 0);
-#endif
 	}
 	mie::Vuint get() const
 	{
@@ -307,15 +290,7 @@ public:
 
 		MIE_FORCE_INLINE void clear()
 		{
-#ifdef MIE_ZMZ_2_USE_INTRIN
-			V128 x; x.clear();
-			((V128 *)this)[0] = x;
-			((V128 *)this)[1] = x;
-			((V128 *)this)[2] = x;
-			((V128 *)this)[3] = x;
-#else
 			std::fill(v_, v_ + N * 2, 0);
-#endif
 		}
 
 		Unit *ptr() { return v_; }
