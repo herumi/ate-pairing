@@ -1,5 +1,3 @@
-/* -*- mode: c++ -*- */
-
 #pragma once
 
 /**
@@ -269,130 +267,126 @@ private:
 	static mie::Vuint p_;
 	static mie::Fp invTbl_[512];
 public:
-  static mie::Fp *halfTbl_; // [2] = [0, 1/2 mod p]
+	static mie::Fp *halfTbl_; // [2] = [0, 1/2 mod p]
 private:
-  static mie::Fp *quarterTbl_; // [4] = [0, 1/4, 2/4, 3/4]
+	static mie::Fp *quarterTbl_; // [4] = [0, 1/4, 2/4, 3/4]
 	static mie::Vuint montgomeryR_; // 1 = 1r
 	static mie::Fp montgomeryR2_; // m(x, r^2) = xr ; x -> xr
 	// m(xr, r^(-2)r) = xr^(-1) ; xr -> xr^(-1)
 
-  static void setTablesForDiv(const mie::Vuint& p);
+	static void setTablesForDiv(const mie::Vuint& p);
 
 public:
 	static inline void square(Fp& out, const Fp& x) { mul(out, x, x); }
 
-public:
-	struct Dbl
-	  : public local::addsubmul<Dbl,
-			   local::comparable<Dbl,
-			   local::hasNegative<Dbl> > >
-    {
-      enum {
-        // byte size of element.
-        SIZE = sizeof(Unit[N * 2])
-      };
-
-      static MIE_FORCE_INLINE void setDirect(Dbl &out, const mie::Vuint &in)
-      {
-		const size_t n = in.size();
-		if (n < N * 2) {
-          std::copy(&in[0], &in[0] + n, out.v_);
-          std::fill(out.v_ + n, out.v_ + N * 2, 0);
-		} else {
-          // ignore in[i] for i >= N * 2
-          std::copy(&in[0], &in[0] + N * 2, out.v_);
+	struct Dbl : public local::addsubmul<Dbl,
+		local::comparable<Dbl,
+		local::hasNegative<Dbl> > > {
+		enum {
+			SIZE = sizeof(Fp) * 2
+		};
+		static MIE_FORCE_INLINE void setDirect(Dbl &out, const mie::Vuint &in)
+		{
+			const size_t n = in.size();
+			if (n < N * 2) {
+				std::copy(&in[0], &in[0] + n, out.v_);
+				std::fill(out.v_ + n, out.v_ + N * 2, 0);
+			} else {
+				// ignore in[i] for i >= N * 2
+				std::copy(&in[0], &in[0] + N * 2, out.v_);
+			}
 		}
-      }
-      static MIE_FORCE_INLINE void setDirect(Dbl &out, const std::string &in)
-      {
-        mie::Vuint t(in);
-        setDirect(out, t);
-      }
+		static MIE_FORCE_INLINE void setDirect(Dbl &out, const std::string &in)
+		{
+			mie::Vuint t(in);
+			setDirect(out, t);
+		}
 
-      template<class T>
-      void setDirect(const T &in) { setDirect(*this, in); }
+		template<class T>
+		void setDirect(const T &in) { setDirect(*this, in); }
 
-      MIE_FORCE_INLINE void clear()
-      {
+		MIE_FORCE_INLINE void clear()
+		{
 #ifdef MIE_ZMZ_2_USE_INTRIN
-		V128 x; x.clear();
-		((V128 *)this)[0] = x;
-		((V128 *)this)[1] = x;
-		((V128 *)this)[2] = x;
-		((V128 *)this)[3] = x;
+			V128 x; x.clear();
+			((V128 *)this)[0] = x;
+			((V128 *)this)[1] = x;
+			((V128 *)this)[2] = x;
+			((V128 *)this)[3] = x;
 #else
-		std::fill(v_, v_ + N * 2, 0);
+			std::fill(v_, v_ + N * 2, 0);
 #endif
-      }
+		}
 
-      Unit *ptr() { return v_; }
-      const Unit *const_ptr() const { return v_; }
-      mie::Vuint getDirect() const { return mie::Vuint(v_, N * 2); }
-      MIE_FORCE_INLINE const Unit& operator[](size_t i) const { return v_[i]; }
-      MIE_FORCE_INLINE Unit& operator[](size_t i) { return v_[i]; }
-      MIE_FORCE_INLINE size_t size() const { return N * 2; }
+		Unit *ptr() { return v_; }
+		const Unit *const_ptr() const { return v_; }
+		mie::Vuint getDirect() const { return mie::Vuint(v_, N * 2); }
+		MIE_FORCE_INLINE const Unit& operator[](size_t i) const { return v_[i]; }
+		MIE_FORCE_INLINE Unit& operator[](size_t i) { return v_[i]; }
+		MIE_FORCE_INLINE size_t size() const { return N * 2; }
 
-      std::string toString(int base = 10) const
-      { return ("Dbl(" + getDirect().toString(base) + ")"); }
-      friend inline std::ostream& operator<<(std::ostream& os, const Dbl& x)
-      {
-		return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
-      }
+		std::string toString(int base = 10) const
+		{
+			return ("Dbl(" + getDirect().toString(base) + ")");
+		}
+		friend inline std::ostream& operator<<(std::ostream& os, const Dbl& x)
+		{
+			return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
+		}
 
-      Dbl() {}
-      explicit Dbl(const Fp &x)
-      {
-        mul(*this, x, montgomeryR2_);
-      }
-      explicit Dbl(const std::string &str) { setDirect(*this, str); }
+		Dbl() {}
+		explicit Dbl(const Fp &x)
+		{
+			mul(*this, x, montgomeryR2_);
+		}
+		explicit Dbl(const std::string &str) { setDirect(*this, str); }
 
-      static inline int compare(const Dbl& x, const Dbl& y)
-      {
-		return mie::local::PrimitiveFunction::compare(&x[0], N * 2, &y[0], N * 2);
-      }
+		static inline int compare(const Dbl& x, const Dbl& y)
+		{
+			return mie::local::PrimitiveFunction::compare(&x[0], N * 2, &y[0], N * 2);
+		}
 
-      typedef void (uni_op)(Dbl &z, const Dbl &x);
-      typedef void (bin_op)(Dbl &z, const Dbl &x, const Dbl &y);
+		typedef void (uni_op)(Dbl &z, const Dbl &x);
+		typedef void (bin_op)(Dbl &z, const Dbl &x, const Dbl &y);
 
-      /*
-        z = (x + y) mod px
-      */
-      static bin_op *add;
-      static bin_op *addNC;
+		/*
+			z = (x + y) mod px
+		*/
+		static bin_op *add;
+		static bin_op *addNC;
 
-      static uni_op *neg;
+		static uni_op *neg;
 
-      /*
-        z = (x - y) mod px
-      */
-      static bin_op *sub;
-      static bin_op *subNC;
+		/*
+			z = (x - y) mod px
+		*/
+		static bin_op *sub;
+		static bin_op *subNC;
 
-      static void subOpt1(Dbl &z, const Dbl &x, const Dbl &y)
-      {
-        assert(&z != &x);
-        assert(&z != &y);
-        addNC(z, x, pNTbl_[1]);
-        subNC(z, z, y);
-      }
+		static void subOpt1(Dbl &z, const Dbl &x, const Dbl &y)
+		{
+			assert(&z != &x);
+			assert(&z != &y);
+			addNC(z, x, pNTbl_[1]);
+			subNC(z, z, y);
+		}
 
-      /*
-        z = x * y
-      */
-      static void (*mul)(Dbl &z, const Fp &x, const Fp &y);
+		/*
+			z = x * y
+		*/
+		static void (*mul)(Dbl &z, const Fp &x, const Fp &y);
 
-      /*
-        z = MontgomeryReduction(x)
-      */
-      static void (*mod)(Fp &z, const Dbl &x);
+		/*
+			z = MontgomeryReduction(x)
+		*/
+		static void (*mod)(Fp &z, const Dbl &x);
 
-      /*
-        x <- x mod pN
-      */
-
-      static Dbl *pNTbl_; // [4];
-    private:
-      MIE_ALIGN(16) Unit v_[N * 2];
+		/*
+			x <- x mod pN
+		*/
+		static Dbl *pNTbl_; // [4];
+	private:
+			MIE_ALIGN(16) Unit v_[N * 2];
 	};
 };
 
@@ -416,14 +410,7 @@ struct IntTag<mie::Fp> {
 		exit(1);
 	}
 };
+
 } // mie::util
 
 } // mie
-
-/*
-  Local Variables:
-  c-basic-offset: 4
-  indent-tabs-mode: t
-  tab-width: 4
-  End:
-*/
