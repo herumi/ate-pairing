@@ -2,6 +2,9 @@
 	bn::Fp is a finite field with characteristic 254-bit prime integer
 */
 #include <iostream>
+#ifndef XBYAK_NO_OP_NAMES
+	#define XBYAK_NO_OP_NAMES
+#endif
 #include "xbyak/xbyak.h"
 #include "xbyak/xbyak_util.h"
 Xbyak::util::Clock sclk;
@@ -765,10 +768,10 @@ struct PairingCode : Xbyak::CodeGenerator {
 		mov(gt5, rdx);
 		mov(gt6, rdx);
 		mov(gt7, rdx);
-		and(rdx, qword [rax + 8 * 0]);
-		and(gt5, qword [rax + 8 * 1]);
-		and(gt6, qword [rax + 8 * 2]);
-		and(gt7, qword [rax + 8 * 3]);
+		and_(rdx, qword [rax + 8 * 0]);
+		and_(gt5, qword [rax + 8 * 1]);
+		and_(gt6, qword [rax + 8 * 2]);
+		and_(gt7, qword [rax + 8 * 3]);
 #else
 		// 1.37Mclk
 		mov(rdx, 0);
@@ -884,9 +887,9 @@ struct PairingCode : Xbyak::CodeGenerator {
 	{
 		load_rm(gt4, gt3, gt2, gt1, mx);
 		mov(rdx, gt1);
-		or(rdx, gt2);
-		or(rdx, gt3);
-		or(rdx, gt4);
+		or_(rdx, gt2);
+		or_(rdx, gt3);
+		or_(rdx, gt4);
 		jz("@f");
 		load_sub_rm(gt4, gt3, gt2, gt1, rax, mx, false);
 L("@@");
@@ -1038,9 +1041,9 @@ L("@@");
 
 		load_rm(z3, z2, z1, z0, x);
 		mov(rax, z0);
-		or(rax, z1);
-		or(rax, z2);
-		or(rax, z3);
+		or_(rax, z1);
+		or_(rax, z2);
+		or_(rax, z3);
 		jz("@f");
 		mov(rax, (uint64_t)&s_pTbl[1]);
 		load_sub_rm(z3, z2, z1, z0, rax, x, false);
@@ -1079,7 +1082,7 @@ L("@@");
 	void sub_Fp_divBy2(const RegExp& z, const RegExp& x)
 	{
 		mov(rdx, ptr [x]);
-		and(rdx, 1); // x[0] & 1
+		and_(rdx, 1); // x[0] & 1
 		shl(rdx, 5); // * 32
 		load_rm(gt4, gt3, gt2, gt1, x);
 		shr1(gt4, gt3, gt2, gt1);
@@ -1544,14 +1547,14 @@ L("@@");
 		inLocalLabel();
 		load_rm(gt4, gt3, gt2, gt1, mx);
 		mov(rdx, gt4);
-		or(rdx, gt3);
-		or(rdx, gt2);
-		or(rdx, gp1);
+		or_(rdx, gt3);
+		or_(rdx, gt2);
+		or_(rdx, gp1);
 		load_rm(gt4, gt3, gt2, gt1, mx + 32);
-		or(rdx, gt4);
-		or(rdx, gt3);
-		or(rdx, gt2);
-		or(rdx, gp1);
+		or_(rdx, gt4);
+		or_(rdx, gt3);
+		or_(rdx, gt2);
+		or_(rdx, gp1);
 #ifdef DEBUG_COUNT
 		jnz(".neg", T_NEAR);
 #else
@@ -1693,10 +1696,10 @@ L("@@");
 		sbb(rdx, rdx);
 
 		load_rm(t3, t2, t1, t0, a + sizeof(Fp));
-		and(t0, rdx);
-		and(t1, rdx);
-		and(t2, rdx);
-		and(t3, rdx); // [t3:t2:t1:t0] = x < 0 ? p : 0
+		and_(t0, rdx);
+		and_(t1, rdx);
+		and_(t2, rdx);
+		and_(t3, rdx); // [t3:t2:t1:t0] = x < 0 ? p : 0
 		add_rr(x3, x2, x1, x0, t3, t2, t1, t0);
 	}
 
@@ -1895,7 +1898,7 @@ L("@@");
 		mov(v2, ptr [v0 + 8 * 2]);
 		mov(v1, ptr [v0 + 8 * 1]);
 		mov(v0, ptr [v0 + 8 * 0]); // v = x
-		xor(s3, s3);
+		xor_(s3, s3);
 		lea(s0, ptr [s3 + 1]);
 		mov(s1, s3);
 		mov(s2, s3); // s[3:2:1:0] = 1
@@ -1904,8 +1907,8 @@ L("@@");
 		mov(ptr [rsp + 8 * 0], s3);
 		mov(ptr [rsp + 8 * 1], s3);
 		mov(ptr [rsp + 8 * 2], r); // save r
-		xor(a, a);
-		xor(r, r);
+		xor_(a, a);
+		xor_(r, r);
 
 		pxor(k, k); // k
 		pxor(one, one);
@@ -1914,9 +1917,9 @@ L("@@");
 		align(16);
 	L(".lp");
 		mov(t, v0);
-		or(t, v1);
-		or(t, v2);
-		or(t, v3);
+		or_(t, v1);
+		or_(t, v2);
+		or_(t, v3);
 		jz(".exit", T_NEAR);
 		test(u0, 1);
 		jz(".u_even", T_NEAR);

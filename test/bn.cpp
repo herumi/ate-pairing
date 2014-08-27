@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <memory.h>
+#ifndef XBYAK_NO_OP_NAMES
+	#define XBYAK_NO_OP_NAMES
+#endif
 #include "xbyak/xbyak_util.h"
 extern Xbyak::util::Clock sclk;
 #include "bn.h"

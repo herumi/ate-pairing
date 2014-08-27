@@ -1,4 +1,7 @@
 #include "zm.h"
+#ifndef XBYAK_NO_OP_NAMES
+	#define XBYAK_NO_OP_NAMES
+#endif
 #include <xbyak/xbyak.h>
 #include <xbyak/xbyak_util.h>
 #include <stdio.h>
@@ -55,7 +58,7 @@ struct Code : CodeGenerator {
 		}
 		sub(ecx, 1);
 		jnz(".lp");
-		xor(eax, eax);
+		xor_(eax, eax);
 		pop(r13);
 		pop(r12);
 		ret();
@@ -74,17 +77,17 @@ struct Code : CodeGenerator {
 		mov(t1, d);
 		mov(a, ptr [py + 8]);
 		mul(x);
-		xor(t2, t2);
+		xor_(t2, t2);
 		add(t1, a);
 		adc(t2, d);
 		mov(a, ptr [py + 16]);
 		mul(x);
-		xor(t3, t3);
+		xor_(t3, t3);
 		add(t2, a);
 		adc(t3, d);
 		mov(a, ptr [py + 24]);
 		mul(x);
-		xor(t4, t4);
+		xor_(t4, t4);
 		add(t3, a);
 		adc(t4, d);
 	}

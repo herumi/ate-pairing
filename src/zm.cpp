@@ -4,6 +4,9 @@
 using namespace mie;
 
 #ifdef MIE_USE_X64ASM
+#ifndef XBYAK_NO_OP_NAMES
+	#define XBYAK_NO_OP_NAMES
+#endif
 #include "xbyak/xbyak.h"
 using namespace Xbyak;
 #endif
@@ -274,7 +277,7 @@ class Code : public Xbyak::CodeGenerator {
 #endif
 		mov(a, n);
 		shr(n, 2);
-		and(a, 3);
+		and_(a, 3);
 		jz(".lp");
 		cmp(a, 1);
 		jne("@f");
@@ -388,7 +391,7 @@ class Code : public Xbyak::CodeGenerator {
 #endif
 		lea(out, ptr [out + c * 8]);
 		lea(x, ptr [x + c * 8]);
-		xor(a, a);
+		xor_(a, a);
 		neg(c);
 		mov(t, ptr [x + c * 8]);
 		if (isAdd) {
@@ -440,7 +443,7 @@ class Code : public Xbyak::CodeGenerator {
 		const Reg64& y = rcx;
 #endif
 		const int s = (int)sizeof(Unit);
-		xor(d, d);
+		xor_(d, d);
 	L(".lp");
 		mov(t, d);
 		mov(a, ptr [x]);
@@ -482,7 +485,7 @@ class Code : public Xbyak::CodeGenerator {
 		const int s = (int)sizeof(Unit);
 		lea(x, ptr [x + n * s - s]); // x = &x[xn - 1]
 		lea(q, ptr [q + n * s - s]); // q = &q[xn - 1]
-		xor(d, d); // r = 0
+		xor_(d, d); // r = 0
 	L(".lp");
 		mov(a, ptr [x]);
 		div(y); // [d:a] / y = a ... d ; q = a, r = d
@@ -517,7 +520,7 @@ class Code : public Xbyak::CodeGenerator {
 #endif
 		const int s = (int)sizeof(Unit);
 		lea(x, ptr [x + n * s - s]); // x = &x[xn - 1]
-		xor(d, d); // r = 0
+		xor_(d, d); // r = 0
 	L(".lp");
 		mov(a, ptr [x]);
 		div(y); // [d:a] / y = a ... d ; q = a, r = d
