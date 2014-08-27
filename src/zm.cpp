@@ -1,9 +1,12 @@
 #include "zm.h"
-#include "xbyak/xbyak.h"
 #include <cstdio>
 
 using namespace mie;
+
+#ifdef MIE_USE_X64ASM
+#include "xbyak/xbyak.h"
 using namespace Xbyak;
+#endif
 /**
 	out[] = x[] + y[]
 	@note the sizeof out >= n
@@ -11,9 +14,7 @@ using namespace Xbyak;
 */
 static inline bool in_addN(Unit *out, const Unit *x, const Unit *y, size_t n)
 {
-	printf("in_addN\n");
 	assert(n > 0);
-
 	Unit c = 0;
 	for (size_t i = 0; i < n; i++) {
 		Unit xc = x[i] + c;
@@ -35,7 +36,6 @@ static inline bool in_addN(Unit *out, const Unit *x, const Unit *y, size_t n)
 static inline bool in_add(Unit *out, const Unit *x, size_t n, Unit y)
 {
 	assert(n > 0);
-
 	Unit xc = x[0] + y;
 	Unit c = y > xc ? 1 : 0;
 	out[0] = xc;
@@ -108,9 +108,10 @@ static inline Unit mulUnit(Unit *H, Unit a, Unit b)
 #if defined(_WIN64) && !defined(__INTEL_COMPILER)
 	return _umul128(a, b, H);
 #else
-	fprintf(stderr, "not implemented mulUnit %p %d %d\n", H, (int)a, (int)b);
-	exit(1);
-	// use _mm_mul_epu32(a, b)
+	typedef __attribute__((mode(TI))) unsigned int uint128;
+	uint128 t = uint128(a) * b;
+	*H = uint64_t(t >> 64);
+	return uint64_t(t);
 #endif
 #endif
 }
@@ -121,8 +122,6 @@ static inline Unit mulUnit(Unit *H, Unit a, Unit b)
 */
 static inline void in_mul(Unit *out, const Unit *x, size_t n, Unit y)
 {
-	printf("in_mul\n");
-
 	assert(n > 0);
 	Unit H = 0;
 	for (size_t i = 0; i < n; i++) {
@@ -141,21 +140,25 @@ static inline void in_mul(Unit *out, const Unit *x, size_t n, Unit y)
 	r = [H:L] % y
 	return q
 */
-#ifdef MIE_USE_UNIT32
 static inline Unit divUnit(Unit *r, Unit H, Unit L, Unit y)
 {
+#ifdef MIE_USE_UNIT32
 	uint64_t t = make64(H, L);
 	uint32_t q = uint32_t(t / y);
-	*r = t % y;
+	*r = Unit(t % y);
 	return q;
-}
-#else
-static inline Unit divUnit(Unit *, Unit, Unit, Unit)
-{
+#elif defined(_MSC_VER)
+	#pragma
 	fprintf(stderr, "not implemented divUnit\n");
 	exit(1);
-}
+#else
+	typedef __attribute__((mode(TI))) unsigned int uint128;
+	uint128 t = (uint128(H) << 64) | L;
+	uint64_t q = uint64_t(t / y);
+	*r = Unit(t % y);
+	return q;
 #endif
+}
 
 /*
 	q = x[] / y
@@ -180,7 +183,6 @@ static inline Unit in_mod(const Unit *x, size_t xn, Unit y)
 	return r;
 }
 
-//int (*mie::local::PrimitiveFunction::compare)(const Unit *x, size_t xn, const Unit *y, size_t yn) = &in_compare;
 bool (*mie::local::PrimitiveFunction::addN)(Unit *out, const Unit *x, const Unit *y, size_t n) = &in_addN;
 bool (*mie::local::PrimitiveFunction::add1)(Unit *out, const Unit *x, size_t n, Unit y) = &in_add;
 bool (*mie::local::PrimitiveFunction::subN)(Unit *out, const Unit *x, const Unit *y, size_t n) = &in_subN;
@@ -189,78 +191,12 @@ void (*mie::local::PrimitiveFunction::mul1)(Unit *out, const Unit *x, size_t n, 
 Unit (*mie::local::PrimitiveFunction::div1)(Unit *q, const Unit *x, size_t n, Unit y) = &in_div;
 Unit (*mie::local::PrimitiveFunction::mod1)(const Unit *x, size_t n, Unit y) = &in_mod;
 
+#ifdef MIE_USE_X64ASM
 class Code : public Xbyak::CodeGenerator {
 	void genAddSub(bool isAdd)
 	{
 		using namespace Xbyak;
 		inLocalLabel();
-#ifdef XBYAK32
-		mov(ecx, ptr [esp + 16]); // n
-		cmp(ecx, 1);
-		jnz(".main");
-		mov(ecx, ptr [esp + 8]); // x
-		mov(eax, ptr [ecx]);
-		mov(ecx, ptr [esp + 12]); // y
-		if (isAdd) {
-			add(eax, ptr [ecx]);
-		} else {
-			sub(eax, ptr [ecx]);
-		}
-		mov(ecx, ptr [esp + 4]); // out
-		mov(ptr [ecx], eax);
-		mov(eax, 0);
-		setc(al);
-		ret();
-	L(".main");
-		push(ebx);
-		push(esi);
-		push(edi);
-		const int P = 4 * 3;
-		mov(edx, ptr [esp + P + 4]); // out
-		mov(esi, ptr [esp + P + 8]); // x
-		mov(edi, ptr [esp + P + 12]); // y
-		test(ecx, 1);
-		jnz(".odd");
-		shr(ecx, 1); // clear CF because ecx is even
-		jmp(".lp");
-	L(".odd");
-		shr(ecx, 1);
-		mov(eax, ptr [esi]);
-		lea(esi, ptr [esi + 4]);
-		if (isAdd) {
-			add(eax, ptr [edi]);
-		} else {
-			sub(eax, ptr [edi]);
-		}
-		lea(edi, ptr [edi + 4]);
-		mov(ptr [edx], eax);
-		lea(edx, ptr [edx + 4]);
-		align(16);
-	L(".lp");
-		mov(eax, ptr [esi]);
-		mov(ebx, ptr [esi + 4]);
-		if (isAdd) {
-			adc(eax, ptr [edi]);
-			adc(ebx, ptr [edi + 4]);
-		} else {
-			sbb(eax, ptr [edi]);
-			sbb(ebx, ptr [edi + 4]);
-		}
-		lea(esi, ptr [esi + 8]);
-		lea(edi, ptr [edi + 8]);
-		mov(ptr [edx], eax);
-		mov(ptr [edx + 4], ebx);
-		lea(edx, ptr [edx + 8]);
-		dec(ecx);
-		jnz(".lp");
-	L(".exit");
-		mov(eax, 0); // don't clear CF
-		setc(al);
-		pop(edi);
-		pop(esi);
-		pop(ebx);
-		ret();
-#else
 		const Reg64& a = rax;
 #ifdef XBYAK64_WIN
 		const Reg64& out = rcx;
@@ -426,10 +362,8 @@ class Code : public Xbyak::CodeGenerator {
 		mov(t2, ptr [rsp + 8 * 1]);
 #endif
 		ret();
-#endif
 		outLocalLabel();
 	}
-#ifdef XBYAK64
 	// add1(Unit *out, const Unit *x, size_t n, Unit y);
 	void genAddSub1(bool isAdd)
 	{
@@ -464,20 +398,6 @@ class Code : public Xbyak::CodeGenerator {
 		}
 		mov(ptr [out + c * 8], t);
 		inc(c);
-#if 0
-		jrcxz(".exit");
-	L(".lp");
-		mov(t, ptr [x + c * 8]);
-		if (isAdd) {
-			adc(t, a);
-		} else {
-			sbb(t, a);
-		}
-		mov(ptr [out + c * 8], t);
-		inc(c);
-		jrcxz(".exit");
-		jmp(".lp");
-#else
 	// faster on Core i3
 		jz(".exit");
 	L(".lp");
@@ -490,40 +410,17 @@ class Code : public Xbyak::CodeGenerator {
 		mov(ptr [out + c * 8], t);
 		inc(c);
 		jnz(".lp");
-#endif
-
 	L(".exit");
 		setc(al);
 		ret();
 		outLocalLabel();
 	}
-#endif
 	void genMul()
 	{
 		using namespace Xbyak;
 		inLocalLabel();
 
 		// void in_mul(Unit *out, const Unit *x, size_t n, Unit y)
-#ifdef XBYAK32
-		const Reg32& a = eax;
-		const Reg32& d = edx;
-		const Reg32& t = ebp;
-
-		const Reg32& out = edi;
-		const Reg32& x = esi;
-		const Reg32& n = ecx;
-		const Reg32& y = ebx;
-		push(ebx);
-		push(esi);
-		push(edi);
-		push(ebp);
-		const int P = 4 * 4;
-		mov(out, ptr [esp + P + 4]);
-		mov(x, ptr [esp + P + 8]);
-		mov(n, ptr [esp + P + 12]);
-		mov(y, ptr [esp + P + 16]);
-
-#else
 
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
@@ -542,7 +439,6 @@ class Code : public Xbyak::CodeGenerator {
 		const Reg64& n = r10; // rdx
 		const Reg64& y = rcx;
 #endif
-#endif
 		const int s = (int)sizeof(Unit);
 		xor(d, d);
 	L(".lp");
@@ -558,12 +454,6 @@ class Code : public Xbyak::CodeGenerator {
 		jnz(".lp");
 		mov(ptr [out], d);
 
-#ifdef XBYAK32
-		pop(ebp);
-		pop(edi);
-		pop(esi);
-		pop(ebx);
-#endif
 		ret();
 		outLocalLabel();
 	}
@@ -573,25 +463,6 @@ class Code : public Xbyak::CodeGenerator {
 		inLocalLabel();
 
 		// Unit in_div(Unit *q, const Unit *x, size_t xn, Unit y)
-#ifdef XBYAK32
-		const Reg32& a = eax;
-		const Reg32& d = edx;
-
-		const Reg32& q = edi;
-		const Reg32& x = esi;
-		const Reg32& n = ecx;
-		const Reg32& y = ebx;
-		push(ebx);
-		push(esi);
-		push(edi);
-		const int P = 4 * 3;
-		mov(q, ptr [esp + P + 4]);
-		mov(x, ptr [esp + P + 8]);
-		mov(n, ptr [esp + P + 12]);
-		mov(y, ptr [esp + P + 16]);
-
-#else
-
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
 		mov(r10, rdx);
@@ -608,7 +479,6 @@ class Code : public Xbyak::CodeGenerator {
 		const Reg64& n = r10; // rdx
 		const Reg64& y = rcx;
 #endif
-#endif
 		const int s = (int)sizeof(Unit);
 		lea(x, ptr [x + n * s - s]); // x = &x[xn - 1]
 		lea(q, ptr [q + n * s - s]); // q = &q[xn - 1]
@@ -622,12 +492,6 @@ class Code : public Xbyak::CodeGenerator {
 		sub(n, 1);
 		jnz(".lp");
 		mov(a, d);
-
-#ifdef XBYAK32
-		pop(edi);
-		pop(esi);
-		pop(ebx);
-#endif
 		ret();
 		outLocalLabel();
 	}
@@ -637,22 +501,6 @@ class Code : public Xbyak::CodeGenerator {
 		inLocalLabel();
 
 		// Unit mod1(const Unit *x, size_t n, Unit y);
-#ifdef XBYAK32
-		const Reg32& a = eax;
-		const Reg32& d = edx;
-
-		const Reg32& x = esi;
-		const Reg32& n = ecx;
-		const Reg32& y = ebx;
-		push(ebx);
-		push(esi);
-		const int P = 4 * 2;
-		mov(x, ptr [esp + P + 4]);
-		mov(n, ptr [esp + P + 8]);
-		mov(y, ptr [esp + P + 12]);
-
-#else
-
 		const Reg64& a = rax;
 		const Reg64& d = rdx;
 		mov(r10, rdx);
@@ -667,7 +515,6 @@ class Code : public Xbyak::CodeGenerator {
 		const Reg64& n = rsi;
 		const Reg64& y = r10; // rdx
 #endif
-#endif
 		const int s = (int)sizeof(Unit);
 		lea(x, ptr [x + n * s - s]); // x = &x[xn - 1]
 		xor(d, d); // r = 0
@@ -679,10 +526,6 @@ class Code : public Xbyak::CodeGenerator {
 		jnz(".lp");
 		mov(a, d);
 
-#ifdef XBYAK32
-		pop(esi);
-		pop(ebx);
-#endif
 		ret();
 		outLocalLabel();
 	}
@@ -692,11 +535,9 @@ public:
 		mie::local::PrimitiveFunction::addN = (bool (*)(Unit *, const Unit *, const Unit *, size_t))getCurr();
 		genAddSub(true);
 		align(16);
-#ifdef XBYAK64
 		mie::local::PrimitiveFunction::add1 = (bool (*)(Unit *, const Unit *, size_t, Unit))getCurr();
 		genAddSub1(true);
 		align(16);
-#endif
 		mie::local::PrimitiveFunction::subN = (bool (*)(Unit *, const Unit *, const Unit *, size_t))getCurr();
 		genAddSub(false);
 		align(16);
@@ -710,31 +551,19 @@ public:
 		genMod();
 	}
 };
+#endif
 
 void mie::zmInit()
 {
+#ifdef MIE_USE_X64ASM
 	static bool isInit = false;
 	if (isInit) return;
 	isInit = true;
 	try {
-		printf("zmInit ");
-#ifdef XBYAK32
-		puts("32bit");
-#else
-		puts("64bit");
-#endif
 		static Code code;
-		return;
 	} catch (std::exception& e) {
 		fprintf(stderr, "zmInit ERR:%s\n", e.what());
+		exit(1);
 	}
-	::exit(1);
+#endif
 }
-
-/*
-  Local Variables:
-  c-basic-offset: 4
-  indent-tabs-mode: t
-  tab-width: 4
-  End:
-*/

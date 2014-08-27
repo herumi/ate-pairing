@@ -2,7 +2,7 @@
 #include "zm.h"
 #include <iostream>
 #include <sstream>
-#include "xbyak/xbyak_util.h"
+#include <cybozu/benchmark.hpp>
 
 using namespace mie;
 
@@ -685,11 +685,6 @@ void testInverse()
 
 void testPow()
 {
-#ifdef NDEBUG
-	const size_t n = 1000;
-#else
-	const size_t n = 1;
-#endif
 	Vuint m = 2, d = 2;
 	for (size_t i = 0; i < 160 - 1; i++) {
 		m *= d;
@@ -699,18 +694,10 @@ void testPow()
 	TEST_EQUAL(m, Vuint("1461501637330902918203684832716283019655932542983"));
 
 	ZmZ<> x, y = ZmZ<>(m) - 1;
-	Xbyak::util::Clock clk;
-
-	for (size_t i = 0; i < n; i++) {
-		x = 3;
-		clk.begin();
-		x = power(x, y);
-		clk.end();
-	}
+	x = 3;
+	x = mie::power(x, y);
 	TEST_EQUAL(x, 1);
-	// clk=1428899.430clk (VariableBuffer)
-	// clk= 555733.590clk (FixedBuffer)
-	printf("clk=%.3fclk\n", clk.getClock() / double(clk.getCount()));
+	CYBOZU_BENCH("power", x = mie::power, x, y);
 }
 
 void testShift()
@@ -860,29 +847,11 @@ void testTestBit()
 
 void bench()
 {
-	Xbyak::util::Clock clk;
-	const size_t N = 1000;
-	const size_t M = 1000;
 	Vuint m("14615016373309029182036848327162830196559325429831461501636150163733090291820368483271628301965593254298314615016373309029182036848327162830196559325429831461501637330902918203684832716283019655932542983");
 	ZmZ<>::setModulo(m);
-//	const char *str = "123456789012342342342499924234242422333333333333333333333256789112345678901234234234242423424242233333333333333333333325678911234567890123423423424242342424223333333333333333333332567891";
 	const char *str = "82434016654300679721217353503190038836571781811386228921167322412819029493182";
-//	ZmZ<> a(str);
 	Vuint a(str), b(a);
-	for (size_t i = 0; i < N; i++) {
-		clk.begin();
-		for (size_t j = 0; j < M; j++) {
-//			a *= a;
-			Vuint::mul(b, a, a); // 4268clk
-//			Vuint::mul1(b, a, 123456789); // 128clk
-//			Vuint::add(b, a, a); // 113clk
-//			local::PrimitiveFunction::add1(&b[0], &a[0], a.size(), 1234566);
-//			local::PrimitiveFunction::mul1(&b[0], &a[0], a.size(), 1234566);
-//			Vuint::sub(b, a, a); // 140clk
-		}
-		clk.end();
-	}
-	printf("clk=%.3fclk\n", clk.getClock() / double(clk.getCount()) / M);
+	CYBOZU_BENCH("Vuint:mul", Vuint::mul, b, a, a);
 }
 
 void sample()

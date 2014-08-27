@@ -1,6 +1,4 @@
-/* -*- mode: c++ -*- */
-#ifndef MIE_ETAT_SRC_ZM_H_
-#define MIE_ETAT_SRC_ZM_H_
+#pragma once
 /**
 	Zm = Z/mZ field class (not optimzied)
 	m : integer
@@ -21,6 +19,8 @@
 #define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
 #define MIE_ZM_VUINT_BIT_LEN (64 * 9)
+
+#define MIE_USE_X64ASM
 
 #ifdef _MSC_VER
 	#include <intrin.h>
@@ -65,6 +65,7 @@ namespace mie {
 #else
 	typedef uint32_t Unit;
 	#define MIE_USE_UNIT32
+	#undef MIE_USE_X64ASM
 #endif
 
 static inline uint64_t make64(uint32_t H, uint32_t L)
@@ -300,23 +301,6 @@ public:
 	T& operator[](size_t n) { return v_[n]; }
 };
 
-inline size_t popcnt64(uint64_t x)
-{
-	static const uint64_t masks[] = {
-		0x5555555555555555UL,
-		0x3333333333333333UL,
-		0x0f0f0f0f0f0f0f0fUL,
-		0x00ff00ff00ff00ffUL,
-		0x0000ffff0000ffffUL,
-		0x00000000ffffffffUL,
-	};
-
-	for (size_t i = 0; i < sizeof(masks)/sizeof(*masks); ++i) {
-		x = (x & masks[i]) + ((x >> (1 << i)) & masks[i]);
-	}
-	return x;
-}
-
 } // local
 
 /**
@@ -550,16 +534,6 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 		size_t bit_pos  = i % (sizeof(T) * 8);
 		T mask = T(1) << bit_pos;
 		return ((*this)[unit_pos] & mask) != 0;
-	}
-
-	size_t HammingWeight() const
-	{
-		size_t hw = 0;
-		const size_t size = this->size();
-		for (size_t i = 0; i < size; ++i) {
-			hw += local::popcnt64((*this)[i]);
-		}
-		return hw;
 	}
 
 	static bool add_in(VuintT& out, const VuintT& x, const VuintT& y)
@@ -1435,13 +1409,3 @@ V ZmZ<V, Tag>::m_;
 void zmInit();
 
 } // mie
-
-#endif
-
-/*
-  Local Variables:
-  c-basic-offset: 4
-  indent-tabs-mode: t
-  tab-width: 4
-  End:
-*/

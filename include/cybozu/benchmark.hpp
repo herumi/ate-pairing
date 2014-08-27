@@ -121,10 +121,21 @@ public:
 };
 #endif
 
+namespace bench {
+
+static CpuClock g_clk;
+#ifdef __GNUC__
+	#define CYBOZU_UNUSED __attribute__((unused))
+#else
+	#define CYBOZU_UNUSED
+#endif
+static int CYBOZU_UNUSED g_loopNum;
+
+} // cybozu::bench
 /*
 	loop counter is automatically determined
 	CYBOZU_BENCH(<msg>, <func>, <param1>, <param2>, ...);
-	if msg != 0 then print '<msg> <clk>\n' else '<clk>'
+	if msg == "" then only set g_clk, g_loopNum
 */
 #define CYBOZU_BENCH(msg, func, ...) \
 { \
@@ -132,25 +143,27 @@ public:
 	cybozu::CpuClock clk; \
 	for (int i = 0; i < cybozu::CpuClock::loopN2; i++) { \
 		clk.begin(); \
-		for (int j = 0; j < cybozu::CpuClock::loopN1; j++) func(__VA_ARGS__); \
+		for (int j = 0; j < cybozu::CpuClock::loopN1; j++) { func(__VA_ARGS__); } \
 		clk.end(); \
 		if (clk.getClock() > maxClk) break; \
 	} \
-	clk.put(msg, cybozu::CpuClock::loopN1); \
+	if (msg && *msg) clk.put(msg, cybozu::CpuClock::loopN1); \
+	cybozu::bench::g_clk = clk; cybozu::bench::g_loopNum = cybozu::CpuClock::loopN1; \
 }
 
 /*
 	loop counter N is given
-	loopN1(<msg>, <counter>, <func>, <param1>, <param2>, ...);
-	if msg != 0 then print '<msg> <clk>\n' else '<clk>'
+	CYBOZU_BENCH_C(<msg>, <counter>, <func>, <param1>, <param2>, ...);
+	if msg == "" then only set g_clk, g_loopNum
 */
-#define CYBOZU_BENCH_C(msg, N, func, ...) \
+#define CYBOZU_BENCH_C(msg, _N, func, ...) \
 { \
 	cybozu::CpuClock clk; \
 	clk.begin(); \
-	for (int j = 0; j < N; j++) func(__VA_ARGS__); \
+	for (int j = 0; j < _N; j++) { func(__VA_ARGS__); } \
 	clk.end(); \
-	clk.put(msg, N); \
+	if (msg && *msg) clk.put(msg, _N); \
+	cybozu::bench::g_clk = clk; cybozu::bench::g_loopNum = _N; \
 }
 
 } // cybozu
