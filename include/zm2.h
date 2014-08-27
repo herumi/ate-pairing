@@ -233,7 +233,7 @@ public:
 		addNC(z, z, quarterTbl_[i]);
 	}
 
-    /* z <- z mod p for z in [0, 6p] */
+	/* z <- z mod p for z in [0, 6p] */
 	static inline void fast_modp(Fp &z)
 	{
 		uint64_t t = z.v_[3] >> 61;

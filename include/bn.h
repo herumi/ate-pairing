@@ -1,4 +1,3 @@
-/* -*- mode: c++ -*- */
 #pragma once
 /**
 	@file
@@ -433,7 +432,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 
 	/*
 		(a + b u)(c + d u) = (a c - b d) + (a d + b c)u
-			   = (a c - b d) + ((a + b)(c + d) - a c - b d)u
+		 = (a c - b d) + ((a + b)(c + d) - a c - b d)u
 		N = 1 << 256
 		7p < N then 7(p-1)(p-1) < pN
 	*/
@@ -467,7 +466,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 
 #ifdef BN_SUPPORT_SNARK
 	/*
-	  XITAG
+		XITAG
 		u^2 = -1
 		xi = 9 + u
 		(a + bu)(9 + u) = (9a - b) + (a + 9b)u
@@ -557,9 +556,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 	friend std::istream& operator>>(std::istream& is, Fp2T& x)
 	{
 		char cl, cm, cr;
-		is >> cl >> x.a_
-		   >> cm >> x.b_
-		   >> cr;
+		is >> cl >> x.a_ >> cm >> x.b_ >> cr;
 		if (cl == '[' && cm == ',' && cr == ']') return is;
 		throw std::ios_base::failure("bad Fp2");
 	}
@@ -717,10 +714,10 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 
 #ifdef BN_SUPPORT_SNARK
 		/*
-		  XITAG
-		  u^2 = -1
-		  xi = 9 + u
-		  (a + bu)(9 + u) = (9a - b) + (a + 9b)u
+			XITAG
+			u^2 = -1
+			xi = 9 + u
+			(a + bu)(9 + u) = (9a - b) + (a + 9b)u
 		*/
 		static void mul_xiC(Dbl& z, const Dbl& x)
 		{
@@ -998,10 +995,7 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 	friend std::istream& operator>>(std::istream& is, Fp6T& x)
 	{
 		char c1, c2, c3, c4;
-		is >> c1 >> x.a_
-		   >> c2 >> x.b_
-		   >> c3 >> x.c_
-		   >> c4;
+		is >> c1 >> x.a_ >> c2 >> x.b_ >> c3 >> x.c_ >> c4;
 		if (c1 == '[' && c2 == ',' && c3 == ',' && c4 == ']') return is;
 		throw std::ios_base::failure("bad Fp6");
 	}
@@ -1408,7 +1402,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	{
 	}
 	Fp12T(const Fp& a0, const Fp& a1, const Fp& a2, const Fp& a3, const Fp& a4, const Fp& a5,
-	      const Fp& a6, const Fp& a7, const Fp& a8, const Fp& a9, const Fp& a10, const Fp& a11)
+		const Fp& a6, const Fp& a7, const Fp& a8, const Fp& a9, const Fp& a10, const Fp& a11)
 		: a_(a0, a1, a2, a3, a4, a5)
 		, b_(a6, a7, a8, a9, a10, a11)
 	{
@@ -1452,12 +1446,8 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	friend std::istream& operator>>(std::istream& is, Fp12T& x)
 	{
 		char c1, c2, c3;
-		is >> c1 >> x.a_
-		   >> c2 >> x.b_
-		   >> c3;
-
+		is >> c1 >> x.a_ >> c2 >> x.b_ >> c3;
 		if (c1 == '[' && c2 == ',' && c3 == ']') return is;
-
 		throw std::ios_base::failure("bad Fp12");
 	}
 	static inline void add(Fp12T& z, const Fp12T& x, const Fp12T& y)
@@ -1522,12 +1512,12 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	}
 
 	/*
-	   square over Fp4
+		square over Fp4
 		Operation Count:
 
 		3 * Fp2Dbl::square
 		2 * Fp2Dbl::mod
-		1 * Fp2Dbl::mul_xi == 1 * (2 * Fp2::add/sub)  == 2 * Fp2::add/sub
+		1 * Fp2Dbl::mul_xi == 1 * (2 * Fp2::add/sub) == 2 * Fp2::add/sub
 		3 * Fp2Dbl::add/sub == 3 * (2 * Fp2::add/sub) == 6 * Fp2::add/sub
 		1 * Fp2::add/sub
 
@@ -1570,14 +1560,14 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	*/
 	/*
 		Operation Count:
-		3  * sq_Fp4UseDbl == 3 * (
-		    3  * Fp2Dbl::square
-		    2  * Fp2Dbl::mod
-		    9  * Fp2::add/sub
+		3 * sq_Fp4UseDbl == 3 * (
+			3 * Fp2Dbl::square
+			2 * Fp2Dbl::mod
+			9 * Fp2::add/sub
 		) == (
-		    9  * Fp2Dbl::square
-		    6  * Fp2Dbl::mod
-		    27 * Fp2::add/sub
+			9 * Fp2Dbl::square
+			6 * Fp2Dbl::mod
+			27 * Fp2::add/sub
 		)
 		18 * Fp2::add/sub
 		1  * Fp2::mul_xi
@@ -1758,16 +1748,16 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		Fp2::mul_Fp_1(z.a_.b_, Param::gammar[1].b_);
 		z.a_.c_.a_ = a_.c_.a_;
 		Fp::neg(z.a_.c_.b_, a_.c_.b_);
-		Fp2::mul_Fp_0(z.a_.c_,  z.a_.c_, Param::gammar[3].a_);
+		Fp2::mul_Fp_0(z.a_.c_, z.a_.c_, Param::gammar[3].a_);
 		z.b_.a_.a_ = b_.a_.a_;
 		Fp::neg(z.b_.a_.b_, b_.a_.b_);
 		z.b_.a_ *= Param::gammar[0];
 		z.b_.b_.a_ = b_.b_.a_;
 		Fp::neg(z.b_.b_.b_, b_.b_.b_);
-		z.b_.b_ *=  Param::gammar[2];
+		z.b_.b_ *= Param::gammar[2];
 		z.b_.c_.a_ = b_.c_.a_;
 		Fp::neg(z.b_.c_.b_, b_.c_.b_);
-		z.b_.c_ *=  Param::gammar[4];
+		z.b_.c_ *= Param::gammar[4];
 #endif
 	}
 
@@ -1881,37 +1871,38 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 #ifdef BN_SUPPORT_SNARK
 		Fp12T::pow_neg_t(f2z, f);
-		f2z.sqru();                       // f2z = f^(-2*z)
+		f2z.sqru(); // f2z = f^(-2*z)
 		f2z.sqru(f6z);
-		f6z *= f2z;                       // f6z = f^(-6*z)
+		f6z *= f2z; // f6z = f^(-6*z)
 		Fp12T::pow_neg_t(f6z2, f6z);
 		// A variable a is unnecessary only here.
 		f6z2.sqru(a);
-		// Compress::fixed_power(f12z3, a);  // f12z3 = f^(-12*z^3)
+		// Compress::fixed_power(f12z3, a); // f12z3 = f^(-12*z^3)
 		Fp12T::pow_neg_t(f12z3, a);
 		// It will compute inversion of f2z, thus, conjugation free.
-		Fp6::neg(f6z.b_, f6z.b_);         // f6z = f^(6z)
-		Fp6::neg(f12z3.b_, f12z3.b_);     // f12z3 = f^(12*z^3)
+		Fp6::neg(f6z.b_, f6z.b_); // f6z = f^(6z)
+		Fp6::neg(f12z3.b_, f12z3.b_); // f12z3 = f^(12*z^3)
 		// Computes a and b.
-		Fp12T::mul(a, f12z3, f6z2);       // a = f^(12*z^3 + 6z^2)
-		a *= f6z;                         // a = f^(12*z^3 + 6z^2 + 6z)
-		Fp12T::mul(b, a, f2z);            // b = f^(12*z^3 + 6z^2 + 4z)w
+		Fp12T::mul(a, f12z3, f6z2); // a = f^(12*z^3 + 6z^2)
+		a *= f6z; // a = f^(12*z^3 + 6z^2 + 6z)
+		Fp12T::mul(b, a, f2z); // b = f^(12*z^3 + 6z^2 + 4z)w
 		// @note f2z, f6z, and f12z are unnecessary from here.
 		// Last part.
-		Fp12T::mul(z, a, f6z2);          // z = f^(12*z^3 + 12z^2 + 6z)
-		z *= f;                          // z = f^(12*z^3 + 12z^2 + 6z + 1)
-		b.Frobenius(f2z);                // f2z = f^(q(12*z^3 + 6z^2 + 4z))
-		z *= f2z;                        // z = f^(q(12*z^3 + 6z^2 + 4z) + (12*z^3 + 12z^2 + 6z + 1))
-		a.Frobenius2(f2z);               // f2z = f^(q^2(12*z^3 + 6z^2 + 6z))
-		z *= f2z;                        // z = f^(q^2(12*z^3 + 6z^2 + 6z) + q(12*z^3 + 6z^2 + 4z) + (12*z^3 + 12z^2 + 6z + 1))
-		Fp6::neg(f.b_, f.b_);            // f = -f
-		b *= f;                          // b = f^(12*z^3 + 6z^2 + 4z - 1)
-		b.Frobenius3(f2z);               // f2z = f^(q^3(12*z^3 + 6z^2 + 4z - 1))
-		z *= f2z;                        // z = f^(q^3(12*z^3 + 6z^2 + 4z - 1) +
-                                         //       q^2(12*z^3 + 6z^2 + 6z) +
-                                         //       q(12*z^3 + 6z^2 + 4z) +
-                                         //       (12*z^3 + 12z^2 + 6z + 1))
-										 // see page 6 in the "Faster hashing to G2" paper
+		Fp12T::mul(z, a, f6z2); // z = f^(12*z^3 + 12z^2 + 6z)
+		z *= f; // z = f^(12*z^3 + 12z^2 + 6z + 1)
+		b.Frobenius(f2z); // f2z = f^(q(12*z^3 + 6z^2 + 4z))
+		z *= f2z; // z = f^(q(12*z^3 + 6z^2 + 4z) + (12*z^3 + 12z^2 + 6z + 1))
+		a.Frobenius2(f2z); // f2z = f^(q^2(12*z^3 + 6z^2 + 6z))
+		z *= f2z; // z = f^(q^2(12*z^3 + 6z^2 + 6z) + q(12*z^3 + 6z^2 + 4z) + (12*z^3 + 12z^2 + 6z + 1))
+		Fp6::neg(f.b_, f.b_); // f = -f
+		b *= f; // b = f^(12*z^3 + 6z^2 + 4z - 1)
+		b.Frobenius3(f2z); // f2z = f^(q^3(12*z^3 + 6z^2 + 4z - 1))
+		z *= f2z;
+		// z = f^(q^3(12*z^3 + 6z^2 + 4z - 1) +
+		// q^2(12*z^3 + 6z^2 + 6z) +
+		// q(12*z^3 + 6z^2 + 4z) +
+		// (12*z^3 + 12z^2 + 6z + 1))
+		// see page 6 in the "Faster hashing to G2" paper
 #else
 		// Hard part starts from here.
 		// Computes addition chain.
@@ -2037,8 +2028,8 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 		/*
 			z *= x,
-			position:  0  1    2     3    4  5
-			x = (l00, 0, l02) + (0, l11, 0)*w
+			position: 0   1   2      3   4   5
+			    x = (l00, 0, l02) + (0, l11, 0)*w
 			x is represented as:
 			(x.a_, x.b_, x.c_) = (l00, l11, l02)
 			4800clk * 66
@@ -2138,7 +2129,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 		/*
 			z = cv2 * cv3,
-			position:  0  1    2     3    4  5
+			position:0  1   2      3   4   5
 			cv2 = (l00, 0, l02) + (0, l11, 0)*w
 			cv3 = (l00, 0, l02) + (0, l11, 0)*w
 			these are represented as:
@@ -2228,7 +2219,7 @@ struct CompressT {
 	typedef typename Fp2::Fp Fp;
 	typedef ParamT<Fp2> Param;
 	typedef typename Fp2::Dbl Fp2Dbl;
-	typedef Fp6T<Fp2>  Fp6;
+	typedef Fp6T<Fp2> Fp6;
 	typedef Fp12T<Fp6> Fp12;
 	enum { N = 4 };
 
@@ -2269,12 +2260,7 @@ struct CompressT {
 
 	friend std::ostream& operator<<(std::ostream& os, const CompressT& x)
 	{
-		os << "C["
-		   << x.g2_ << ",\n"
-		   << x.g3_ << ",\n"
-		   << x.g4_ << ",\n"
-		   << x.g5_ << ",\n"
-		   << "]";
+		os << "C[" << x.g2_ << ",\n" << x.g3_ << ",\n" << x.g4_ << ",\n" << x.g5_ << ",\n" << "]";
 		return os;
 	}
 
@@ -2704,7 +2690,7 @@ inline void ScalarMult(FF* out, const FF* in, const INT& m)
 	const value_type mask = value_type(1) << (vSize - 1);
 	assert(mSize > 0); // if mSize == 0, it had been returned.
 	/*
-	  Extract and process for MSB of most significant word.
+		Extract and process for MSB of most significant word.
 	*/
 	value_type v = Tag::getBlock(m, mSize - 1);
 	int j = 0;
@@ -2731,7 +2717,7 @@ inline void ScalarMult(FF* out, const FF* in, const INT& m)
 	}
 
 	/*
-	  Process for non most significant words.
+		Process for non most significant words.
 	*/
 	for (int i = mSize - 2; i >= 0; --i) {
 		v = Tag::getBlock(m, i);
@@ -3275,11 +3261,3 @@ inline void millerLoop2(Fp12& f, const std::vector<Fp6>& Q1coeff, const Fp precP
 } // components
 
 } // bn
-
-/***
-	Local Variables:
-	c-basic-offset: 4
-	indent-tabs-mode: t
-	tab-width: 4
-	End:
-*/

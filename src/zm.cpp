@@ -4,9 +4,7 @@
 using namespace mie;
 
 #ifdef MIE_USE_X64ASM
-#ifndef XBYAK_NO_OP_NAMES
 	#define XBYAK_NO_OP_NAMES
-#endif
 #include "xbyak/xbyak.h"
 using namespace Xbyak;
 #endif

@@ -2,9 +2,7 @@
 	bn::Fp is a finite field with characteristic 254-bit prime integer
 */
 #include <iostream>
-#ifndef XBYAK_NO_OP_NAMES
-	#define XBYAK_NO_OP_NAMES
-#endif
+#define XBYAK_NO_OP_NAMES
 #include "xbyak/xbyak.h"
 #include "xbyak/xbyak_util.h"
 Xbyak::util::Clock sclk;
@@ -117,7 +115,7 @@ void detectCpu(int mode, bool useMulx)
 	p = 0x2523648240000001,ba344d8000000008,6121000000000013,a700000000000013
 	N = 1 << 256
 	6p < N, 7p > N
-	s_pTbl[i] = ip        i < 7
+	s_pTbl[i] = ip for i < 7
 */
 
 const size_t pTblSize = 10;
@@ -893,7 +891,7 @@ struct PairingCode : Xbyak::CodeGenerator {
 		jz("@f");
 		load_sub_rm(gt4, gt3, gt2, gt1, rax, mx, false);
 L("@@");
-        store_mr(mz, gt4, gt3, gt2, gt1);
+		store_mr(mz, gt4, gt3, gt2, gt1);
 	}
 	void in_Fp_neg(int n, const RegExp& mz, const RegExp& mx)
 	{
@@ -3611,7 +3609,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 	}
 	p_ = p;
 
-    // Fp_mul
+	// Fp_mul
 	{
 		typedef mie::ZmZ<Vuint, MontgomeryTest> ZN;
 		ZN::setModulo(Vuint(1) << (sizeof(Unit) * 8));
@@ -3685,11 +3683,3 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 	}
 	::exit(1);
 }
-
-/*
-  Local Variables:
-  c-basic-offset: 4
-  indent-tabs-mode: t
-  tab-width: 4
-  End:
-*/

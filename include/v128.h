@@ -1,7 +1,4 @@
-/* -*- mode: c++ -*- */
-#ifndef MIE_V128_H_
-#define MIE_V128_H_
-
+#pragma once
 #include <string>
 
 #ifdef _WIN32
@@ -259,13 +256,3 @@ static MIE_FORCE_INLINE void rotlByte(V128& x0, V128& x1, V128& x2)
 #else
 	#define mie_bsr(pindex, val) val ? (*pindex = __builtin_clz(val) ^ 0x1f), 1 : 0
 #endif
-
-#endif /* MIE_V128_H_ */
-
-/*
-  Local Variables:
-  c-basic-offset: 4
-  indent-tabs-mode: t
-  tab-width: 4
-  End:
-*/

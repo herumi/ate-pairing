@@ -982,7 +982,7 @@ public:
 	}
 	void set(const V& x)
 	{
-		v_  = x;
+		v_ = x;
 		isNeg_ = false;
 	}
 	void set(const uint64_t *ptr, size_t size) { v_.set(ptr, size); }
@@ -1163,7 +1163,7 @@ class ZmZ : public local::addsubmul<ZmZ<V, Tag>,
 				   local::hasNegative<ZmZ<V, Tag>,
 				   local::inversible<ZmZ<V, Tag> > > > > {
 public:
-    typedef void base_type;
+	typedef void base_type;
 	typedef typename V::value_type value_type;
 private:
 	V v_;
