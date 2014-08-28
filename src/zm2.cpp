@@ -3377,7 +3377,7 @@ L("@@");
 		// setup FpDbl
 
 		align(16);
-		FpDbl::add = (FpDbl::bin_op *)getCurr();
+		FpDbl::add = (FpDbl::bin_op *)getCurr(); // QQQ
 		make_FpDbl_add(1);
 
 		align(16);
@@ -3401,7 +3401,7 @@ L("@@");
 		make_FpDbl_mul();
 
 		align(16);
-		Fp::Dbl::mod = (void (*)(Fp &, const FpDbl &))getCurr();
+		Fp::Dbl::mod = (void (*)(Fp &, const FpDbl &))getCurr(); // QQQ
 		make_FpDbl_mod();
 
 		// setup Fp2
@@ -3426,7 +3426,6 @@ L("@@");
 		Fp2::mul_xi = (void (*)(Fp2&, const Fp2&))getCurr();
 		make_Fp2_mul_xi();
 
-		// TODO: seems to work fine. should we change it?!
 		align(16);
 		Fp2::square = (void (*)(Fp2&, const Fp2&))getCurr();
 		make_Fp2_square();

@@ -153,6 +153,10 @@ Benchmark
 
 The cost of a pairing is __1.17M__ clock cycles on Core i7 4700MQ (Haswell) 2.4GHz processor with TurboBoost disabled. Below, we also include clock cycle counts on Core i7 2600 3.4GHz, Xeon X5650 2.6GHz, and Core i7 4700MQ 2.4GHz.
 
+    % sudo sh -c "echo 0 > /sys/devices/system/cpu/cpufreq/boost"
+    % cat /sys/devices/system/cpu/cpufreq/boost
+    0
+
 operation   | i7 2600|Xeon X5650|Haswell|Haswell with mulx
 ------------|--------|----------|-------|-----------------
 TurboBoost  |on      |on        |off    |off
