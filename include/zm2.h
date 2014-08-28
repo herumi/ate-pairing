@@ -153,7 +153,7 @@ public:
 	}
 	static inline void inv(Fp& out, const Fp& x)
 	{
-#if 1
+#ifdef MIE_USE_X64ASM
 		Fp r;
 		int k = preInv(r, x);
 #else

@@ -2,10 +2,13 @@
 	bn::Fp is a finite field with characteristic 254-bit prime integer
 */
 #include <iostream>
+#include "zm.h"
+#ifdef MIE_USE_X64ASM
 #define XBYAK_NO_OP_NAMES
 #include "xbyak/xbyak.h"
 #include "xbyak/xbyak_util.h"
 Xbyak::util::Clock sclk;
+#endif
 #include "bn.h"
 #if defined(_MSC_VER) && (_MSC_VER <= 1500)
 typedef unsigned char uint8_t;
@@ -14,13 +17,208 @@ typedef unsigned char uint8_t;
 #endif
 
 using namespace bn;
-using namespace Xbyak;
 
 #ifdef DEBUG_COUNT
 extern int g_count_m256;
 extern int g_count_r512;
 extern int g_count_add256;
 #endif
+
+// for C
+// r = (1 << 256) % p
+// rr = r^(-1) % p
+mie::Vuint Fp::p_;
+mie::Vuint Fp::montgomeryR_;
+Fp Fp::montgomeryR2_;
+Fp Fp::invTbl_[512];
+struct MontgomeryDummy{};
+static mie::Vuint pN;
+
+/*
+	p = 0x2523648240000001,ba344d8000000008,6121000000000013,a700000000000013
+	N = 1 << 256
+	6p < N, 7p > N
+	s_pTbl[i] = ip for i < 7
+*/
+
+const size_t pTblSize = 10;
+const size_t pNtblSize = 4;
+struct Data {
+	Fp pTbl[pTblSize];
+	Fp halfTbl[2];
+	Fp quarterTbl[4];
+	FpDbl pNTbl[pNtblSize];
+};
+Data *s_data;
+
+static Fp *s_pTbl;
+Fp *Fp::halfTbl_;
+Fp *Fp::quarterTbl_;
+bn::FpDbl *bn::FpDbl::pNTbl_;
+
+typedef mie::ZmZ<mie::Vuint, Fp> Fp_emu;
+
+static inline void Fp_addC(Fp& out, const Fp& x, const Fp& y)
+{
+	static const mie::Vuint p(&s_pTbl[1][0], Fp::N);
+	mie::Vuint a(&x[0], Fp::N), b(&y[0], Fp::N);
+	a += b;
+	if (a >= p) {
+		a -= p;
+	}
+	Fp::setDirect(out, a);
+}
+
+static inline void Fp_addNC_C(Fp& out, const Fp& x, const Fp& y)
+{
+	mie::Vuint a(&x[0], Fp::N), b(&y[0], Fp::N);
+	a += b;
+	Fp::setDirect(out, a);
+}
+
+static inline void Fp_subNC_C(Fp& out, const Fp& x, const Fp& y)
+{
+	mie::Vuint a(&x[0], Fp::N), b(&y[0], Fp::N);
+	a -= b;
+	Fp::setDirect(out, a);
+}
+
+static inline void Fp_subC(Fp& out, const Fp& x, const Fp& y)
+{
+	static const mie::Vuint p(&s_pTbl[1][0], Fp::N);
+	mie::Vuint a(&x[0], Fp::N), b(&y[0], Fp::N);
+	if (a < b) {
+		a = a + p - b;
+	} else {
+		a -= p;
+	}
+	Fp::setDirect(out, a);
+}
+
+static inline void Fp_mulC(Fp& out, const Fp& x, const Fp& y)
+{
+	Fp_emu a(x.get()), b(y.get());
+	a *= b;
+	out.set(a.get());
+}
+
+struct MontgomeryTest{};
+static mie::Unit pp_mont;
+
+static void Fp_negC(Fp& out, const Fp& x)
+{
+	static const Fp zero(0);
+	Fp::sub(out, zero, x);
+}
+
+void (*Fp::add)(Fp& out, const Fp& x, const Fp& y) = &Fp_addC;
+void (*Fp::addNC)(Fp& out, const Fp& x, const Fp& y) = &Fp_addNC_C;
+void (*Fp::subNC)(Fp& out, const Fp& x, const Fp& y) = &Fp_subNC_C;
+void (*Fp::shr1)(Fp& out, const Fp& x) = 0;
+void (*Fp::shr2)(Fp& out, const Fp& x) = 0;
+void (*Fp::sub)(Fp& out, const Fp& x, const Fp& y) = &Fp_subC;
+void (*Fp::neg)(Fp& out, const Fp& x) = &Fp_negC;
+void (*Fp::mul)(Fp& out, const Fp& x, const Fp& y) = &Fp_mulC;
+int (*Fp::preInv)(Fp& r, const Fp& x) = 0;
+
+const Fp& Fp::getDirectP(int n)
+{
+	assert(0 <= n && n < pTblSize);
+	return s_pTbl[n];
+}
+
+static void FpDbl_addC(FpDbl &z, const FpDbl &x, const FpDbl &y)
+{
+	mie::Vuint a(x.const_ptr(), Fp::N * 2);
+	mie::Vuint b(y.const_ptr(), Fp::N * 2);
+
+	assert(a < pN);
+	assert(b < pN);
+	a += b;
+	if (a >= pN) {
+		a -= pN;
+	}
+	z.setDirect(a);
+}
+
+static void FpDbl_addNC_C(FpDbl &z, const FpDbl &x, const FpDbl &y)
+{
+	mie::Vuint a(x.const_ptr(), Fp::N * 2);
+	mie::Vuint b(y.const_ptr(), Fp::N * 2);
+
+	a += b;
+	z.setDirect(a);
+}
+
+static void FpDbl_negC(FpDbl &z, const FpDbl &x)
+{
+	mie::Vuint a(x.const_ptr(), Fp::N * 2);
+	assert(a < pN);
+	z.setDirect(a.isZero() ? a : pN - a);
+}
+
+static void FpDbl_subC(FpDbl &z, const FpDbl &x, const FpDbl &y)
+{
+	mie::Vuint a(x.const_ptr(), Fp::N * 2);
+	mie::Vuint b(y.const_ptr(), Fp::N * 2);
+
+	assert(a < pN);
+	assert(b < pN);
+
+	if (a < b) {
+		a += pN;
+	}
+	a -= b;
+	z.setDirect(a);
+}
+
+static void FpDbl_subNC_C(FpDbl &z, const FpDbl &x, const FpDbl &y)
+{
+	mie::Vuint a(x.const_ptr(), Fp::N * 2);
+	mie::Vuint b(y.const_ptr(), Fp::N * 2);
+
+	a -= b;
+	z.setDirect(a);
+}
+
+static void FpDbl_mulC(FpDbl &z, const Fp &x, const Fp &y)
+{
+	mie::Vuint a(&x[0], Fp::N);
+	mie::Vuint b(&y[0], Fp::N);
+	a *= b;
+	z.setDirect(a);
+}
+
+static void FpDbl_modC(Fp& out, const FpDbl& x)
+{
+	const size_t UnitLen = sizeof(mie::Unit) * 8;
+	mie::Vuint c(x.const_ptr(), Fp::N * 2);
+	const mie::Vuint& p =Fp::getModulo();
+
+	const size_t n = 256 / UnitLen;
+	for (size_t i = 0; i < n; i++) {
+		mie::Unit u = c[0];
+		mie::Unit q = u * pp_mont;
+		c += q * p;
+		c >>= UnitLen;
+	}
+	if (c >= p) {
+		c -= p;
+	}
+	Fp::setDirect(out, c);
+}
+
+FpDbl::bin_op *FpDbl::add = &FpDbl_addC;
+FpDbl::bin_op *FpDbl::addNC = &FpDbl_addNC_C;
+FpDbl::uni_op *FpDbl::neg = &FpDbl_negC;
+FpDbl::bin_op *FpDbl::sub = &FpDbl_subC;
+FpDbl::bin_op *FpDbl::subNC = &FpDbl_subNC_C;
+void (*FpDbl::mul)(Dbl&, const Fp&, const Fp&) = &FpDbl_mulC;
+void (*FpDbl::mod)(Fp&, const Dbl&) = &FpDbl_modC;
+
+
+#ifdef MIE_USE_X64ASM
+using namespace Xbyak;
 
 struct CpuExt {
 	int type;
@@ -111,43 +309,9 @@ void detectCpu(int mode, bool useMulx)
 //	printf("interleaveLoad=%d\n", interleaveLoad);
 }
 
-/*
-	p = 0x2523648240000001,ba344d8000000008,6121000000000013,a700000000000013
-	N = 1 << 256
-	6p < N, 7p > N
-	s_pTbl[i] = ip for i < 7
-*/
-
-const size_t pTblSize = 10;
-const size_t pNtblSize = 4;
-struct Data {
-	Fp pTbl[pTblSize];
-	Fp halfTbl[2];
-	Fp quarterTbl[4];
-	FpDbl pNTbl[pNtblSize];
-};
-Data *s_data;
-
-static Fp *s_pTbl;
-Fp *Fp::halfTbl_;
-Fp *Fp::quarterTbl_;
-bn::FpDbl *bn::FpDbl::pNTbl_;
-
 // for debug
 static Xbyak::util::Cpu s_cpu;
 uint64_t debug_buf[128];
-#if 0
-struct PutDebugBuf {
-	~PutDebugBuf()
-	{
-		puts("debug_buf");
-		for (int i = 0; i < 4; i++) {
-			printf("%016llx", (long long)debug_buf[3 - i]);
-		}
-		printf("\n");
-	}
-}s_putDebugBuf;
-#endif
 int debug_counter;
 struct PutDebugCounter {
 	~PutDebugCounter()
@@ -258,169 +422,6 @@ private:
 	Ext12(const Ext12&);
 	void operator=(const Ext12&);
 };
-
-// for C
-// r = (1 << 256) % p
-// rr = r^(-1) % p
-mie::Vuint Fp::p_;
-mie::Vuint Fp::montgomeryR_;
-Fp Fp::montgomeryR2_;
-Fp Fp::invTbl_[512];
-struct MontgomeryDummy{};
-static mie::Vuint pN;
-
-typedef mie::ZmZ<mie::Vuint, Fp> Fp_emu;
-
-static inline void Fp_addC(Fp& out, const Fp& x, const Fp& y)
-{
-	static const mie::Vuint p(&s_pTbl[1][0], Fp::N);
-	mie::Vuint a(&x[0], Fp::N), b(&y[0], Fp::N);
-	a += b;
-	if (a >= p) {
-		a -= p;
-	}
-	Fp::setDirect(out, a);
-}
-
-static inline void Fp_addNC_C(Fp& out, const Fp& x, const Fp& y)
-{
-	mie::Vuint a(&x[0], Fp::N), b(&y[0], Fp::N);
-	a += b;
-	Fp::setDirect(out, a);
-}
-
-static inline void Fp_subC(Fp& out, const Fp& x, const Fp& y)
-{
-	static const mie::Vuint p(&s_pTbl[1][0], Fp::N);
-	mie::Vuint a(&x[0], Fp::N), b(&y[0], Fp::N);
-	if (a < b) {
-		a = a + p - b;
-	} else {
-		a -= p;
-	}
-	Fp::setDirect(out, a);
-}
-
-static inline void Fp_mulC(Fp& out, const Fp& x, const Fp& y)
-{
-	Fp_emu a(x.get()), b(y.get());
-	a *= b;
-	out.set(a.get());
-}
-
-struct MontgomeryTest{};
-static mie::Unit pp_mont;
-
-static void Fp_negC(Fp& out, const Fp& x)
-{
-	static const Fp zero(0);
-	Fp::sub(out, zero, x);
-}
-
-void (*Fp::add)(Fp& out, const Fp& x, const Fp& y) = &Fp_addC;
-void (*Fp::addNC)(Fp& out, const Fp& x, const Fp& y) = &Fp_addNC_C;
-void (*Fp::subNC)(Fp& out, const Fp& x, const Fp& y) = 0;
-void (*Fp::shr1)(Fp& out, const Fp& x) = 0;
-void (*Fp::shr2)(Fp& out, const Fp& x) = 0;
-void (*Fp::sub)(Fp& out, const Fp& x, const Fp& y) = &Fp_subC;
-void (*Fp::neg)(Fp& out, const Fp& x) = &Fp_negC;
-void (*Fp::mul)(Fp& out, const Fp& x, const Fp& y) = &Fp_mulC;
-int (*Fp::preInv)(Fp& r, const Fp& x) = 0;
-
-const Fp& Fp::getDirectP(int n)
-{
-	assert(0 <= n && n < pTblSize);
-	return s_pTbl[n];
-}
-
-static void FpDbl_addC(FpDbl &z, const FpDbl &x, const FpDbl &y)
-{
-	mie::Vuint a(x.const_ptr(), Fp::N * 2);
-	mie::Vuint b(y.const_ptr(), Fp::N * 2);
-
-	assert(a < pN);
-	assert(b < pN);
-	a += b;
-	if (a >= pN) {
-		a -= pN;
-	}
-	z.setDirect(a);
-}
-
-static void FpDbl_addNC_C(FpDbl &z, const FpDbl &x, const FpDbl &y)
-{
-	mie::Vuint a(x.const_ptr(), Fp::N * 2);
-	mie::Vuint b(y.const_ptr(), Fp::N * 2);
-
-	a += b;
-	z.setDirect(a);
-}
-
-static void FpDbl_negC(FpDbl &z, const FpDbl &x)
-{
-	mie::Vuint a(x.const_ptr(), Fp::N * 2);
-	assert(a < pN);
-	z.setDirect(a.isZero() ? a : pN - a);
-}
-
-static void FpDbl_subC(FpDbl &z, const FpDbl &x, const FpDbl &y)
-{
-	mie::Vuint a(x.const_ptr(), Fp::N * 2);
-	mie::Vuint b(y.const_ptr(), Fp::N * 2);
-
-	assert(a < pN);
-	assert(b < pN);
-
-	if (a < b) {
-		a += pN;
-	}
-	a -= b;
-	z.setDirect(a);
-}
-
-static void FpDbl_subNC_C(FpDbl &z, const FpDbl &x, const FpDbl &y)
-{
-	mie::Vuint a(x.const_ptr(), Fp::N * 2);
-	mie::Vuint b(y.const_ptr(), Fp::N * 2);
-
-	a -= b;
-	z.setDirect(a);
-}
-
-static void FpDbl_mulC(FpDbl &z, const Fp &x, const Fp &y)
-{
-	mie::Vuint a(&x[0], Fp::N);
-	mie::Vuint b(&y[0], Fp::N);
-	a *= b;
-	z.setDirect(a);
-}
-
-static void FpDbl_modC(Fp& out, const FpDbl& x)
-{
-	const size_t UnitLen = sizeof(mie::Unit) * 8;
-	mie::Vuint c(x.const_ptr(), Fp::N * 2);
-	const mie::Vuint& p =Fp::getModulo();
-
-	const size_t n = 256 / UnitLen;
-	for (size_t i = 0; i < n; i++) {
-		mie::Unit u = c[0];
-		mie::Unit q = u * pp_mont;
-		c += q * p;
-		c >>= UnitLen;
-	}
-	if (c >= p) {
-		c -= p;
-	}
-	Fp::setDirect(out, c);
-}
-
-FpDbl::bin_op *FpDbl::add = &FpDbl_addC;
-FpDbl::bin_op *FpDbl::addNC = &FpDbl_addNC_C;
-FpDbl::uni_op *FpDbl::neg = &FpDbl_negC;
-FpDbl::bin_op *FpDbl::sub = &FpDbl_subC;
-FpDbl::bin_op *FpDbl::subNC = &FpDbl_subNC_C;
-void (*FpDbl::mul)(Dbl&, const Fp&, const Fp&) = &FpDbl_mulC;
-void (*FpDbl::mod)(Fp&, const Dbl&) = &FpDbl_modC;
 
 struct PairingCode : Xbyak::CodeGenerator {
 	/*
@@ -3365,7 +3366,6 @@ L("@@");
 		align(16);
 		Fp::shr2 = (void (*)(Fp& out, const Fp& x))getCurr();
 		make_Fp_shr(2);
-
 		align(16);
 		Fp::mul = (void (*)(Fp& out, const Fp& x, const Fp& y))getCurr();
 		make_Fp_mul();
@@ -3565,7 +3565,7 @@ L("@@");
 	const Reg64& gt9;
 	const Reg64& gt10;
 };
-
+#endif // MIE_USE_X64ASM
 
 void Fp::setTablesForDiv(const mie::Vuint& p)
 {
