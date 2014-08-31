@@ -67,7 +67,7 @@ Requirements
 
 * OS: 64-bit Windows; 64-bit Linux; Mac OS X
 * CPU: x64 Intel; AMD processor
-* C++ compiler: Visual Studio 2008; gcc 4.4.1 or later
+* C++ compiler: Visual Studio 2012; gcc 4.4.1 or later
 
 
 Build instructions
@@ -75,7 +75,8 @@ Build instructions
 
 ### Windows
 
-Open `ate/ate.sln` and compile `test_bn` with Release mode. The produced binary is `ate/x64/Release/test_bn.exe`.
+For Visual Studio 2012, open `ate/ate.sln` and compile `test_bn` with Release mode. The produced binary is `ate/x64/Release/test_bn.exe`.
+Open ate/ate12.sln for Visual Studio 2013.
 
 ### Cygwin
 
