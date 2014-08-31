@@ -75,8 +75,7 @@ Build instructions
 
 ### Windows
 
-For Visual Studio 2012, open `ate/ate.sln` and compile `test_bn` with Release mode. The produced binary is `ate/x64/Release/test_bn.exe`.
-Open ate/ate12.sln for Visual Studio 2013.
+Open `ate/ate.sln` and compile `test_bn` with Release mode. The produced binary is `ate/x64/Release/test_bn.exe`.
 
 ### Cygwin
 
