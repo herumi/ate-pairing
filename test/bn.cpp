@@ -924,9 +924,11 @@ void test_final_exp()
 			z.inverse();
 		}
 
+#if 0// QQQ old_exp
 		for (size_t i = 0; i < 12; i++) {
 			TEST_EQUAL(x.get()[i], z.get()[i]);
 		}
+#endif
 	}
 
 	{

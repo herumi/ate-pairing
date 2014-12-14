@@ -2404,7 +2404,7 @@ L("@@");
 //		T0 += T1;
 		// Fp2Dbl::addNC(T0, T0, T1); // QQQ : OK?
 		movq(z, zsave);
-		in_FpDbl_addNC(2, T0, T0, T1);
+		in_FpDbl_add(2, T0, T0, T1);
 
 		// T2 -= T0;
 		in_Fp2Dbl_sub(T2, T2, T0);
@@ -2468,7 +2468,7 @@ L("@@");
 
 //		T0 += T2;
 		// Fp2Dbl::addNC(T0, T0, T2); // QQQ : OK?
-		in_FpDbl_addNC(2, T0, T0, T2);
+		in_FpDbl_add(2, T0, T0, T2);
 
 		// Fp2Dbl::mod(t0, T0);
 		lea(gp1, ptr [t0]);
