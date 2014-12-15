@@ -2336,15 +2336,17 @@ public:
 
 	/*
 		Exponentiation over compression for:
-		a^t, t = 2^62 + 2^55 + 2^0.
-		143k * 3
+		z = x^Param::z.abs()
 	*/
-	static void fixed_power(Fp12& z, const Fp12& d00)
+	static void fixed_power(Fp12& z, const Fp12& x)
 	{
-		assert(&z != &d00);
+#if 0
+		z = power(x, Param::z.abs());
+#else
+		assert(&z != &x);
 		Fp12 d62;
 		Fp2 c55nume, c55denomi, c62nume, c62denomi;
-		CompressT c55(z, d00);
+		CompressT c55(z, x);
 		CompressT::square_n(c55, 55); // 106k
 		c55.decompressBeforeInv(c55nume, c55denomi);
 		CompressT c62(d62, c55);
@@ -2360,8 +2362,9 @@ public:
 		Fp2::mul(t, acc, c55denomi);
 		Fp2::mul(c62.g1_, c62nume, t);
 		c62.decompressAfterInv();
-		z *= d00; // 6.5k
+		z *= x; // 6.5k
 		z *= d62;
+#endif
 	}
 	static void (*square_n)(CompressT& z, int n);
 private:
