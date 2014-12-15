@@ -1533,12 +1533,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		Fp2Dbl::square(T0, x0);
 		Fp2Dbl::square(T1, x1);
 		Fp2Dbl::mul_xi(T2, T1);
-//		T2 += T0;
-#ifdef BN_SUPPORT_SNARK
-		Fp2Dbl::add(T2, T2, T0);
-#else
-		Fp2Dbl::addNC(T2, T2, T0); // RRR
-#endif
+		T2 += T0;
 		Fp2::add(z1, x0, x1);
 		Fp2Dbl::mod(z0, T2);
 		// overwrite z[0] (position 0).
