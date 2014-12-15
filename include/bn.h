@@ -1846,58 +1846,6 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		// (12*z^3 + 12z^2 + 6z + 1))
 		// see page 6 in the "Faster hashing to G2" paper
 #else
-#if 1 // use old version
-		Fp12T ft2, ft3;
-		Fp12T t0, y0, y2, y4;
-
-		mapToCyclo(f);
-
-		typedef CompressT<Fp2> Compress;
-		Compress::fixed_power(f2z, f);
-		Compress::fixed_power(ft2, f2z);
-		Compress::fixed_power(ft3, ft2);
-		Fp6::neg(f2z.b_, f2z.b_);
-		Fp6::neg(ft3.b_, ft3.b_);
-
-		f.Frobenius(y0);
-		f.Frobenius2(y2);
-
-		y0 *= y2;
-		f.Frobenius3(y2);
-		y0 *= y2;
-
-		Fp6::neg(f.b_, f.b_);
-
-		ft2.Frobenius2(y2);
-
-		ft2.Frobenius(y4);
-		y4 *= f2z;
-		Fp6::neg(y4.b_, y4.b_);
-
-		Fp6::neg(ft2.b_, ft2.b_);
-
-		ft3.Frobenius(z);
-		z *= ft3;
-		Fp6::neg(z.b_, z.b_);
-
-		z.sqru(); // 3.3k
-		Fp12T::mul(t0, z, y4); // 6.5k
-		t0 *= ft2;
-
-		f2z.Frobenius(y4);
-		Fp6::neg(y4.b_, y4.b_);
-		Fp12T::mul(z, y4, ft2);
-		z *= t0;
-		t0 *= y2;
-
-		z.sqru();
-		z *= t0;
-		z.sqru();
-		f *= z;
-		f.sqru();
-		z *= y0;
-		z *= f;
-#else
 		// Hard part starts from here.
 		// Computes addition chain.
 		typedef CompressT<Fp2> Compress;
@@ -1928,7 +1876,6 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		b *= f;
 		b.Frobenius3(f2z);
 		z *= f2z;
-#endif
 #endif
 	}
 
