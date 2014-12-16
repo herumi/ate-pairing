@@ -3339,186 +3339,191 @@ L("@@");
 		set_p_Fp6_mul();
 
 		// Fp
+		typedef void (*opFpx2)(Fp&, const Fp&);
+		typedef void (*opFpx3)(Fp&, const Fp&, const Fp&);
 
-		Fp::add = (void (*)(Fp& out, const Fp& x, const Fp& y))getCurr();
+		Fp::add = getCurr<opFpx3>();
 		make_Fp_add(1);
 
 		align(16);
-		Fp::sub = (void (*)(Fp& out, const Fp& x, const Fp& y))getCurr();
+		Fp::sub = getCurr<opFpx3>();
 		make_Fp_sub(1);
 
 		align(16);
-		Fp::addNC = (void (*)(Fp& out, const Fp& x, const Fp& y))getCurr();
+		Fp::addNC = getCurr<opFpx3>();
 		make_Fp_addNC(1);
 
 		align(16);
-		Fp::subNC = (void (*)(Fp& out, const Fp& x, const Fp& y))getCurr();
+		Fp::subNC = getCurr<opFpx3>();
 		make_Fp_subNC();
 
 		align(16);
-		Fp::neg = (void (*)(Fp& out, const Fp& x))getCurr();
+		Fp::neg = getCurr<opFpx2>();
 		make_Fp_neg();
 
 		align(16);
-		Fp::shr1 = (void (*)(Fp& out, const Fp& x))getCurr();
+		Fp::shr1 = getCurr<opFpx2>();
 		make_Fp_shr(1);
 
 		align(16);
-		Fp::shr2 = (void (*)(Fp& out, const Fp& x))getCurr();
+		Fp::shr2 = getCurr<opFpx2>();
 		make_Fp_shr(2);
 		align(16);
-		Fp::mul = (void (*)(Fp& out, const Fp& x, const Fp& y))getCurr();
+		Fp::mul = getCurr<opFpx3>();
 		make_Fp_mul();
 
 		align(16);
-		Fp::preInv = (int (*)(Fp&, const Fp&))getCurr();
+		Fp::preInv = getCurr<int (*)(Fp&, const Fp&)>();
 		make_Fp_preInv();
 
 		// setup FpDbl
 
 		align(16);
-		FpDbl::add = (FpDbl::bin_op *)getCurr(); // QQQ
+		FpDbl::add = getCurr<FpDbl::bin_op*>(); // QQQ
 		make_FpDbl_add(1);
 
 		align(16);
-		FpDbl::addNC = (FpDbl::bin_op *)getCurr();
+		FpDbl::addNC = getCurr<FpDbl::bin_op*>();
 		make_FpDbl_addNC(1);
 
 		align(16);
-		FpDbl::neg = (FpDbl::uni_op *)getCurr();
+		FpDbl::neg = getCurr<FpDbl::uni_op*>();
 		make_FpDbl_neg();
 
 		align(16);
-		FpDbl::sub = (FpDbl::bin_op *)getCurr();
+		FpDbl::sub = getCurr<FpDbl::bin_op*>();
 		make_FpDbl_sub(1);
 
 		align(16);
-		FpDbl::subNC = (FpDbl::bin_op *)getCurr();
+		FpDbl::subNC = getCurr<FpDbl::bin_op*>();
 		make_FpDbl_subNC(1);
 
 		align(16);
-		FpDbl::mul = (void (*)(FpDbl &, const Fp &, const Fp &))getCurr();
+		FpDbl::mul = getCurr<void (*)(FpDbl &, const Fp &, const Fp &)>();
 		make_FpDbl_mul();
 
 		align(16);
-		Fp::Dbl::mod = (void (*)(Fp &, const FpDbl &))getCurr(); // QQQ
+		Fp::Dbl::mod = getCurr<void (*)(Fp &, const FpDbl &)>(); // QQQ
 		make_FpDbl_mod();
 
 		// setup Fp2
+		typedef void (*opFp2x2)(Fp2&, const Fp2&);
+		typedef void (*opFp2x3)(Fp2&, const Fp2&, const Fp2&);
 
 		align(16);
-		Fp2::add = (void (*)(Fp2&, const Fp2&, const Fp2&))getCurr();
+		Fp2::add = getCurr<opFp2x3>();
 		make_Fp_add(2);
 
 		align(16);
-		Fp2::addNC = (void (*)(Fp2&, const Fp2&, const Fp2&))getCurr();
+		Fp2::addNC = getCurr<opFp2x3>();
 		make_Fp_addNC(2);
 
 		align(16);
-		Fp2::sub = (void (*)(Fp2&, const Fp2&, const Fp2&))getCurr();
+		Fp2::sub = getCurr<opFp2x3>();
 		make_Fp_sub(2);
 
 		align(16);
-		Fp2::mul = (void (*)(Fp2&, const Fp2&, const Fp2&))getCurr();
+		Fp2::mul = getCurr<opFp2x3>();
 		make_Fp2_mul();
 
 		align(16);
-		Fp2::mul_xi = (void (*)(Fp2&, const Fp2&))getCurr();
+		Fp2::mul_xi = getCurr<opFp2x2>();
 		make_Fp2_mul_xi();
 
 		align(16);
-		Fp2::square = (void (*)(Fp2&, const Fp2&))getCurr();
+		Fp2::square = getCurr<opFp2x2>();
 		make_Fp2_square();
 
 		align(16);
-		Fp2::mul_Fp_0 = (void (*)(Fp2&, const Fp2&, const Fp&))getCurr();
+		Fp2::mul_Fp_0 = getCurr<void (*)(Fp2&, const Fp2&, const Fp&)>();
 		make_Fp2_mul_Fp_0();
 
 		align(16);
-		Fp2::divBy2 = (void (*)(Fp2&, const Fp2&))getCurr();
+		Fp2::divBy2 = getCurr<opFp2x2>();
 		make_Fp2_divBy2();
 
 		// setup Fp2::Dbl
 
 		align(16);
-		Fp2Dbl::add = (Fp2Dbl::bin_op *)getCurr();
+		Fp2Dbl::add = getCurr<Fp2Dbl::bin_op*>();
 		make_FpDbl_add(2);
 
 		align(16);
-		Fp2Dbl::addNC = (Fp2Dbl::bin_op *)getCurr();
+		Fp2Dbl::addNC = getCurr<Fp2Dbl::bin_op*>();
 		make_FpDbl_addNC(2);
 
 		align(16);
-		Fp2Dbl::neg = (Fp2Dbl::uni_op *)getCurr();
+		Fp2Dbl::neg = getCurr<Fp2Dbl::uni_op*>();
 		make_Fp2Dbl_neg();
 
 		align(16);
-		Fp2Dbl::sub = (Fp2Dbl::bin_op *)getCurr();
+		Fp2Dbl::sub = getCurr<Fp2Dbl::bin_op*>();
 		make_FpDbl_sub(2);
 
 		align(16);
-		Fp2Dbl::subNC = (Fp2Dbl::bin_op *)getCurr();
+		Fp2Dbl::subNC = getCurr<Fp2Dbl::bin_op*>();
 		make_FpDbl_subNC(2);
 
 		align(16);
-		Fp2Dbl::mulOpt1 = (void (*)(Fp2Dbl &, const Fp2 &, const Fp2 &))getCurr();
+		Fp2Dbl::mulOpt1 = getCurr<void (*)(Fp2Dbl &, const Fp2 &, const Fp2 &)>();
 		make_Fp2Dbl_mulOpt(1);
 
 		align(16);
-		Fp2Dbl::mulOpt2 = (void (*)(Fp2Dbl &, const Fp2 &, const Fp2 &))getCurr();
+		Fp2Dbl::mulOpt2 = getCurr<void (*)(Fp2Dbl &, const Fp2 &, const Fp2 &)>();
 		make_Fp2Dbl_mulOpt(2);
 
 		align(16);
-		Fp2Dbl::square = (void (*)(Fp2Dbl &, const Fp2 &))getCurr();
+		Fp2Dbl::square = getCurr<void (*)(Fp2Dbl &, const Fp2 &)>();
 		make_Fp2Dbl_square();
 
 		align(16);
-		Fp2Dbl::mod = (void (*)(Fp2 &, const Fp2Dbl &))getCurr();
+		Fp2Dbl::mod = getCurr<void (*)(Fp2 &, const Fp2Dbl &)>();
 		make_Fp2Dbl_mod();
 
 		align(16);
-		Fp2Dbl::mul_xi = (void (*)(Fp2Dbl &, const Fp2Dbl &))getCurr();
+		Fp2Dbl::mul_xi = getCurr<void (*)(Fp2Dbl &, const Fp2Dbl &)>();
 		make_Fp2Dbl_mul_xi();
 
 		// setup Fp6
+		typedef void (*opFp6x3)(Fp6&, const Fp6&, const Fp6&);
 
 		align(16);
-		Fp6::add = (void (*)(Fp6&, const Fp6&, const Fp6&))getCurr();
+		Fp6::add = getCurr<opFp6x3>();
 		make_Fp6_add();
 
 		align(16);
-		Fp6::sub = (void (*)(Fp6&, const Fp6&, const Fp6&))getCurr();
+		Fp6::sub = getCurr<opFp6x3>();
 		make_Fp6_sub();
 
 		align(16);
-		Fp6::pointDblLineEval = (void (*)(Fp6& l, Fp2 *R, const Fp *P))getCurr();
+		Fp6::pointDblLineEval = getCurr<void (*)(Fp6&, Fp2*, const Fp*)>();
 		make_pointDblLineEval(false);
 		align(16);
-		Fp6::pointDblLineEvalWithoutP = (void (*)(Fp6& l, Fp2 *R))getCurr();
+		Fp6::pointDblLineEvalWithoutP = getCurr<void (*)(Fp6&, Fp2 *)>();
 		make_pointDblLineEval(true);
 
 		align(16);
-		Fp6Dbl::mul = (void (*)(Fp6Dbl&, const Fp6&, const Fp6&))getCurr();
+		Fp6Dbl::mul = getCurr<void (*)(Fp6Dbl&, const Fp6&, const Fp6&)>();
 		make_Fp6Dbl_mul();
 
 		align(16);
-		Fp6::mul = (void (*)(Fp6&, const Fp6&, const Fp6&))getCurr();
+		Fp6::mul = getCurr<opFp6x3>();
 		make_Fp6_mul();
 
 		align(16);
-		Compress::square_n = (void (*)(Compress&, int n))getCurr();
+		Compress::square_n = getCurr<void (*)(Compress&, int n)>();
 		make_Compress_square_n();
 
 		align(16);
-		Fp12::square = (void (*)(Fp12& z))getCurr();
+		Fp12::square = getCurr<void (*)(Fp12& z)>();
 		make_Fp12_square();
 
 		align(16);
-		Fp12::mul = (void (*)(Fp12& z, const Fp12& x, const Fp12& y))getCurr();
+		Fp12::mul = getCurr<void (*)(Fp12& z, const Fp12& x, const Fp12& y)>();
 		make_Fp12_mul();
 
 		align(16);
-		Fp12Dbl::mul_Fp2_024 = (void (*)(Fp12 &x, const Fp6& y))getCurr();
+		Fp12Dbl::mul_Fp2_024 = getCurr<void (*)(Fp12 &x, const Fp6& y)>();
 		make_Fp12Dbl_mul_Fp2_024();
 
 //		printf("jit code size=%d\n", (int)getSize());
@@ -3639,7 +3644,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 		buf.resize(codeSize + dataSize + PageSize);
 		Xbyak::uint8 *const codeAddr = Xbyak::CodeArray::getAlignedAddress(&buf[0], PageSize);
 		Xbyak::CodeArray::protect(codeAddr, codeSize, true);
-		s_data = (Data*)(codeAddr + codeSize);
+		s_data = Xbyak::CastTo<Data*>(codeAddr + codeSize);
 
 //		printf("codeAddr=%p, dataAddr=%p\n", codeAddr, s_data);
 		if ((size_t)codeAddr & 0xffffffff00000000ULL || (size_t)s_data & 0xffffffff00000000ULL) {

@@ -22,13 +22,13 @@ endif
 # for only 64-bit
 BIT=-m64
 #BIT=-m32
-#ifeq ($(shell uname -m),x86_64)
+#ifeq ($(shell uname -s),x86_64)
 #BIT=-m64
 #endif
 #ifeq ($(shell uname -s),Darwin)
 #BIT=-m64
 #endif
-ifeq ($(shell uname -o),Cygwin)
+ifeq ($(shell uname -s),Cygwin)
 # install mingw64-x86_64-gcc-g++
 CXX=x86_64-w64-mingw32-g++
 LD=x86_64-w64-mingw32-g++

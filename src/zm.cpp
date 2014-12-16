@@ -533,22 +533,22 @@ class Code : public Xbyak::CodeGenerator {
 public:
 	Code()
 	{
-		mie::local::PrimitiveFunction::addN = (bool (*)(Unit *, const Unit *, const Unit *, size_t))getCurr();
+		mie::local::PrimitiveFunction::addN = getCurr<bool (*)(Unit *, const Unit *, const Unit *, size_t)>();
 		genAddSub(true);
 		align(16);
-		mie::local::PrimitiveFunction::add1 = (bool (*)(Unit *, const Unit *, size_t, Unit))getCurr();
+		mie::local::PrimitiveFunction::add1 = getCurr<bool (*)(Unit *, const Unit *, size_t, Unit)>();
 		genAddSub1(true);
 		align(16);
-		mie::local::PrimitiveFunction::subN = (bool (*)(Unit *, const Unit *, const Unit *, size_t))getCurr();
+		mie::local::PrimitiveFunction::subN = getCurr<bool (*)(Unit *, const Unit *, const Unit *, size_t)>();
 		genAddSub(false);
 		align(16);
-		mie::local::PrimitiveFunction::mul1 = (void (*)(Unit *, const Unit *, size_t, Unit))getCurr();
+		mie::local::PrimitiveFunction::mul1 = getCurr<void (*)(Unit *, const Unit *, size_t, Unit)>();
 		genMul();
 		align(16);
-		mie::local::PrimitiveFunction::div1 = (Unit (*)(Unit *, const Unit *, size_t, Unit))getCurr();
+		mie::local::PrimitiveFunction::div1 = getCurr<Unit (*)(Unit *, const Unit *, size_t, Unit)>();
 		genDiv();
 		align(16);
-		mie::local::PrimitiveFunction::mod1 = (Unit (*)(const Unit *, size_t, Unit))getCurr();
+		mie::local::PrimitiveFunction::mod1 = getCurr<Unit (*)(const Unit *, size_t, Unit)>();
 		genMod();
 	}
 };
