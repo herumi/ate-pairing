@@ -237,20 +237,20 @@ void multi(const bn::CurveParam& cp)
 	const Ec1 g1(pt.g1.a, pt.g1.b);
 	const size_t N = 10;
 	const int c = 234567;
-	std::vector<Ec1> Ps;
-	Ps.resize(N);
+	std::vector<Ec1> g1s;
+	g1s.resize(N);
 
 	for (size_t i = 0; i < N; i++) {
-		Ec1::mul(Ps[i], g1, c + i);
-		Ps[i] = g1 * (c + i);
-		Ps[i].normalize();
+		Ec1::mul(g1s[i], g1, c + i);
+		g1s[i] = g1 * (c + i);
+		g1s[i].normalize();
 	}
 	std::vector<Fp6> Qcoeff;
 	Fp2 precQ[3];
 	bn::components::precomputeG2(Qcoeff, precQ, g2.p);
 	for (size_t i = 0; i < N; i++) {
 		Fp12 e1;
-		bn::components::millerLoop(e1, Qcoeff, Ps[i].p);
+		bn::components::millerLoop(e1, Qcoeff, g1s[i].p);
 		e1.final_exp();
 		Fp12 e2;
 		opt_atePairing(e2, g2, Ps[i]);
