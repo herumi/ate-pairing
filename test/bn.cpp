@@ -87,6 +87,8 @@ void test_multi(const bn::CurveParam& cp)
 	bn::components::millerLoop(e2, Qcoeff, precP);
 	e2.final_exp();
 	TEST_EQUAL(e, e2);
+	CYBOZU_BENCH("precomp   ", bn::components::precomputeG2, Qcoeff, precQ, g2);
+	CYBOZU_BENCH("millerLoop", bn::components::millerLoop, e2, Qcoeff, precP);
 }
 
 #ifdef BN_SUPPORT_SNARK
