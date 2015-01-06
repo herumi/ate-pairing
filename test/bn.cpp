@@ -83,7 +83,7 @@ void test_pairing(const bn::CurveParam& cp)
 	std::vector<Fp6> Qcoeff;
 	Fp2 precQ[2];
 	bn::components::precomputeG2(Qcoeff, precQ, g2);
-	Fp precP[2];
+	Fp precP[3];
 	bn::ecop::NormalizeJac(precP, g1);
 	bn::components::millerLoop(e2, Qcoeff, precP);
 	e2.final_exp();
