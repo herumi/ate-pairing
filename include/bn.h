@@ -3069,12 +3069,14 @@ inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
 	Fp2 Q1[2];
 	bn::ecop::FrobEndOnTwist_1(Q1, Q);
 	Fp2 Q2[2];
+#ifdef BN_SUPPORT_SNARK
 	bn::ecop::FrobEndOnTwist_2(Q2, Q);
 	Fp2::neg(Q2[1], Q2[1]);
+#else
 	// @memo z < 0
-	if (0) {
-		bn::Fp2::neg(T[1], T[1]);
-	}
+	ecop::FrobEndOnTwist_8(Q2, Q);
+	Fp2::neg(T[1], T[1]);
+#endif
 
 	Fp6::pointAddLineEvalWithoutP(d, T, Q1);
 	coeff.push_back(d);
@@ -3114,10 +3116,10 @@ inline void millerLoop(Fp12& f, const std::vector<Fp6>& Qcoeff, const Fp precP[2
 		}
 	}
 
+#ifndef BN_SUPPORT_SNARK
 	// @memo z < 0
-	if (0) {
-		Fp6::neg(f.b_, f.b_);
-	}
+	Fp6::neg(f.b_, f.b_);
+#endif
 	Fp12 ft;
 
 	d = Qcoeff[idx];
@@ -3179,10 +3181,10 @@ inline void millerLoop2(Fp12& f, const std::vector<Fp6>& Q1coeff, const Fp precP
 		}
 	}
 
+#ifndef BN_SUPPORT_SNARK
 	// @memo z < 0
-	if (0) {
-		Fp6::neg(f.b_, f.b_);
-	}
+	Fp6::neg(f.b_, f.b_);
+#endif
 
 	d1 = Q1coeff[idx];
 	Fp6::mulFp6_24_Fp_01(d1, precP1);
