@@ -3025,6 +3025,9 @@ inline bool EcT<Fp>::isValid() const
 */
 namespace components {
 
+/*
+	inQ[3] : permit not-normalized
+*/
 inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[3], const Fp2 inQ[3])
 {
 	coeff.clear();
@@ -3085,6 +3088,9 @@ inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[3], const Fp2 inQ[3])
 	coeff.push_back(e);
 }
 
+/*
+	precP : normalized point
+*/
 inline void millerLoop(Fp12& f, const std::vector<Fp6>& Qcoeff, const Fp precP[2])
 {
 	assert(Param::siTbl[1] == 1);
