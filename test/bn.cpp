@@ -62,10 +62,9 @@ void benchFp2()
 	CYBOZU_BENCH("Fp2::divBy4  ", Fp2::divBy4, x, x);
 }
 
-#ifdef BN_SUPPORT_SNARK
-
-void test_pairing(const bn::CurveParam& cp)
+void test_multi(const bn::CurveParam& cp)
 {
+	puts(__FUNCTION__);
 	const Point& pt = selectPoint(cp);
 	const Fp2 g2[3] = {
 		Fp2(Fp(pt.g2.aa), Fp(pt.g2.ab)),
@@ -89,6 +88,9 @@ void test_pairing(const bn::CurveParam& cp)
 	e2.final_exp();
 	TEST_EQUAL(e, e2);
 }
+
+#ifdef BN_SUPPORT_SNARK
+
 int main(int argc, char *argv[])
 {
 	int b = 3;
@@ -103,7 +105,7 @@ int main(int argc, char *argv[])
 	bn::CurveParam cp = bn::CurveSNARK1;
 	cp.b = b;
 	bn::Param::init(cp);
-	test_pairing(cp);
+	test_multi(cp);
 	if (sclk.getCount()) printf("sclk:%.2fclk(%dtimes)\n", sclk.getClock() / double(sclk.getCount()), sclk.getCount());
 	printf("err=%d(test=%d)\n", s_errNum, s_testNum);
 }
@@ -1979,6 +1981,7 @@ void benchAll(bool benchAll)
 	benchEcFp();
 	benchEcFp2();
 }
+
 int main(int argc, char* argv[]) try
 {
 	argc--, argv++;
@@ -2035,6 +2038,7 @@ int main(int argc, char* argv[]) try
 	testPairingJac();
 	test_final_exp();
 	testPairing();
+	test_multi(bn::CurveFp254BNb);
 	benchAll(allBench);
 
 	if (sclk.getCount()) printf("sclk:%.2fclk(%dtimes)\n", sclk.getClock() / double(sclk.getCount()), sclk.getCount());
