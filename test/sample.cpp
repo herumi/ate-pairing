@@ -224,6 +224,42 @@ void sample2(const bn::CurveParam& cp)
 	verify("g1b == g1 * b", g1b, g1 * b);
 }
 
+void multi(const bn::CurveParam& cp)
+{
+	using namespace bn;
+	// init my library
+	Param::init(cp);
+	const Point& pt = selectPoint(cp);
+	const Ec2 g2(
+		Fp2(Fp(pt.g2.aa), Fp(pt.g2.ab)),
+		Fp2(Fp(pt.g2.ba), Fp(pt.g2.bb))
+	);
+	const Ec1 g1(pt.g1.a, pt.g1.b);
+	const size_t N = 10;
+	const int c = 234567;
+	std::vector<Ec1> Ps;
+	Ps.resize(N);
+
+	for (size_t i = 0; i < N; i++) {
+		Ec1::mul(Ps[i], g1, c + i);
+		Ps[i] = g1 * (c + i);
+		Ps[i].normalize();
+	}
+	std::vector<Fp6> Qcoeff;
+	Fp2 precQ[3];
+	bn::components::precomputeG2(Qcoeff, precQ, g2.p);
+	for (size_t i = 0; i < N; i++) {
+		Fp12 e1;
+		bn::components::millerLoop(e1, Qcoeff, Ps[i].p);
+		e1.final_exp();
+		Fp12 e2;
+		opt_atePairing(e2, g2, Ps[i]);
+		if (e1 != e2) {
+			printf("err multi %d\n", (int)i);
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 {
 #ifdef BN_SUPPORT_SNARK
@@ -249,5 +285,7 @@ int main(int argc, char *argv[])
 	sample1(cp);
 	puts("sample2");
 	sample2(cp);
+	puts("multi");
+	multi(cp);
 	printf("errNum = %d\n", errNum);
 }
