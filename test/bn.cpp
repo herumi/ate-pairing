@@ -1929,10 +1929,20 @@ void benchFp6()
 	}
 	CYBOZU_BENCH("Fp6::add    ", Fp6::add, x, x, y);
 	CYBOZU_BENCH("Fp6::sub    ", Fp6::sub, x, x, y);
-	CYBOZU_BENCH("Fp6::addC   ", Fp6::addC, x, x, y);
-	CYBOZU_BENCH("Fp6::subC   ", Fp6::subC, x, x, y);
 	CYBOZU_BENCH("Fp6::mul    ", Fp6::mul, x, x, y);
 	CYBOZU_BENCH("Fp6::inverse", x.inverse);
+}
+void benchFp12()
+{
+	Fp12 x, y;
+
+	for (int i = 0; i < 12; i++) {
+		x.get()[i] = i * i + 3;
+	}
+	CYBOZU_BENCH("Fp12::add    ", Fp12::add, x, x, y);
+	CYBOZU_BENCH("Fp12::sub    ", Fp12::sub, x, x, y);
+	CYBOZU_BENCH("Fp12::mul    ", Fp12::mul, x, x, y);
+	CYBOZU_BENCH("Fp12::inverse", x.inverse);
 }
 void benchEcFp()
 {
@@ -1977,6 +1987,7 @@ void benchAll(bool benchAll)
 	benchFp2();
 	benchFpDbl();
 	benchFp6();
+	benchFp12();
 	benchFp6Dbl();
 	benchEcFp();
 	benchEcFp2();
