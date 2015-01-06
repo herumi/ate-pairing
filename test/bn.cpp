@@ -80,7 +80,7 @@ void test_multi(const bn::CurveParam& cp)
 
 	Fp12 e2;
 	std::vector<Fp6> Qcoeff;
-	Fp2 precQ[2];
+	Fp2 precQ[3];
 	bn::components::precomputeG2(Qcoeff, precQ, g2);
 	Fp precP[3];
 	bn::ecop::NormalizeJac(precP, g1);

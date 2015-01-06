@@ -3025,7 +3025,7 @@ inline bool EcT<Fp>::isValid() const
 */
 namespace components {
 
-inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[2], const Fp2 inQ[2])
+inline void precomputeG2(std::vector<Fp6>& coeff, Fp2 Q[3], const Fp2 inQ[3])
 {
 	coeff.clear();
 	bn::ecop::NormalizeJac(Q, inQ);
