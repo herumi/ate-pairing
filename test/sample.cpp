@@ -253,7 +253,7 @@ void multi(const bn::CurveParam& cp)
 		bn::components::millerLoop(e1, Qcoeff, g1s[i].p);
 		e1.final_exp();
 		Fp12 e2;
-		opt_atePairing(e2, g2, Ps[i]);
+		opt_atePairing(e2, g2, g1s[i]);
 		if (e1 != e2) {
 			printf("err multi %d\n", (int)i);
 		}
