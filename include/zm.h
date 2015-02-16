@@ -88,6 +88,8 @@ inline std::istream& getDigits(std::istream& is, std::string& str, bool allowNeg
 	char c;
 	while (is >> c) {
 		if (('0' <= c && c <= '9') /* digits */
+		  || ('a' <= c && c <= 'f') /* lowercase hex */
+		  || ('A' <= c && c <= 'F') /* uppercase hex */
 		  || (pos == 1 && (str[0] == '0' && c == 'x')) /* 0x.. */
 		  || (allowNegative && pos == 0 && c == '-')) { /* -digits */
 			str.push_back(c);

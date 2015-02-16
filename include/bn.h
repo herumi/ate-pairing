@@ -565,6 +565,11 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		return a_ == rhs.a_ && b_ == rhs.b_;
 	}
 	bool operator!=(const Fp2T& rhs) const { return !operator==(rhs); }
+	
+	void set(const char* val) {
+	  std::stringstream sstr(val);
+	  sstr >> *this;
+	}
 
 	// z = x * b
 	static inline void mul_Fp_0C(Fp2T& z, const Fp2T& x, const Fp& b)

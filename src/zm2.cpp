@@ -3603,7 +3603,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 		exit(1);
 	}
 	if (scipr) {
-		fprintf(stderr, "support SNARK\n");
+		//fprintf(stderr, "support SNARK\n");
 	}
 	static bool init = false;
 	if (init) return;
