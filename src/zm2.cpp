@@ -3602,9 +3602,6 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 		fprintf(stderr, "use -DBN_SUPPORT_SNARK for all sources\n");
 		exit(1);
 	}
-	if (scipr) {
-		fprintf(stderr, "support SNARK\n");
-	}
 	static bool init = false;
 	if (init) return;
 	init = true;
