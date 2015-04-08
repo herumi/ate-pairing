@@ -2920,9 +2920,9 @@ public:
 	}
 	static inline void neg(EcT& R, const EcT& P)
 	{
-		R.x = P.x;
-		T::neg(R.y, P.y);
-		R.z = P.z;
+		R.p[0] = P.p[0];
+		T::neg(R.p[1], P.p[1]);
+		R.p[2] = P.p[2];
 	}
 	template<class N>
 	static inline void mul(EcT& R, const EcT& P, const N& y)
