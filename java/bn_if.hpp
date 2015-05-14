@@ -1,15 +1,13 @@
 #pragma once
 /**
 	@file
-	@brief BN parameter
+	@brief api for Java
 	@author herumi and t_teruya
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
 #define MIE_ATE_USE_GMP
 #include "bn.h"
-
-namespace mcl { namespace bn {
 
 inline void SystemInit() throw(std::exception)
 {
@@ -23,6 +21,8 @@ class Ec2;
 
 class Mpz {
 	mpz_class self_;
+	friend class Fp;
+	friend class Fp2;
 	friend class Fp12;
 	friend class Ec1;
 	friend class Ec2;
@@ -48,6 +48,7 @@ public:
 	void sub(const Mpz& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Mpz& rhs) throw(std::exception) { self_ *= rhs.self_; }
 	void mod(const Mpz& rhs) throw(std::exception) { self_ %= rhs.self_; }
+//	friend inline std::ostream& operator<<(std::ostream& os, const Mpz& self) { return os << self.self_; }
 };
 
 class Fp {
@@ -74,6 +75,11 @@ public:
 	void add(const Fp& rhs) throw(std::exception) { self_ += rhs.self_; }
 	void sub(const Fp& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Fp& rhs) throw(std::exception) { self_ *= rhs.self_; }
+//	friend inline std::ostream& operator<<(std::ostream& os, const Fp& self) { return os << self.self_; }
+	void power(const Mpz& x)
+	{
+		self_ = mie::power(self_, x.self_);
+	}
 };
 
 class Fp2 {
@@ -82,10 +88,14 @@ class Fp2 {
 public:
 	Fp2() {}
 	Fp2(int x) : self_(x) {}
-	Fp2(const Fp& a, Fp& b) throw(std::exception)
+	Fp2(const Fp& a, const Fp& b) throw(std::exception)
 		: self_(a.self_, b.self_)
 	{
 	}
+	const Fp& getA() const { return *reinterpret_cast<const Fp*>(&self_.a_); }
+	const Fp& getB() const { return *reinterpret_cast<const Fp*>(&self_.b_); }
+	void setA(const Fp& x) { self_.a_ = x.self_; }
+	void setB(const Fp& x) { self_.b_ = x.self_; }
 	std::string toStr() const throw(std::exception)
 	{
 		return self_.toString();
@@ -99,6 +109,11 @@ public:
 	void add(const Fp2& rhs) throw(std::exception) { self_ += rhs.self_; }
 	void sub(const Fp2& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Fp2& rhs) throw(std::exception) { self_ *= rhs.self_; }
+//	friend inline std::ostream& operator<<(std::ostream& os, const Fp2& self) { return os << self.self_; }
+	void power(const Mpz& x)
+	{
+		self_ = mie::power(self_, x.self_);
+	}
 };
 
 class Fp12 {
@@ -123,9 +138,10 @@ public:
 	void sub(const Fp12& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Fp12& rhs) throw(std::exception) { self_ *= rhs.self_; }
 	void pairing(const Ec2& ec2, const Ec1& ec1);
+//	friend inline std::ostream& operator<<(std::ostream& os, const Fp12& self) { return os << self.self_; }
 	void power(const Mpz& x)
 	{
-		mie::power(self_, x.self_);
+		self_ = mie::power(self_, x.self_);
 	}
 };
 
@@ -133,7 +149,7 @@ class Ec1 {
 	::bn::Ec1 self_;
 	friend class Fp12;
 public:
-	Ec1() {}
+	Ec1() { self_.clear(); }
 	Ec1(const Fp& x, const Fp& y) throw(std::exception)
 	{
 		set(x, y);
@@ -171,6 +187,10 @@ public:
 	void add(const Ec1& rhs) { ::bn::Ec1::add(self_, self_, rhs.self_); }
 	void sub(const Ec1& rhs) { ::bn::Ec1::sub(self_, self_, rhs.self_); }
 	void mul(const Mpz& rhs) { ::bn::Ec1::mul(self_, self_, rhs.self_); }
+	const Fp& getX() const { return *reinterpret_cast<const Fp*>(&self_.p[0]); }
+	const Fp& getY() const { return *reinterpret_cast<const Fp*>(&self_.p[1]); }
+	const Fp& getZ() const { return *reinterpret_cast<const Fp*>(&self_.p[2]); }
+//	friend inline std::ostream& operator<<(std::ostream& os, const Ec1& self) { return os << self.self_; }
 };
 
 class Ec2 {
@@ -215,6 +235,7 @@ public:
 	void add(const Ec2& rhs) { ::bn::Ec2::add(self_, self_, rhs.self_); }
 	void sub(const Ec2& rhs) { ::bn::Ec2::sub(self_, self_, rhs.self_); }
 	void mul(const Mpz& rhs) { ::bn::Ec2::mul(self_, self_, rhs.self_); }
+//	friend inline std::ostream& operator<<(std::ostream& os, const Ec2& self) { return os << self.self_; }
 };
 
 void Fp12::pairing(const Ec2& ec2, const Ec1& ec1)
@@ -222,5 +243,36 @@ void Fp12::pairing(const Ec2& ec2, const Ec1& ec1)
 	::bn::opt_atePairing(self_, ec2.self_, ec1.self_);
 }
 
-} } // mcl::bn
+inline const Mpz& GetParamR()
+{
+	static Mpz r("16798108731015832284940804142231733909759579603404752749028378864165570215949");
+	return r;
+}
 
+#ifdef _MSC_VER
+#if _MSC_VER == 1900
+#ifdef _DEBUG
+#pragma comment(lib, "14/mpird.lib")
+#pragma comment(lib, "14/mpirxxd.lib")
+#else
+#pragma comment(lib, "14/mpir.lib")
+#pragma comment(lib, "14/mpirxx.lib")
+#endif
+#elif _MSC_VER == 1800
+#ifdef _DEBUG
+#pragma comment(lib, "12/mpird.lib")
+#pragma comment(lib, "12/mpirxxd.lib")
+#else
+#pragma comment(lib, "12/mpir.lib")
+#pragma comment(lib, "12/mpirxx.lib")
+#endif
+#else
+#ifdef _DEBUG
+#pragma comment(lib, "mpird.lib")
+#pragma comment(lib, "mpirxxd.lib")
+#else
+#pragma comment(lib, "mpir.lib")
+#pragma comment(lib, "mpirxx.lib")
+#endif
+#endif
+#endif
