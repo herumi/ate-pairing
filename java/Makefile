@@ -12,32 +12,32 @@ else
 endif
 CFLAGS+= -shared -fPIC $(JAVA_INC)
 
-PACKAGE_NAME=mcl.bn
+PACKAGE_NAME=mcl.bn254
 PACKAGE_DIR=$(subst .,/,$(PACKAGE_NAME))
 
-TARGET=../bin/libbn_if_wrap.$(LIB_SUF)
+TARGET=../bin/libbn254_if_wrap.$(LIB_SUF)
 JAVA_EXE=cd ../bin && LD_LIBRARY_PATH=./:$(LD_LIBRARY_PATH) java -classpath ../java
 all: $(TARGET)
 
-bn_if_wrap.cxx: bn_if.i bn_if.hpp
+bn254_if_wrap.cxx: bn254_if.i bn254_if.hpp
 	$(MKDIR) $(PACKAGE_DIR)
-	swig -java -package $(PACKAGE_NAME) -outdir $(PACKAGE_DIR) -c++ -Wall bn_if.i
+	swig -java -package $(PACKAGE_NAME) -outdir $(PACKAGE_DIR) -c++ -Wall bn254_if.i
 
-$(TARGET): bn_if_wrap.cxx
+$(TARGET): bn254_if_wrap.cxx
 	$(MKDIR) ../bin
 	$(PRE)$(CXX) $< -o $@ $(CFLAGS) $(LDFLAGS) -I../include ../src/zm2.cpp ../src/zm.cpp
 
 %.class: %.java
 	javac $<
 
-BnTest.class: BnTest.java $(TARGET)
+BN254Test.class: BN254Test.java $(TARGET)
 
 jar:
-	jar cvf bn.jar mcl
+	jar cvf bn254.jar mcl
 
-test: BnTest.class $(TARGET)
-	$(JAVA_EXE) BnTest
+test: BN254Test.class $(TARGET)
+	$(JAVA_EXE) BN254Test
 
 clean:
-	rm -rf *.class $(TARGET) $(PACKAGE_DIR)/*.class bn_if_wrap.cxx
+	rm -rf *.class $(TARGET) $(PACKAGE_DIR)/*.class bn254_if_wrap.cxx
 

@@ -1,13 +1,13 @@
 import java.io.*;
-import mcl.bn.*;
+import mcl.bn254.*;
 
-public class BnTest {
+public class BN254Test {
 	static {
-		System.loadLibrary("bn_if_wrap");
+		System.loadLibrary("bn254_if_wrap");
 	}
 	public static void main(String argv[]) {
 		try {
-			Bn.SystemInit();
+			BN254.SystemInit();
 
 			Fp aa = new Fp("12723517038133731887338407189719511622662176727675373276651903807414909099441");
 			Fp ab = new Fp("4168783608814932154536427934509895782246573715297911553964171371032945126671");
@@ -19,7 +19,7 @@ public class BnTest {
 			System.out.println("g2=" + g2);
 			assertBool("g1 is on EC", g1.isValid());
 			assertBool("g2 is on twist EC", g2.isValid());
-			Mpz r = Bn.GetParamR();
+			Mpz r = BN254.GetParamR();
 			System.out.println("r=" + r);
 
 			{

@@ -1,10 +1,10 @@
-%module Bn
+%module BN254
 
 %include "std_string.i"
 %include "std_except.i"
 
 %{
-#include "bn_if.hpp"
+#include "bn254_if.hpp"
 %}
 
 %typemap(javacode) Mpz %{
@@ -55,5 +55,5 @@
   }
 %}
 
-%include "bn_if.hpp"
+%include "bn254_if.hpp"
 

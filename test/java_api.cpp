@@ -1,7 +1,7 @@
 /*
 	a new api of pairing for Java
 */
-#include "../java/bn_if.hpp"
+#include "../java/bn254_if.hpp"
 #include <iostream>
 
 #undef PUT
