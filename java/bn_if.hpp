@@ -31,24 +31,23 @@ public:
 	Mpz(int x) throw(std::exception) : self_(x) {}
 	Mpz(const std::string& str) throw(std::exception)
 	{
-		fromStr(str);
+		set(str);
 	}
-	std::string toStr() const throw(std::exception)
-	{
-		return self_.get_str();
-	}
-	void fromStr(const std::string& str) throw(std::exception)
+	void set(int x) throw(std::exception) { self_ = x; }
+	void set(const std::string& str) throw(std::exception)
 	{
 		self_.set_str(str, 0);
 	}
-	std::string toString() const throw(std::exception) { return toStr(); }
+	std::string toString() const throw(std::exception)
+	{
+		return self_.get_str();
+	}
 	bool equals(const Mpz& rhs) const { return self_ == rhs.self_; }
 	int compareTo(const Mpz& rhs) const { return mpz_cmp(self_.get_mpz_t(), rhs.self_.get_mpz_t()); }
 	void add(const Mpz& rhs) throw(std::exception) { self_ += rhs.self_; }
 	void sub(const Mpz& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Mpz& rhs) throw(std::exception) { self_ *= rhs.self_; }
 	void mod(const Mpz& rhs) throw(std::exception) { self_ %= rhs.self_; }
-//	friend inline std::ostream& operator<<(std::ostream& os, const Mpz& self) { return os << self.self_; }
 };
 
 class Fp {
@@ -62,20 +61,19 @@ public:
 	{
 		self_.set(str);
 	}
-	std::string toStr() const throw(std::exception)
-	{
-		return self_.toString();
-	}
-	void fromStr(const std::string& str) throw(std::exception)
+	void set(int x) { self_ = x; }
+	void set(const std::string& str) throw(std::exception)
 	{
 		self_.set(str);
 	}
-	std::string toString() const throw(std::exception) { return toStr(); }
+	std::string toString() const throw(std::exception)
+	{
+		return self_.toString();
+	}
 	bool equals(const Fp& rhs) const { return self_ == rhs.self_; }
 	void add(const Fp& rhs) throw(std::exception) { self_ += rhs.self_; }
 	void sub(const Fp& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Fp& rhs) throw(std::exception) { self_ *= rhs.self_; }
-//	friend inline std::ostream& operator<<(std::ostream& os, const Fp& self) { return os << self.self_; }
 	void power(const Mpz& x)
 	{
 		self_ = mie::power(self_, x.self_);
@@ -87,29 +85,30 @@ class Fp2 {
 	friend class Ec2;
 public:
 	Fp2() {}
-	Fp2(int x) : self_(x) {}
+	Fp2(int a) : self_(a) {}
+	Fp2(int a, int b) : self_(a, b) {}
 	Fp2(const Fp& a, const Fp& b) throw(std::exception)
 		: self_(a.self_, b.self_)
 	{
 	}
-	const Fp& getA() const { return *reinterpret_cast<const Fp*>(&self_.a_); }
-	const Fp& getB() const { return *reinterpret_cast<const Fp*>(&self_.b_); }
-	void setA(const Fp& x) { self_.a_ = x.self_; }
-	void setB(const Fp& x) { self_.b_ = x.self_; }
-	std::string toStr() const throw(std::exception)
+	Fp2(const std::string& a, const std::string& b) throw(std::exception)
+		: self_(Fp(a).self_, Fp(b).self_)
 	{
-		return self_.toString();
 	}
-	void fromStr(const std::string& str) throw(std::exception)
+	Fp& getA() { return *reinterpret_cast<Fp*>(&self_.a_); }
+	Fp& getB() { return *reinterpret_cast<Fp*>(&self_.b_); }
+	void set(const std::string& str) throw(std::exception)
 	{
 		self_.set(str);
 	}
-	std::string toString() const throw(std::exception) { return toStr(); }
+	std::string toString() const throw(std::exception)
+	{
+		return self_.toString();
+	}
 	bool equals(const Fp2& rhs) const { return self_ == rhs.self_; }
 	void add(const Fp2& rhs) throw(std::exception) { self_ += rhs.self_; }
 	void sub(const Fp2& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Fp2& rhs) throw(std::exception) { self_ *= rhs.self_; }
-//	friend inline std::ostream& operator<<(std::ostream& os, const Fp2& self) { return os << self.self_; }
 	void power(const Mpz& x)
 	{
 		self_ = mie::power(self_, x.self_);
@@ -121,24 +120,22 @@ class Fp12 {
 public:
 	Fp12() {}
 	Fp12(int x) : self_(x) {}
-	std::string toStr() const throw(std::exception)
+	void set(const std::string& str) throw(std::exception)
+	{
+		std::istringstream iss(str);
+		iss >> self_;
+	}
+	std::string toString() const throw(std::exception)
 	{
 		std::ostringstream oss;
 		oss << self_;
 		return oss.str();
 	}
-	void fromStr(const std::string& str) throw(std::exception)
-	{
-		std::istringstream iss(str);
-		iss >> self_;
-	}
-	std::string toString() const throw(std::exception) { return toStr(); }
 	bool equals(const Fp12& rhs) const { return self_ == rhs.self_; }
 	void add(const Fp12& rhs) throw(std::exception) { self_ += rhs.self_; }
 	void sub(const Fp12& rhs) throw(std::exception) { self_ -= rhs.self_; }
 	void mul(const Fp12& rhs) throw(std::exception) { self_ *= rhs.self_; }
 	void pairing(const Ec2& ec2, const Ec1& ec1);
-//	friend inline std::ostream& operator<<(std::ostream& os, const Fp12& self) { return os << self.self_; }
 	void power(const Mpz& x)
 	{
 		self_ = mie::power(self_, x.self_);
@@ -167,18 +164,17 @@ public:
 	{
 		self_.set(x.self_, y.self_, z.self_);
 	}
-	std::string toStr() const throw(std::exception)
+	void set(const std::string& str) throw(std::exception)
+	{
+		std::istringstream iss(str);
+		iss >> self_;
+	}
+	std::string toString() const throw(std::exception)
 	{
 		std::ostringstream oss;
 		oss << self_;
 		return oss.str();
 	}
-	void fromStr(const std::string& str) throw(std::exception)
-	{
-		std::istringstream iss(str);
-		iss >> self_;
-	}
-	std::string toString() const throw(std::exception) { return toStr(); }
 	bool equals(const Ec1& rhs) const { return self_ == rhs.self_; }
 	bool isZero() const { return self_.isZero(); }
 	void clear() { self_.clear(); }
@@ -187,10 +183,9 @@ public:
 	void add(const Ec1& rhs) { ::bn::Ec1::add(self_, self_, rhs.self_); }
 	void sub(const Ec1& rhs) { ::bn::Ec1::sub(self_, self_, rhs.self_); }
 	void mul(const Mpz& rhs) { ::bn::Ec1::mul(self_, self_, rhs.self_); }
-	const Fp& getX() const { return *reinterpret_cast<const Fp*>(&self_.p[0]); }
-	const Fp& getY() const { return *reinterpret_cast<const Fp*>(&self_.p[1]); }
-	const Fp& getZ() const { return *reinterpret_cast<const Fp*>(&self_.p[2]); }
-//	friend inline std::ostream& operator<<(std::ostream& os, const Ec1& self) { return os << self.self_; }
+	Fp& getX() { return *reinterpret_cast<Fp*>(&self_.p[0]); }
+	Fp& getY() { return *reinterpret_cast<Fp*>(&self_.p[1]); }
+	Fp& getZ() { return *reinterpret_cast<Fp*>(&self_.p[2]); }
 };
 
 class Ec2 {
@@ -215,18 +210,17 @@ public:
 	{
 		self_.set(x.self_, y.self_, z.self_);
 	}
-	std::string toStr() const throw(std::exception)
+	void set(const std::string& str) throw(std::exception)
+	{
+		std::istringstream iss(str);
+		iss >> self_;
+	}
+	std::string toString() const throw(std::exception)
 	{
 		std::ostringstream oss;
 		oss << self_;
 		return oss.str();
 	}
-	void fromStr(const std::string& str) throw(std::exception)
-	{
-		std::istringstream iss(str);
-		iss >> self_;
-	}
-	std::string toString() const throw(std::exception) { return toStr(); }
 	bool equals(const Ec2& rhs) const { return self_ == rhs.self_; }
 	bool isZero() const { return self_.isZero(); }
 	void clear() { self_.clear(); }
@@ -235,7 +229,9 @@ public:
 	void add(const Ec2& rhs) { ::bn::Ec2::add(self_, self_, rhs.self_); }
 	void sub(const Ec2& rhs) { ::bn::Ec2::sub(self_, self_, rhs.self_); }
 	void mul(const Mpz& rhs) { ::bn::Ec2::mul(self_, self_, rhs.self_); }
-//	friend inline std::ostream& operator<<(std::ostream& os, const Ec2& self) { return os << self.self_; }
+	Fp2& getX() { return *reinterpret_cast<Fp2*>(&self_.p[0]); }
+	Fp2& getY() { return *reinterpret_cast<Fp2*>(&self_.p[1]); }
+	Fp2& getZ() { return *reinterpret_cast<Fp2*>(&self_.p[2]); }
 };
 
 void Fp12::pairing(const Ec2& ec2, const Ec1& ec1)

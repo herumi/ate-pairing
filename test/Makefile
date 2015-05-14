@@ -4,7 +4,7 @@ HEADER= ../include/zm.h ../include/bn.h ../include/zm2.h test_point.hpp
 TARGET=test_zm bn ../lib/libzm.a
 
 ifeq ($(BIT),-m64)
-TARGET += bench_test sample loop_test new_api
+TARGET += bench_test sample loop_test java_api
 endif
 
 all:$(TARGET)
@@ -20,7 +20,7 @@ bn: bn.o ../lib/libzm.a
 sample: sample.o ../lib/libzm.a
 	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
 
-new_api: new_api.o ../lib/libzm.a
+java_api: java_api.o ../lib/libzm.a
 	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
 
 loop_test: loop_test.o ../lib/libzm.a
@@ -43,6 +43,5 @@ test_zm.o: test_zm.cpp $(HEADER)
 bn.o: bn.cpp $(HEADER)
 bench.o: bench.cpp $(HEADER)
 sample.o: sample.cpp $(HEADER)
-new_api.o: new_api.cpp $(HEADER) ../include/bn_pairing.hpp
+java_api.o: java_api.cpp $(HEADER) ../java/bn_if.hpp
 loop_test.o: loop_test.cpp $(HEADER)
-

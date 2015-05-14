@@ -1,8 +1,11 @@
 /*
 	a new api of pairing for Java
 */
-#include "bn_pairing.hpp"
+#include "../java/bn_if.hpp"
 #include <iostream>
+
+#undef PUT
+#define PUT(x) std::cout << #x "\t=" << (x).toString() << std::endl
 
 static int errNum = 0;
 
@@ -15,13 +18,13 @@ void verifyAssert(const char *msg, bool b)
 		errNum++;
 	}
 }
+
 template<class T, class S>
 void verifyEqual(const char *msg, const T& a, const S& b)
 {
 	if (a.equals(b)) {
 		printf("%s : ok\n", msg);
 	} else {
-		printf("%s : ng\n", msg);
 		PUT(a);
 		PUT(b);
 		errNum++;
@@ -42,10 +45,7 @@ struct G2 {
 
 int main()
 {
-	using namespace mcl::bn;
 	SystemInit();
-	Fp x(-5);
-	std::cout << x.toString() << std::endl;
 	const Ec1 g1(-1, 1);
 	const Ec2 g2(
 		Fp2(Fp(g2c.aa), Fp(g2c.ab)),
@@ -56,7 +56,7 @@ int main()
 	verifyAssert("g2 is on twist EC", g2.isValid());
 	puts("order of group");
 	const Mpz& r = GetParamR();
-	std::cout << r << std::endl;
+	PUT(r);
 	{
 		Ec1 t = g1;
 		t.mul(r);
@@ -90,7 +90,7 @@ int main()
 	{
 		Fp12 t = e;
 		t.power(r);
-		verifyEqual("order of e == r", t, 1);
+		verifyEqual("order of e == r", t, Fp12(1));
 	}
 	Ec2 g2a = g2;
 	g2a.mul(a);
