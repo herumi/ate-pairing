@@ -1,5 +1,4 @@
 import java.io.*;
-import java.math.BigInteger;
 import mcl.bn.*;
 
 public class BnTest {
