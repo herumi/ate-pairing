@@ -2,7 +2,7 @@
 /**
 	@file
 	@brief api for Java
-	@author herumi and t_teruya
+	@author herumi
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
