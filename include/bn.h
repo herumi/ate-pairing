@@ -2914,7 +2914,7 @@ public:
 	}
 	static inline void sub(EcT& R, const EcT& P, const EcT& Q)
 	{
-		EcT negQ[3];
+		EcT negQ;
 		neg(negQ, Q);
 		add(R, P, negQ);
 	}
