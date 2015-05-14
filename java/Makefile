@@ -15,17 +15,17 @@ CFLAGS+= -shared -fPIC $(JAVA_INC)
 PACKAGE_NAME=mcl.bn
 PACKAGE_DIR=$(subst .,/,$(PACKAGE_NAME))
 
-TARGET=../test/libbn_wrap.$(LIB_SUF)
-JAVA_EXE=cd ../test && LD_LIBRARY_PATH=./:$(LD_LIBRARY_PATH) java -classpath ../java
+TARGET=../bin/libbn_if_wrap.$(LIB_SUF)
+JAVA_EXE=cd ../bin && LD_LIBRARY_PATH=./:$(LD_LIBRARY_PATH) java -classpath ../java
 all: $(TARGET)
 
-bn_wrap.cxx: bn.i ../include/bn.hpp
+bn_if_wrap.cxx: bn_if.i bn_if.hpp
 	$(MKDIR) $(PACKAGE_DIR)
-	swig -java -package $(PACKAGE_NAME) -outdir $(PACKAGE_DIR) -c++ -Wall bn.i
+	swig -java -package $(PACKAGE_NAME) -outdir $(PACKAGE_DIR) -c++ -Wall bn_if.i
 
-$(TARGET): bn_wrap.cxx
+$(TARGET): bn_if_wrap.cxx
+	$(MKDIR) ../bin
 	$(PRE)$(CXX) $< -o $@ $(CFLAGS) $(LDFLAGS) -I../include ../src/zm2.cpp ../src/zm.cpp
-
 
 %.class: %.java
 	javac $<
@@ -39,5 +39,5 @@ test: BnTest.class $(TARGET)
 	$(JAVA_EXE) BnTest
 
 clean:
-	rm -rf *.class $(TARGET) $(PACKAGE_DIR)/*.class bn_wrap.cxx
+	rm -rf *.class $(TARGET) $(PACKAGE_DIR)/*.class bn_if_wrap.cxx
 

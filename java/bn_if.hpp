@@ -28,6 +28,7 @@ class Mpz {
 	friend class Ec2;
 public:
 	Mpz() {}
+	Mpz(const Mpz& x) : self_(x.self_) {}
 	Mpz(int x) throw(std::exception) : self_(x) {}
 	Mpz(const std::string& str) throw(std::exception)
 	{
@@ -56,6 +57,7 @@ class Fp {
 	friend class Ec1;
 public:
 	Fp() {}
+	Fp(const Fp& x) : self_(x.self_) {}
 	Fp(int x) : self_(x) {}
 	Fp(const std::string& str) throw(std::exception)
 	{
@@ -85,6 +87,7 @@ class Fp2 {
 	friend class Ec2;
 public:
 	Fp2() {}
+	Fp2(const Fp2& x) : self_(x.self_) {}
 	Fp2(int a) : self_(a) {}
 	Fp2(int a, int b) : self_(a, b) {}
 	Fp2(const Fp& a, const Fp& b) throw(std::exception)
@@ -119,6 +122,7 @@ class Fp12 {
 	::bn::Fp12 self_;
 public:
 	Fp12() {}
+	Fp12(const Fp12& x) : self_(x.self_) {}
 	Fp12(int x) : self_(x) {}
 	void set(const std::string& str) throw(std::exception)
 	{
@@ -147,6 +151,7 @@ class Ec1 {
 	friend class Fp12;
 public:
 	Ec1() { self_.clear(); }
+	Ec1(const Ec1& x) : self_(x.self_) {}
 	Ec1(const Fp& x, const Fp& y) throw(std::exception)
 	{
 		set(x, y);
@@ -193,6 +198,7 @@ class Ec2 {
 	friend class Fp12;
 public:
 	Ec2() {}
+	Ec2(const Ec2& x) : self_(x.self_) {}
 	Ec2(const Fp2& x, const Fp2& y) throw(std::exception)
 	{
 		set(x, y);

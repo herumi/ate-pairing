@@ -9,7 +9,7 @@
 
 static int errNum = 0;
 
-void verifyAssert(const char *msg, bool b)
+void assertBool(const char *msg, bool b)
 {
 	if (b) {
 		printf("%s : ok\n", msg);
@@ -20,7 +20,7 @@ void verifyAssert(const char *msg, bool b)
 }
 
 template<class T, class S>
-void verifyEqual(const char *msg, const T& a, const S& b)
+void assertEqual(const char *msg, const T& a, const S& b)
 {
 	if (a.equals(b)) {
 		printf("%s : ok\n", msg);
@@ -51,21 +51,21 @@ int main()
 		Fp2(Fp(g2c.aa), Fp(g2c.ab)),
 		Fp2(Fp(g2c.ba), Fp(g2c.bb))
 	);
-	// verifyAssert g2 and g1 on curve
-	verifyAssert("g1 is on EC", g1.isValid());
-	verifyAssert("g2 is on twist EC", g2.isValid());
+	// assertBool g2 and g1 on curve
+	assertBool("g1 is on EC", g1.isValid());
+	assertBool("g2 is on twist EC", g2.isValid());
 	puts("order of group");
 	const Mpz& r = GetParamR();
 	PUT(r);
 	{
 		Ec1 t = g1;
 		t.mul(r);
-		verifyAssert("orgder of g1 == r", t.isZero());
+		assertBool("orgder of g1 == r", t.isZero());
 	}
 	{
 		Ec2 t = g2;
 		t.mul(r);
-		verifyAssert("order of g2 == r", t.isZero());
+		assertBool("order of g2 == r", t.isZero());
 	}
 	const Mpz a("123456789012345");
 	const Mpz b("998752342342342342424242421");
@@ -80,7 +80,7 @@ int main()
 		Ec1 out = Pa;
 		out.add(Pb);
 
-		verifyEqual("check g1 * c = g1 * a + g1 * b", Pc, out);
+		assertEqual("check g1 * c = g1 * a + g1 * b", Pc, out);
 	}
 
 	Fp12 e;
@@ -90,7 +90,7 @@ int main()
 	{
 		Fp12 t = e;
 		t.power(r);
-		verifyEqual("order of e == r", t, Fp12(1));
+		assertEqual("order of e == r", t, Fp12(1));
 	}
 	Ec2 g2a = g2;
 	g2a.mul(a);
@@ -98,7 +98,7 @@ int main()
 	ea1.pairing(g2a, g1);
 	Fp12 ea2 = e;
 	ea2.power(a); // ea2 = e^a
-	verifyEqual("e(g2 * a, g1) = e(g2, g1)^a", ea1, ea2);
+	assertEqual("e(g2 * a, g1) = e(g2, g1)^a", ea1, ea2);
 
 	Ec1 g1b = g1;
 	g1b.mul(b);
@@ -106,11 +106,11 @@ int main()
 	eb1.pairing(g2, g1b); // eb1 = e(g2, g1b)
 	Fp12 eb2 = e;
 	eb2.power(b); // eb2 = e^b
-	verifyEqual("e(g2a, g1 * b) = e(g2, g1)^b", eb1, eb2);
+	assertEqual("e(g2a, g1 * b) = e(g2, g1)^b", eb1, eb2);
 
 	Ec1 q1 = g1;
 	q1.mul(12345);
-	verifyAssert("q1 is on EC", q1.isValid());
+	assertBool("q1 is on EC", q1.isValid());
 	Fp12 e1, e2;
 	e1.pairing(g2, g1); // e1 = e(g2, g1)
 	e2.pairing(g2, q1); // e2 = e(g2, q1)
@@ -118,7 +118,7 @@ int main()
 	q2.add(q1);
 	e.pairing(g2, q2); // e = e(g2, q2)
 	e1.mul(e2);
-	verifyEqual("e = e1 * e2", e, e1);
+	assertEqual("e = e1 * e2", e, e1);
 	/*
 		reduce one copy as the following
 	*/
@@ -128,7 +128,7 @@ int main()
 	g1b.mul(b);
 	Ec2 g2at = g2; g2at.mul(a);
 	Ec1 g1bt = g1; g1bt.mul(b);
-	verifyEqual("g2a == g2 * a", g2a, g2at);
-	verifyEqual("g1b == g1 * b", g1b, g1bt);
+	assertEqual("g2a == g2 * a", g2a, g2at);
+	assertEqual("g1b == g1 * b", g1b, g1bt);
 	printf("errNum = %d\n", errNum);
 }
