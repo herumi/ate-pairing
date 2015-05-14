@@ -2635,6 +2635,11 @@ inline void ScalarMult(FF* out, const FF* in, const INT& m)
 		out[2].clear();
 		return;
 	}
+	FF inCopy[3];
+	if (out == in) {
+		ecop::copy(inCopy, in);
+		in = inCopy;
+	}
 
 	const int mSize = (int)Tag::getBlockSize(m);
 	const int vSize = (int)sizeof(value_type) * 8;
@@ -2657,13 +2662,10 @@ inline void ScalarMult(FF* out, const FF* in, const INT& m)
 	/*
 		Process for most significant word.
 	*/
-	FF temp[3];
 	for (; j != vSize; ++j, v <<= 1) {
-		ecop::copy(temp, out);
-		ECDouble(out, temp);
+		ECDouble(out, out);
 		if (v & mask) {
-			ecop::copy(temp, out);
-			ECAdd(out, temp, in);
+			ECAdd(out, out, in);
 		}
 	}
 
@@ -2673,11 +2675,9 @@ inline void ScalarMult(FF* out, const FF* in, const INT& m)
 	for (int i = mSize - 2; i >= 0; --i) {
 		v = Tag::getBlock(m, i);
 		for (j = 0; j != vSize; ++j, v <<= 1) {
-			ecop::copy(temp, out);
-			ECDouble(out, temp);
+			ECDouble(out, out);
 			if (v & mask) {
-				ecop::copy(temp, out);
-				ECAdd(out, temp, in);
+				ECAdd(out, out, in);
 			}
 		}
 	}
