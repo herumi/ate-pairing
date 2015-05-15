@@ -43,5 +43,5 @@ test_zm.o: test_zm.cpp $(HEADER)
 bn.o: bn.cpp $(HEADER)
 bench.o: bench.cpp $(HEADER)
 sample.o: sample.cpp $(HEADER)
-java_api.o: java_api.cpp $(HEADER) ../java/bn_if.hpp
+java_api.o: java_api.cpp $(HEADER) ../java/bn254_if.hpp
 loop_test.o: loop_test.cpp $(HEADER)
