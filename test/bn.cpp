@@ -757,9 +757,13 @@ void testFp6()
 	x *= x;
 	Fp6::square(z, y);
 	TEST_EQUAL(x, z);
-	mie::Vuint p6 = p * p; p6 = p6 * p6 * p6;
+#ifdef MIE_ATE_USE_GMP
+	mpz_class p6(p.toStr());
+	p6 *= p6;
+	p6 = p6 * p6 * p6;
 	y = mie::power(x, p6);
 	TEST_EQUAL(y, x);
+#endif
 	y = x; y.inverse();
 	x *= y;
 	TEST_EQUAL(x, Fp6(1));
@@ -869,9 +873,14 @@ void testFp12()
 		TEST_EQUAL(x.get()[i], y.get()[i]);
 	}
 
-	mie::Vuint p12 = p * p; p12 = p12 * p12; p12 = p12 * p12 * p12;
+#ifdef MIE_ATE_USE_GMP
+	mpz_class p12(p.toStr());
+	p12 *= p12;
+	p12 *= p12;
+	p12 = p12 * p12 * p12;
 	y = mie::power(x, p12);
 	TEST_EQUAL(y, x);
+#endif
 	y = x; y.inverse();
 	x *= y;
 	TEST_EQUAL(x, Fp12(1));

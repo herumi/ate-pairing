@@ -1,9 +1,6 @@
 /*
 	a tiny sample of optimal ate pairing
 */
-#ifdef __linux__
-	#define MIE_ATE_USE_GMP
-#endif
 #include "bn.h"
 #include "test_point.hpp"
 

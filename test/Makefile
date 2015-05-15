@@ -1,4 +1,5 @@
 include ../common.mk
+CFLAGS += -DMIE_ATE_USE_GMP
 
 HEADER= ../include/zm.h ../include/bn.h ../include/zm2.h test_point.hpp
 TARGET=test_zm bn ../lib/libzm.a

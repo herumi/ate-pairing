@@ -6,7 +6,9 @@
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 */
-#define MIE_ATE_USE_GMP
+#ifndef MIE_ATE_USE_GMP
+	#define MIE_ATE_USE_GMP
+#endif
 #include "bn.h"
 
 inline void SystemInit() throw(std::exception)
