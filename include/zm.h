@@ -285,9 +285,7 @@ public:
 	void clear() { size_ = 0; }
 	void alloc(size_t n)
 	{
-		if (n > N) {
-			local::errExit("too large size");
-		}
+		verify(n);
 		size_ = n;
 	}
 	void forceAlloc(size_t n) // for placement new
@@ -299,8 +297,16 @@ public:
 	{
 		operator=(rhs);
 	}
-	const T& operator[](size_t n) const { return v_[n]; }
-	T& operator[](size_t n) { return v_[n]; }
+	// to avoid warning of gcc
+	void verify(size_t n) const
+	{
+		if (n > N) {
+			printf("n=%d, N=%d\n", (int)n, (int)N);
+			local::errExit("too large size");
+		}
+	}
+	const T& operator[](size_t n) const { verify(n); return v_[n]; }
+	T& operator[](size_t n) { verify(n); return v_[n]; }
 };
 
 } // local
