@@ -716,7 +716,7 @@ void testShift()
 		y <<= i;
 		TEST_EQUAL(y, z);
 	}
-	for (size_t i = 0; i < 8; i++) {
+	for (size_t i = 0; i < 4; i++) {
 		Vuint::shlUnit(y, x, i);
 		Vuint s = power(Vuint(2), Vuint(i * sizeof(mie::Unit) * 8));
 		z = x * s;
@@ -748,7 +748,7 @@ void testShift()
 		y >>= i;
 		TEST_EQUAL(y, z);
 	}
-	for (size_t i = 0; i < 8; i++) {
+	for (size_t i = 0; i < 3; i++) {
 		Vuint::shrUnit(y, x, i);
 		Vuint s = power(Vuint(2), Vuint(i * sizeof(mie::Unit) * 8));
 		z = x / s;
@@ -847,7 +847,7 @@ void testTestBit()
 
 void bench()
 {
-	Vuint m("14615016373309029182036848327162830196559325429831461501636150163733090291820368483271628301965593254298314615016373309029182036848327162830196559325429831461501637330902918203684832716283019655932542983");
+	Vuint m("16798108731015832284940804142231733909759579603404752749028378864165570215949");
 	ZmZ<>::setModulo(m);
 	const char *str = "82434016654300679721217353503190038836571781811386228921167322412819029493182";
 	Vuint a(str), b(a);
@@ -867,7 +867,7 @@ void sample()
 	x += z;
 
 	x = 2;
-	y = 1000;
+	y = 250;
 	x = power(x, y);
 	Vuint r, q;
 	r = x % y;
