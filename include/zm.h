@@ -262,7 +262,7 @@ public:
 template<class T, size_t BitLen>
 class FixedBuffer {
 	enum {
-		N = (BitLen + sizeof(T) - 1) / sizeof(T)
+		N = (BitLen + sizeof(T) * 8 - 1) / (sizeof(T) * 8)
 	};
 	T v_[N];
 	size_t size_;
