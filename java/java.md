@@ -28,10 +28,10 @@
 ### Setup
 
 * At first, call these functions.
-
+```
     > System.loadLibrary("bn254_if_wrap");
 	> BN254.SystemInit();
-
+```
 ### class Mpz
 
 * a wrapped class of mpz_class of GMP.
