@@ -25,7 +25,7 @@ bn254_if_wrap.cxx: bn254_if.i bn254_if.hpp
 
 $(TARGET): bn254_if_wrap.cxx
 	$(MKDIR) ../bin
-	$(PRE)$(CXX) $< -o $@ $(CFLAGS) $(LDFLAGS) -I../include ../src/zm2.cpp ../src/zm.cpp
+	$(PRE)$(CXX) $< -o $@ $(CFLAGS) $(LDFLAGS) -I../include ../src/zm2.cpp ../src/zm.cpp -I../../xbyak
 
 %.class: %.java
 	javac $<
