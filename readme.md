@@ -131,6 +131,10 @@ if `MIE_ATE_USE_GMP` is defined. For instance:
     Fp12 e;
     opt_atePairing(e, g2b, g1a);
 
+Usage for Java
+-------------
+See [java.md](java/java.md).
+A sample code is [BN254Test.java](java/BN254Test.java).
 
 Operation costs
 -------------
