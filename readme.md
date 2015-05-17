@@ -8,6 +8,7 @@ It is released under the [BSD 3-Clause License](http://opensource.org/licenses/B
 History
 -------------
 
+* 2015/May/15: add [java api](java/java.md)
 * 2014/Jun/15: support a BN curve for SNARKs, incorporating code from [libsnark](https://github.com/scipr-lab/libsnark)
 * 2013/Jun/02: support `mulx` on [Haswell](http://en.wikipedia.org/wiki/Haswell_%28microarchitecture%29)
 * 2013/Mar/08: add elliptic curve class
@@ -74,6 +75,10 @@ Build instructions
 -------------
 
 ### Windows
+
+    > git clone git://github.com/herumi/xbyak.git
+    > git clone git://github.com/herumi/ate-pairing.git
+    > git clone git://github.com/herumi/cybozulib-ext.git ; compiled binary of mpir
 
 Open `ate/ate.sln` and compile `test_bn` with Release mode. The produced binary is `ate/x64/Release/test_bn.exe`.
 
