@@ -9,10 +9,10 @@
 * set SWIG to the path to swig in make_wrap.bat
 * set JAVA_DIR to the path to java in set-java-path.bat.
 * Use the follogin commands:
-
+```
     > cd java
     > make_wrap.bat
-
+```
 * bin/bn254_if_wrap.dll is a dll for java.
 
 ### Linux
@@ -84,6 +84,7 @@
     * Return the reference to a where this = (a, b).
 * Fp getB()
     * Return the reference to b where this = (a, b).
+
 #### Fp12
 * pairing(Ec2 ec2, Ec1 ec1)
     * Set opt_ate_pairing(ec2, ec1) to this.
@@ -100,7 +101,6 @@
     * Set x to this.
     * The format of Ec1 is "x_y" or "0" ; x, y are the format of Fp. "0" is the infinity point.
     * The format of Ec2 is "x_y" or "0" ; x, y are the format of Fp2.
-
 * Boolean isValid()
     * Is (x:y:z) on the curve?
 * Boolean isZero()
@@ -117,9 +117,10 @@
     * Set (this - x) to this.
 * mul(Mpz& x)
     * Set (this * x) to this.
-* Fp1 getX()
+* Fp getX()
     * Return the value of x.
-* Fp1 getY()
+* Fp getY()
     * Return the value of y.
-* Fp1 getZ()
+* Fp getZ()
     * Return the value of z.
+
