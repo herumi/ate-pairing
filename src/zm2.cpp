@@ -30,9 +30,14 @@ extern int g_count_add256;
 mie::Vuint Fp::p_;
 mie::Vuint Fp::montgomeryR_;
 Fp Fp::montgomeryR2_;
+Fp Fp::one_;
 Fp Fp::invTbl_[512];
 struct MontgomeryDummy{};
 static mie::Vuint pN;
+
+#ifdef MIE_ATE_USE_GMP
+bn::SquareRoot Fp::sq_;
+#endif
 
 /*
 	p = 0x2523648240000001,ba344d8000000008,6121000000000013,a700000000000013
@@ -3629,6 +3634,8 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 		Z t(montgomeryR_);
 		Fp::setDirect(montgomeryR2_, t * t);
 	}
+	one_.clear();
+	one_[0] = 1;
 
 	Fp_emu::setModulo(p);
 	try {
@@ -3678,9 +3685,15 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 				t += t;
 			}
 		}
+#ifdef MIE_ATE_USE_GMP
+		mpz_class mr(p.toStr());
+		PUT(mr);
+		sq_.set(mr);
+#endif
 		return;
 	} catch (std::exception& e) {
 		fprintf(stderr, "setModulo ERR:%s\n", e.what());
 	}
 	::exit(1);
 }
+

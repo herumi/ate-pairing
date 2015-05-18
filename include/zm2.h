@@ -7,6 +7,10 @@
 */
 #include "zm.h"
 
+#ifdef MIE_ATE_USE_GMP
+#include "squareroot.hpp"
+#endif
+
 namespace mie {
 
 class Fp : public local::addsubmul<Fp,
@@ -141,13 +145,25 @@ public:
 	{
 		std::fill(v_, v_ + N, 0);
 	}
+	static inline void fromMont(Fp& y, const Fp& x)
+	{
+		mul(y, x, one_);
+	}
+	static inline void toMont(Fp& y, const Fp& x)
+	{
+		mul(y, x, montgomeryR2_);
+	}
 	mie::Vuint get() const
 	{
 		Fp t;
+#if 1
+		fromMont(t, *this);
+#else
 		Fp _1;
 		_1.clear();
 		_1[0] = 1;
 		mul(t, *this, _1); // m(xr, 1) = x ; xr -> x
+#endif
 		mie::Vuint ret(t.v_, N);
 		return ret;
 	}
@@ -255,12 +271,41 @@ private:
 	static mie::Fp *quarterTbl_; // [4] = [0, 1/4, 2/4, 3/4]
 	static mie::Vuint montgomeryR_; // 1 = 1r
 	static mie::Fp montgomeryR2_; // m(x, r^2) = xr ; x -> xr
+	static mie::Fp one_; // 1
 	// m(xr, r^(-2)r) = xr^(-1) ; xr -> xr^(-1)
+#ifdef MIE_ATE_USE_GMP
+	static bn::SquareRoot sq_;
+#endif
 
 	static void setTablesForDiv(const mie::Vuint& p);
 
 public:
 	static inline void square(Fp& out, const Fp& x) { mul(out, x, x); }
+#ifdef MIE_ATE_USE_GMP
+	static void toMpz(mpz_class& y, const Fp& x)
+	{
+		mpz_import(y.get_mpz_t(), N, -1, sizeof(Unit), 0, 0, x.v_);
+	}
+	static void fromMpz(Fp& y, const mpz_class& x)
+	{
+		size_t size;
+		mpz_export(y.v_, &size, -1, sizeof(Unit), 0, 0, x.get_mpz_t());
+		for (size_t i = size; i < N; i++) {
+			y.v_[i] = 0;
+		}
+	}
+	static bool squareRoot(Fp& y, const Fp& x)
+	{
+		Fp t;
+		fromMont(t, x);
+		mpz_class mt;
+		toMpz(mt, t);
+		if (!sq_.get(mt, mt)) return false;
+		fromMpz(t,mt);
+		toMont(y, t);
+		return true;
+	}
+#endif
 
 	struct Dbl : public local::addsubmul<Dbl,
 		local::comparable<Dbl,
