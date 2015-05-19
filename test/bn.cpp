@@ -2004,7 +2004,6 @@ void benchAll(bool benchAll)
 	benchEcFp2();
 }
 
-#ifdef MIE_ATE_USE_GMP
 void testSquareRoot()
 {
 	puts("squreRoot");
@@ -2019,18 +2018,13 @@ void testSquareRoot()
 	} else {
 		puts("no squareRoot");
 	}
-	for (int i = 1; i < 10; i++) {
-		printf("i=%d\n", i);
+	for (int i = 1; i < 100; i++) {
 		x = i;
 		if (Fp::squareRoot(y, x)) {
-			PUT(y);
-			PUT(y * y);
-		} else {
-			puts("none");
+			TEST_EQUAL(y * y, x);
 		}
 	}
 }
-#endif
 int main(int argc, char* argv[]) try
 {
 	argc--, argv++;
@@ -2081,9 +2075,7 @@ int main(int argc, char* argv[]) try
 	test_FrobEndOnTwist_2(allBench);
 	testECDouble();
 	testECAdd();
-#ifdef MIE_ATE_USE_GMP
 	testSquareRoot();
-#endif
 	testECOperationsG1(allBench);
 	testECOperationsG2();
 	testFpDbl_mul_mod();

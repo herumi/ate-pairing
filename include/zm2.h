@@ -6,9 +6,8 @@
 	p = 36*t*t*t*t + 36*t*t*t + 24*t*t + 6*t + 1
 */
 #include "zm.h"
-
 #ifdef MIE_ATE_USE_GMP
-#include "squareroot.hpp"
+#include <gmpxx.h>
 #endif
 
 namespace mie {
@@ -156,14 +155,7 @@ public:
 	mie::Vuint get() const
 	{
 		Fp t;
-#if 1
 		fromMont(t, *this);
-#else
-		Fp _1;
-		_1.clear();
-		_1[0] = 1;
-		mul(t, *this, _1); // m(xr, 1) = x ; xr -> x
-#endif
 		mie::Vuint ret(t.v_, N);
 		return ret;
 	}
@@ -270,12 +262,10 @@ public:
 private:
 	static mie::Fp *quarterTbl_; // [4] = [0, 1/4, 2/4, 3/4]
 	static mie::Vuint montgomeryR_; // 1 = 1r
+	static mie::Vuint p_add1_div4_; // (p + 1) / 4
 	static mie::Fp montgomeryR2_; // m(x, r^2) = xr ; x -> xr
 	static mie::Fp one_; // 1
 	// m(xr, r^(-2)r) = xr^(-1) ; xr -> xr^(-1)
-#ifdef MIE_ATE_USE_GMP
-	static bn::SquareRoot sq_;
-#endif
 
 	static void setTablesForDiv(const mie::Vuint& p);
 
@@ -294,18 +284,15 @@ public:
 			y.v_[i] = 0;
 		}
 	}
+#endif
 	static bool squareRoot(Fp& y, const Fp& x)
 	{
 		Fp t;
-		fromMont(t, x);
-		mpz_class mt;
-		toMpz(mt, t);
-		if (!sq_.get(mt, mt)) return false;
-		fromMpz(t,mt);
-		toMont(y, t);
+		t = mie::power(x, p_add1_div4_);
+		if (t * t != x) return false;
+		y = t;
 		return true;
 	}
-#endif
 
 	struct Dbl : public local::addsubmul<Dbl,
 		local::comparable<Dbl,
