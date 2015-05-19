@@ -1,6 +1,6 @@
 include ../common.mk
 
-HEADER= ../include/zm.h ../include/bn.h ../include/zm2.h test_point.hpp ../include/squareroot.hpp
+HEADER= ../include/zm.h ../include/bn.h ../include/zm2.h test_point.hpp
 TARGET=test_zm bn ../lib/libzm.a
 
 ifeq ($(BIT),-m64)
