@@ -18,7 +18,7 @@
 #include <iostream>
 #define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
-#define MIE_ZM_VUINT_BIT_LEN (64 * 9)
+#define MIE_ZM_VUINT_BIT_LEN (64 * 24)
 
 #define MIE_USE_X64ASM
 
