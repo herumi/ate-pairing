@@ -18,7 +18,7 @@
 #include <iostream>
 #define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
-#define MIE_ZM_VUINT_BIT_LEN (64 * 24)
+#define MIE_ZM_VUINT_BIT_LEN (64 * 8)
 
 #define MIE_USE_X64ASM
 
@@ -1264,7 +1264,7 @@ public:
 	}
 	static inline void mul(ZmZ& out, const ZmZ& x, const ZmZ& y)
 	{
-#if 1 // for only FixedBuffer
+#if 0 // for only FixedBuffer(this code is dangerous and not good)
 		const size_t xn = x.size();
 		const size_t yn = y.size();
 
