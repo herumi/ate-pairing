@@ -125,7 +125,7 @@ int (*Fp::preInv)(Fp& r, const Fp& x) = 0;
 
 const Fp& Fp::getDirectP(int n)
 {
-	assert(0 <= n && n < pTblSize);
+	assert(0 <= n && (size_t)n < pTblSize);
 	return s_pTbl[n];
 }
 
