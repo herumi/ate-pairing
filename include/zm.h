@@ -18,7 +18,10 @@
 #include <iostream>
 #define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
-#define MIE_ZM_VUINT_BIT_LEN (64 * 8)
+#ifndef MIE_ZM_VUINT_BIT_LEN
+	// minimum 512
+	#define MIE_ZM_VUINT_BIT_LEN (64 * 9)
+#endif
 
 #define MIE_USE_X64ASM
 
@@ -302,7 +305,7 @@ public:
 	{
 		if (n > N) {
 			printf("n=%d, N=%d\n", (int)n, (int)N);
-			local::errExit("too large size");
+			local::errExit("too large size. increase MIE_ZM_VUINT_BIT_LEN in include/zm.h");
 		}
 	}
 	const T& operator[](size_t n) const { verify(n); return v_[n]; }

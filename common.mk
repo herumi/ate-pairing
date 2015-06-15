@@ -18,6 +18,9 @@ AFLAGS = -f elf -D__unix__
 ifeq ($(SUPPORT_SNARK),1)
 CFLAGS += -DBN_SUPPORT_SNARK
 endif
+ifneq ($(VUINT_BIT_LEN),0)
+CFLAGS += -D"MIE_ZM_VUINT_BIT_LEN=$(VUINT_BIT_LEN)"
+endif
 
 # for only 64-bit
 BIT=-m64
