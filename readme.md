@@ -32,6 +32,7 @@ The value of z is found by [\[NASKM\]](http://dx.doi.org/10.1007/978-3-540-85538
 The curve instantiated by z is investigated by [\[PSNB\]](http://eprint.iacr.org/2010/429) for an efficient implementation.
 Our library implements a fast algorithm, which is proposed by [\[AKLGL\]](http://eprint.iacr.org/2010/526) for this curve.
 The performance of this library is competitive to the state-of-the-art implementation report in [\[ABLR\]](http://sac2013.irmacs.sfu.ca/slides/s1.pdf).
+The old parameters in \[BDMOHT\] are not used now.
 
 * __CurveSNARK__
 Support for the second curve builds on code provided by [SCIPR Lab](http://www.scipr-lab.org/) in [libsnark](https://github.com/scipr-lab/libsnark). The curve was specifically selected for speeding up __Succinct Non-interactive ARguments of Knowledge__ (SNARKs), which benefit from its high 2-adicity (see [\[BCGTV13\]](http://eprint.iacr.org/2013/507) and [\[BCTV14\]](http://eprint.iacr.org/2013/879)).
@@ -161,6 +162,7 @@ Benchmark
 -------------
 
 The cost of a pairing is __1.17M__ clock cycles on Core i7 4700MQ (Haswell) 2.4GHz processor with TurboBoost disabled. Below, we also include clock cycle counts on Core i7 2600 3.4GHz, Xeon X5650 2.6GHz, and Core i7 4700MQ 2.4GHz.
+The formal benchmark is written in \[ZPMRTH\].
 
     % sudo sh -c "echo 0 > /sys/devices/system/cpu/cpufreq/boost"
     % cat /sys/devices/system/cpu/cpufreq/boost
@@ -207,7 +209,7 @@ References
  D.F. Aranha, K. Karabina, P. Longa, C.H. Gebotys, J. Lopez,
  EUROCRYPTO 2011, ([preprint](http://eprint.iacr.org/2010/526))
 
-* [_High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves_](http://dx.doi.org/10.1007/978-3-642-17455-1_2),
+* \[BDMOHT\] [_High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves_](http://dx.doi.org/10.1007/978-3-642-17455-1_2),
    Jean-Luc Beuchat, Jorge Enrique González Díaz, Shigeo Mitsunari, Eiji Okamoto, Francisco Rodríguez-Henríquez, Tadanori Teruya,
   Pairing 2010, ([preprint](http://eprint.iacr.org/2010/354))
 
@@ -219,7 +221,7 @@ References
   Eli Ben-Sasson, Alessandro Chiesa, Eran Tromer, Madars Virza,
   USENIX Security 2014
 
-* [_Software implementation of an Attribute-Based Encryption scheme_](http://dx.doi.org/10.1109/TC.2014.2329681),
+* \[ZPMRTH\] [_Software implementation of an Attribute-Based Encryption scheme_](http://dx.doi.org/10.1109/TC.2014.2329681),
   Eric Zavattoni and Luis J. Dominguez Perez and Shigeo Mitsunari and Ana H. Sanchez-Ramirez and Tadanori Teruya and Francisco Rodriguez-Henriquez,
   IEEE Transactions on Computers, To appear, ([preprint](https://eprint.iacr.org/2014/401), [project Web page and source code](http://sandia.cs.cinvestav.mx/index.php?n=Site.CPABE))
 
