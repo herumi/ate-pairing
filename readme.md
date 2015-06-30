@@ -32,12 +32,12 @@ The value of z is found by [\[NASKM\]](http://dx.doi.org/10.1007/978-3-540-85538
 The curve instantiated by z is investigated by [\[PSNB\]](http://eprint.iacr.org/2010/429) for an efficient implementation.
 Our library implements a fast algorithm, which is proposed by [\[AKLGL\]](http://eprint.iacr.org/2010/526) for this curve.
 The performance of this library is competitive to the state-of-the-art implementation report in [\[ABLR\]](http://sac2013.irmacs.sfu.ca/slides/s1.pdf).
-The old parameters in \[BDMOHT\] are not used now.
 
 * __CurveSNARK__
 Support for the second curve builds on code provided by [SCIPR Lab](http://www.scipr-lab.org/) in [libsnark](https://github.com/scipr-lab/libsnark). The curve was specifically selected for speeding up __Succinct Non-interactive ARguments of Knowledge__ (SNARKs), which benefit from its high 2-adicity (see [\[BCGTV13\]](http://eprint.iacr.org/2013/507) and [\[BCTV14\]](http://eprint.iacr.org/2013/879)).
 
 Pairing computations on the first curve are more efficient, and the performance numbers reported below (and in our papers) are achieved using this curve (which is prefered for applications that do not benefit from high 2-adicity).
+Note that the old parameters in \[BDMOHT\] are not used now.
 
 
 Parameters
