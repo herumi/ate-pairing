@@ -106,7 +106,7 @@ Use the following commands:
 The library [xbyak](https://github.com/herumi/xbyak) is a x86/x86-64 JIT assembler for C++, developed for efficient pairing implementations. (See also [this webpage](http://homepage1.nifty.com/herumi/soft/xbyak_e.html).) Note that binaries other than `test/bn` are used for testing purposes only.
 
 * This implementation uses dynamically-generated code, so you will get the error
-`zmInit ERR:can't protect` if excecution of code on the heap is disallowed by
+`zmInit ERR:can't protect` if execution of code on the heap is disallowed by
 some modern systems.
 For example, on Fedora 20, run `sudo setsebool -P allow_execheap 1` to allow execution to solve this.
 
