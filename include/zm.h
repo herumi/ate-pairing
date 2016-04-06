@@ -13,10 +13,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include <algorithm>
-
-// for debug(remove it later)
 #include <iostream>
-#define PUT(x) std::cout << #x "\t=" << (x) << std::endl
 
 #ifndef MIE_ZM_VUINT_BIT_LEN
 	// minimum 512

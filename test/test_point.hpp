@@ -1,6 +1,8 @@
 #pragma once
 #include "bn.h"
 
+#define PUT(x) std::cout << #x << "\t=" << (x) << std::endl;
+
 const struct Point {
 	struct G2 {
 		const char *aa;
