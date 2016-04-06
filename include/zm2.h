@@ -152,6 +152,17 @@ public:
 	{
 		mul(y, x, montgomeryR2_);
 	}
+	// return real low value
+	Unit getLow() const
+	{
+		Fp t;
+		fromMont(t, *this);
+		return t.v_[0];
+	}
+	bool isOdd() const
+	{
+		return (getLow() & 1) != 0;
+	}
 	mie::Vuint get() const
 	{
 		Fp t;
