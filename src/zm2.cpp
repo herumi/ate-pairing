@@ -3589,7 +3589,7 @@ void Fp::setTablesForDiv(const mie::Vuint& p)
 	Fp::setDirect(quarterTbl_[3], quarter*3);
 }
 
-void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
+void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx, bool definedBN_SUPPORT_SNARK)
 {
 #ifdef DEBUG_COUNT
 	puts("DEBUG_COUNT mode on!!!");
@@ -3599,8 +3599,7 @@ void Fp::setModulo(const mie::Vuint& p, int mode, bool useMulx)
 #else
 	const bool scipr = false;
 #endif
-	const bool sciprInHeader = bn::util::supportSNARK();
-	if (scipr != sciprInHeader) {
+	if (scipr != definedBN_SUPPORT_SNARK) {
 		fprintf(stderr, "use -DBN_SUPPORT_SNARK for all sources\n");
 		exit(1);
 	}

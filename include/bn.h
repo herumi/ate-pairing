@@ -86,15 +86,6 @@ const CurveParam CurveFp254BNb = { -((1LL << 62) + (1LL << 55) + (1LL << 0)), 2,
 
 namespace util {
 
-inline bool supportSNARK()
-{
-#ifdef BN_SUPPORT_SNARK
-	return true;
-#else
-	return false;
-#endif
-}
-
 template<class T>
 void put(const T& x, size_t len)
 {
