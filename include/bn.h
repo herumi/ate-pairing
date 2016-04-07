@@ -1655,46 +1655,44 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	void Frobenius(Fp12T& z) const
 	{
 		/* this assumes (q-1)/6 is odd */
-		assert(this != &z);
 #ifdef BN_SUPPORT_SNARK
-		z.a_.a_.a_ = a_.a_.a_;
+		if (&z != this) {
+			z.a_.a_.a_ = a_.a_.a_;
+			z.a_.b_.a_ = a_.b_.a_;
+			z.a_.c_.a_ = a_.c_.a_;
+			z.b_.a_.a_ = b_.a_.a_;
+			z.b_.b_.a_ = b_.b_.a_;
+			z.b_.c_.a_ = b_.c_.a_;
+		}
 		Fp::neg(z.a_.a_.b_, a_.a_.b_);
-
-		z.a_.b_.a_ = a_.b_.a_;
 		Fp::neg(z.a_.b_.b_, a_.b_.b_);
-		Fp2::mul(z.a_.b_, z.a_.b_, Param::gammar[2]);
-
-		z.a_.c_.a_ = a_.c_.a_;
 		Fp::neg(z.a_.c_.b_, a_.c_.b_);
-		Fp2::mul(z.a_.c_, z.a_.c_, Param::gammar[4]);
-
-		z.b_.a_.a_ = b_.a_.a_;
 		Fp::neg(z.b_.a_.b_, b_.a_.b_);
-		Fp2::mul(z.b_.a_, z.b_.a_, Param::gammar[1]);
-
-		z.b_.b_.a_ = b_.b_.a_;
 		Fp::neg(z.b_.b_.b_, b_.b_.b_);
-		Fp2::mul(z.b_.b_, z.b_.b_, Param::gammar[3]);
-
-		z.b_.c_.a_ = b_.c_.a_;
 		Fp::neg(z.b_.c_.b_, b_.c_.b_);
-		Fp2::mul(z.b_.c_, z.b_.c_, Param::gammar[5]);
+		z.a_.b_ *= Param::gammar[2];
+		z.a_.c_ *= Param::gammar[4];
+		z.b_.a_ *= Param::gammar[1];
+		z.b_.b_ *= Param::gammar[3];
+		z.b_.c_ *= Param::gammar[5];
 #else
-		z.a_.a_.a_ = a_.a_.a_;
+		if (&z != this) {
+			z.a_.a_.a_ = a_.a_.a_;
+			z.a_.b_.a_ = a_.b_.a_;
+			z.a_.c_.a_ = a_.c_.a_;
+			z.b_.a_.a_ = b_.a_.a_;
+			z.b_.b_.a_ = b_.b_.a_;
+			z.b_.c_.a_ = b_.c_.a_;
+		}
 		Fp::neg(z.a_.a_.b_, a_.a_.b_);
-		z.a_.b_.a_ = a_.b_.a_;
 		Fp::neg(z.a_.b_.b_, a_.b_.b_);
 		Fp2::mul_Fp_1(z.a_.b_, Param::gammar[1].b_);
-		z.a_.c_.a_ = a_.c_.a_;
 		Fp::neg(z.a_.c_.b_, a_.c_.b_);
 		Fp2::mul_Fp_0(z.a_.c_, z.a_.c_, Param::gammar[3].a_);
-		z.b_.a_.a_ = b_.a_.a_;
 		Fp::neg(z.b_.a_.b_, b_.a_.b_);
 		z.b_.a_ *= Param::gammar[0];
-		z.b_.b_.a_ = b_.b_.a_;
 		Fp::neg(z.b_.b_.b_, b_.b_.b_);
 		z.b_.b_ *= Param::gammar[2];
-		z.b_.c_.a_ = b_.c_.a_;
 		Fp::neg(z.b_.c_.b_, b_.c_.b_);
 		z.b_.c_ *= Param::gammar[4];
 #endif
@@ -1703,10 +1701,8 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	void Frobenius2(Fp12T& z) const
 	{
 #ifdef BN_SUPPORT_SNARK
-		// TODO: fix this
-		Fp12T zcopy;
-		this->Frobenius(zcopy);
-		zcopy.Frobenius(z);
+		Frobenius(z);
+		z.Frobenius(z);
 /*
 		z.a_.a_ = a_.a_;
 		Fp2::mul(z.a_.b_, a_.b_, Param::gammar[3]);
@@ -1728,10 +1724,8 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	void Frobenius3(Fp12T& z) const
 	{
 #ifdef BN_SUPPORT_SNARK
-		// TODO: fix this
-		Fp12T zcopy;
-		this->Frobenius2(zcopy);
-		zcopy.Frobenius(z);
+		Frobenius2(z);
+		z.Frobenius(z);
 #else
 		z.a_.a_.a_ = a_.a_.a_;
 		Fp::neg(z.a_.a_.b_, a_.a_.b_);
