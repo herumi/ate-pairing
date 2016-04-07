@@ -1634,6 +1634,9 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		Fp6::neg(b_, b_);
 	}
 
+	/*
+		(a + bw) -> (a - bw) gammar
+	*/
 	void Frobenius(Fp12T& z) const
 	{
 		/* this assumes (q-1)/6 is odd */
@@ -1655,6 +1658,8 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		z.a_.b_ *= Param::gammar[1];
 		z.a_.c_ *= Param::gammar[3];
 #else
+		assert(Param::gammar[1].a_ == 0);
+		assert(Param::gammar[3].b_ == 0);
 		Fp2::mul_Fp_1(z.a_.b_, Param::gammar[1].b_);
 		Fp2::mul_Fp_0(z.a_.c_, z.a_.c_, Param::gammar[3].a_);
 #endif
@@ -1663,20 +1668,22 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		z.b_.c_ *= Param::gammar[4];
 	}
 
+	/*
+		gammar = c + dw
+		a + bw -> t = (a - bw)(c + dw)
+		~t = (a + bw)(c - dw)
+		~t * (c + dw) = (a + bw) * ((c + dw)(c - dw))
+		gammar2 = (c + dw)(c - dw) in Fp6
+	*/
 	void Frobenius2(Fp12T& z) const
 	{
-#ifdef BN_SUPPORT_SNARK
+#if 0
 		Frobenius(z);
 		z.Frobenius(z);
-/*
-		z.a_.a_ = a_.a_;
-		Fp2::mul(z.a_.b_, a_.b_, Param::gammar[3]);
-		Fp2::mul(z.a_.c_, a_.c_, Param::gammar[1]);
-		Fp2::mul(z.b_.a_, b_.a_, Param::gammar[1]);
-		z.b_.b_ = b_.b_;
-		Fp2::mul(z.b_.c_, b_.c_, Param::gammar[3]);
-*/
 #else
+		if (&z != this) {
+			z.a_.a_ = a_.a_;
+		}
 		z.a_.a_ = a_.a_;
 		Fp2::mul_Fp_0(z.a_.b_, a_.b_, Param::gammar2[1].a_);
 		Fp2::mul_Fp_0(z.a_.c_, a_.c_, Param::gammar2[3].a_);
@@ -1688,27 +1695,33 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 
 	void Frobenius3(Fp12T& z) const
 	{
-#ifdef BN_SUPPORT_SNARK
+#if 0
 		Frobenius2(z);
 		z.Frobenius(z);
 #else
 		z.a_.a_.a_ = a_.a_.a_;
-		Fp::neg(z.a_.a_.b_, a_.a_.b_);
 		z.a_.b_.a_ = a_.b_.a_;
-		Fp::neg(z.a_.b_.b_, a_.b_.b_);
-		z.a_.b_.mul_x();
 		z.a_.c_.a_ = a_.c_.a_;
-		Fp::neg(z.a_.c_.b_, a_.c_.b_);
-		Fp2::mul_Fp_0(z.a_.c_, z.a_.c_, Param::gammar3[3].a_);
 		z.b_.a_.a_ = b_.a_.a_;
-		Fp::neg(z.b_.a_.b_, b_.a_.b_);
-		Fp2::mul(z.b_.a_, z.b_.a_, Param::gammar3[0]);
 		z.b_.b_.a_ = b_.b_.a_;
-		Fp::neg(z.b_.b_.b_, b_.b_.b_);
-		Fp2::mul(z.b_.b_, z.b_.b_, Param::gammar3[2]);
 		z.b_.c_.a_ = b_.c_.a_;
+		Fp::neg(z.a_.a_.b_, a_.a_.b_);
+		Fp::neg(z.a_.b_.b_, a_.b_.b_);
+		Fp::neg(z.a_.c_.b_, a_.c_.b_);
+		Fp::neg(z.b_.a_.b_, b_.a_.b_);
+		Fp::neg(z.b_.b_.b_, b_.b_.b_);
 		Fp::neg(z.b_.c_.b_, b_.c_.b_);
-		Fp2::mul(z.b_.c_, z.b_.c_, Param::gammar3[4]);
+
+#ifdef BN_SUPPORT_SNARK
+		z.a_.b_ *= Param::gammar3[1];
+		z.a_.c_ *= Param::gammar3[3];
+#else
+		z.a_.b_.mul_x();
+		Fp2::mul_Fp_0(z.a_.c_, z.a_.c_, Param::gammar3[3].a_);
+#endif
+		z.b_.a_ *= Param::gammar3[0];
+		z.b_.b_ *= Param::gammar3[2];
+		z.b_.c_ *= Param::gammar3[4];
 #endif
 	}
 
