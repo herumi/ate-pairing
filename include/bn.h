@@ -186,11 +186,7 @@ struct ParamT {
 	static Fp Z;
 	static Fp2 W2p;
 	static Fp2 W3p;
-#ifdef BN_SUPPORT_SNARK
-	static Fp2 gammar[6];
-#else
 	static Fp2 gammar[5];
-#endif
 	static Fp2 gammar2[5];
 	static Fp2 gammar3[5];
 	static Fp i0; // 0
@@ -238,20 +234,11 @@ struct ParamT {
 		b_invxi = xi;
 		b_invxi.inverse();
 		b_invxi *= Fp2(b, 0);
-#ifdef BN_SUPPORT_SNARK
-		gammar[0] = 1;
-		gammar[1] = mie::power(xi, (p - 1) / 6);
-
-		for (size_t i = 2; i < sizeof(gammar) / sizeof(*gammar); ++i) {
-			gammar[i] = gammar[i - 1] * gammar[1];
-		}
-#else
 		gammar[0] = mie::power(xi, (p - 1) / 6);
 
 		for (size_t i = 1; i < sizeof(gammar) / sizeof(*gammar); ++i) {
 			gammar[i] = gammar[i - 1] * gammar[0];
 		}
-#endif
 
 		for (size_t i = 0; i < sizeof(gammar2) / sizeof(*gammar2); ++i) {
 			gammar2[i] = Fp2(gammar[i].a_, -gammar[i].b_) * gammar[i];
@@ -322,13 +309,8 @@ Fp2 ParamT<Fp2>::W2p;
 template<class Fp2>
 Fp2 ParamT<Fp2>::W3p;
 
-#ifdef BN_SUPPORT_SNARK
-template<class Fp2>
-Fp2 ParamT<Fp2>::gammar[6];
-#else
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar[5];
-#endif
 template<class Fp2>
 Fp2 ParamT<Fp2>::gammar2[5];
 template<class Fp2>
@@ -1655,47 +1637,30 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 	void Frobenius(Fp12T& z) const
 	{
 		/* this assumes (q-1)/6 is odd */
+		if (&z != this) {
+			z.a_.a_.a_ = a_.a_.a_;
+			z.a_.b_.a_ = a_.b_.a_;
+			z.a_.c_.a_ = a_.c_.a_;
+			z.b_.a_.a_ = b_.a_.a_;
+			z.b_.b_.a_ = b_.b_.a_;
+			z.b_.c_.a_ = b_.c_.a_;
+		}
+		Fp::neg(z.a_.a_.b_, a_.a_.b_);
+		Fp::neg(z.a_.b_.b_, a_.b_.b_);
+		Fp::neg(z.a_.c_.b_, a_.c_.b_);
+		Fp::neg(z.b_.a_.b_, b_.a_.b_);
+		Fp::neg(z.b_.b_.b_, b_.b_.b_);
+		Fp::neg(z.b_.c_.b_, b_.c_.b_);
 #ifdef BN_SUPPORT_SNARK
-		if (&z != this) {
-			z.a_.a_.a_ = a_.a_.a_;
-			z.a_.b_.a_ = a_.b_.a_;
-			z.a_.c_.a_ = a_.c_.a_;
-			z.b_.a_.a_ = b_.a_.a_;
-			z.b_.b_.a_ = b_.b_.a_;
-			z.b_.c_.a_ = b_.c_.a_;
-		}
-		Fp::neg(z.a_.a_.b_, a_.a_.b_);
-		Fp::neg(z.a_.b_.b_, a_.b_.b_);
-		Fp::neg(z.a_.c_.b_, a_.c_.b_);
-		Fp::neg(z.b_.a_.b_, b_.a_.b_);
-		Fp::neg(z.b_.b_.b_, b_.b_.b_);
-		Fp::neg(z.b_.c_.b_, b_.c_.b_);
-		z.a_.b_ *= Param::gammar[2];
-		z.a_.c_ *= Param::gammar[4];
-		z.b_.a_ *= Param::gammar[1];
-		z.b_.b_ *= Param::gammar[3];
-		z.b_.c_ *= Param::gammar[5];
+		z.a_.b_ *= Param::gammar[1];
+		z.a_.c_ *= Param::gammar[3];
 #else
-		if (&z != this) {
-			z.a_.a_.a_ = a_.a_.a_;
-			z.a_.b_.a_ = a_.b_.a_;
-			z.a_.c_.a_ = a_.c_.a_;
-			z.b_.a_.a_ = b_.a_.a_;
-			z.b_.b_.a_ = b_.b_.a_;
-			z.b_.c_.a_ = b_.c_.a_;
-		}
-		Fp::neg(z.a_.a_.b_, a_.a_.b_);
-		Fp::neg(z.a_.b_.b_, a_.b_.b_);
 		Fp2::mul_Fp_1(z.a_.b_, Param::gammar[1].b_);
-		Fp::neg(z.a_.c_.b_, a_.c_.b_);
 		Fp2::mul_Fp_0(z.a_.c_, z.a_.c_, Param::gammar[3].a_);
-		Fp::neg(z.b_.a_.b_, b_.a_.b_);
-		z.b_.a_ *= Param::gammar[0];
-		Fp::neg(z.b_.b_.b_, b_.b_.b_);
-		z.b_.b_ *= Param::gammar[2];
-		Fp::neg(z.b_.c_.b_, b_.c_.b_);
-		z.b_.c_ *= Param::gammar[4];
 #endif
+		z.b_.a_ *= Param::gammar[0];
+		z.b_.b_ *= Param::gammar[2];
+		z.b_.c_ *= Param::gammar[4];
 	}
 
 	void Frobenius2(Fp12T& z) const
@@ -2679,14 +2644,14 @@ void FrobEndOnTwist_1(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 	Fp::neg(Q[0].b_, P[0].b_);
 
 	// Q[0] *= xi^((p-1)/3)
-	Q[0] *= Param::gammar[2];
+	Q[0] *= Param::gammar[1];
 
 	// applying Q[1] <- P[1]^q
 	Q[1].a_ = P[1].a_;
 	Fp::neg(Q[1].b_, P[1].b_);
 
 	// Q[1] *= xi^((p-1)/2)
-	Q[1] *= Param::gammar[3];
+	Q[1] *= Param::gammar[2];
 #else
 	Q[0].a_ = P[0].a_;
 	Fp::neg(Q[0].b_, P[0].b_);
