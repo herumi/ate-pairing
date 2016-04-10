@@ -114,7 +114,7 @@ By the default, the first BN curve is used. If instead you want to use the secon
 
     $ make -j SUPPORT_SNARK=1
 
-* REMARK. You *defined* `BN_SUPPORT_SNARK` macro for a compile with a library(libzm.a) made by `SUPPORT_SNARK=1`.
+* REMARK. You *defined* `BN_SUPPORT_SNARK` macro for a compile when if you use a library(libzm.a) made by `SUPPORT_SNARK=1`.
 
 
 Usage
