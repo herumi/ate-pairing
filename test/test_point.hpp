@@ -15,7 +15,6 @@ const struct Point {
 		int b;
 	} g1;
 } g_pointTbl[] = {
-#ifdef BN_SUPPORT_SNARK
 	// SNARK1(b = 3)
 	{
 		{
@@ -40,7 +39,6 @@ const struct Point {
 			-1, 9
 		},
 	},
-#else
 	// Aranha
 	{
 		{
@@ -53,22 +51,19 @@ const struct Point {
 			-1, 1
 		},
 	},
-#endif
 };
 
 inline const Point& selectPoint(const bn::CurveParam& cp)
 {
-#ifdef BN_SUPPORT_SNARK
-	if (cp.b != 3 && cp.b != 82) {
-		printf("not support point for b=%d\n", cp.b);
-		exit(1);
+	if (cp == bn::CurveSNARK1) {
+		return g_pointTbl[0];
 	}
-	return g_pointTbl[cp.b == 3 ? 0 : 1];
-#else
-	if (cp != bn::CurveFp254BNb) {
-		printf("not support except for CurveFp254BNb");
-		exit(1);
+	if (cp == bn::CurveSNARK2) {
+		return g_pointTbl[1];
 	}
-	return g_pointTbl[0];
-#endif
+	if (cp == bn::CurveFp254BNb) {
+		return g_pointTbl[2];
+	}
+	puts("err");
+	exit(1);
 }

@@ -74,15 +74,13 @@ struct CurveParam {
 /*
 	the current version supports only the following parameters
 */
-#ifdef BN_SUPPORT_SNARK
 const CurveParam CurveSNARK1 = { 4965661367192848881, 3, 9, 1 };
 
 // b/xi = 82 / (9 + u) = 9 - u
 const CurveParam CurveSNARK2 = { 4965661367192848881, 82, 9, 1 };
-#else
+
 // b/xi = 2 / (1 - u) = 1 + u
 const CurveParam CurveFp254BNb = { -((1LL << 62) + (1LL << 55) + (1LL << 0)), 2, 1, 1 };
-#endif
 
 namespace util {
 

@@ -6,3 +6,6 @@ clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
 
+test:
+	$(MAKE) -C test test
+
