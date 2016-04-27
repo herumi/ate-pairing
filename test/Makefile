@@ -45,3 +45,10 @@ bench.o: bench.cpp $(HEADER)
 sample.o: sample.cpp $(HEADER)
 java_api.o: java_api.cpp $(HEADER) ../java/bn254_if.hpp
 loop_test.o: loop_test.cpp $(HEADER)
+minitest.o: minitest.cpp $(HEADER)
+
+minitest: minitest.o ../lib/libzm.a
+	$(CXX) -o $@ $< $(LDFLAGS) $(BIT)
+
+check: minitest
+	./minitest
