@@ -2713,19 +2713,16 @@ void FrobEndOnTwist_8(Fp2T<Fp>* Q, const Fp2T<Fp>* P)
 	calc optimal ate pairing
 	@param f [out] e(Q, P)
 	@param Q [in] affine coord. (Q[0], Q[1])
-	@param _P [in] affine coord. (_P[0], _P[1])
+	@param P [in] affine coord. (P[0], P[1])
 	@note not defined for infinity point
 */
 template<class Fp>
-void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp _P[2])
+void opt_atePairing(Fp12T<Fp6T<Fp2T<Fp> > >& f, const Fp2T<Fp> Q[2], const Fp P[2])
 {
 	typedef Fp2T<Fp> Fp2;
 	typedef ParamT<Fp2> Param;
 	typedef Fp6T<Fp2> Fp6;
 	typedef Fp12T<Fp6> Fp12;
-	Fp P[3];
-	P[0] = _P[0];
-	P[1] = _P[1];
 	Fp2 T[3];
 	T[0] = Q[0];
 	T[1] = Q[1];
