@@ -40,10 +40,6 @@ public:
 	{
 		std::copy(x, x + N, v_);
 	}
-	MIE_FORCE_INLINE Fp(const Fp& x)
-	{
-		set(x);
-	}
 	Fp(const mie::Vuint& rhs)
 	{
 		set(rhs);
@@ -79,10 +75,6 @@ public:
 		y *= getMontgomeryR();
 		y %= getModulo();
 		setDirect(*this, y);
-	}
-	MIE_FORCE_INLINE void set(const Fp& x)
-	{
-		std::copy(x.v_, x.v_ + N, v_);
 	}
 	static inline int compare(const Fp& x, const Fp& y)
 	{
