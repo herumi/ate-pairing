@@ -5,6 +5,8 @@ High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehr
 This library provides functionality to compute the optimal ate pairing over Barreto-Naehrig (BN) curves.
 It is released under the [BSD 3-Clause License](http://opensource.org/licenses/BSD-3-Clause).
 
+Now I'm developing a new pairing library [mcl](https://github.com/herumi/mcl/), which is more portable and supports larger primes than this library though it is a little slower.
+
 History
 -------------
 
