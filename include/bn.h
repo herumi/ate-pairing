@@ -524,7 +524,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 	}
 	friend std::ostream& operator<<(std::ostream& os, const Fp2T& x)
 	{
-		return os << x.toString();
+		return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
 	}
 	friend std::istream& operator>>(std::istream& is, Fp2T& x)
 	{
@@ -592,7 +592,7 @@ struct Fp2T : public mie::local::addsubmul<Fp2T<T>
 		}
 		friend inline std::ostream& operator<<(std::ostream& os, const Dbl& x)
 		{
-			return os << x.toString();
+			return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
 		}
 
 		Dbl() { }
@@ -1164,11 +1164,11 @@ struct Fp6T : public mie::local::addsubmul<Fp6T<T>,
 
 		std::string toString(int base = 10) const
 		{
-			return ("[" + a_.toString(base) + ",\n" + b_.toString(base) + ",\n" + c_.toString() + "]");
+			return ("[" + a_.toString(base) + ",\n" + b_.toString(base) + ",\n" + c_.toString(base) + "]");
 		}
 		friend inline std::ostream& operator<<(std::ostream& os, const Dbl& x)
 		{
-			return os << x.toString();
+			return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
 		}
 
 		Dbl() { }
@@ -1861,7 +1861,7 @@ struct Fp12T : public mie::local::addsubmul<Fp12T<T> > {
 		}
 		friend inline std::ostream& operator<<(std::ostream& os, const Dbl& x)
 		{
-			return os << x.toString();
+			return os << x.toString(os.flags() & std::ios_base::hex ? 16 : 10);
 		}
 
 		Dbl() { }
