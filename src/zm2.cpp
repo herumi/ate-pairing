@@ -3262,16 +3262,16 @@ L("@@");
 		assert(0 <= gtn && gtn <= 10);
 		gtn_ = gtn;
 #ifdef _WIN32
-		const int P = 8 * (std::max(0, gtn - 6) + numQword);
+		const int P = 8 * ((std::max)(0, gtn - 6) + numQword);
 		if (P > 0) sub(rsp, P);
-		for (int i = 3; i <= std::min(gtn, 6); i++) {
+		for (int i = 3; i <= (std::min)(gtn, 6); i++) {
 			mov(ptr [rsp + P + (i - 2) * 8], tbl[i - 3]);
 		}
 		for (int i = 7; i <= gtn; i++) {
 			mov(ptr [rsp + P - 8 * (i - 6)], tbl[i - 3]);
 		}
 #else
-		const int P = 8 * (std::max(0, gtn - 4) + numQword);
+		const int P = 8 * ((std::max)(0, gtn - 4) + numQword);
 		if (P > 0) sub(rsp, P);
 		for (int i = 5; i <= gtn; i++) {
 			mov(ptr [rsp + P - 8 * (i - 4)], tbl[i - 3]);
@@ -3290,7 +3290,7 @@ L("@@");
 		};
 		assert(0 <= gtn_ && gtn_ <= 10);
 #ifdef _WIN32
-		for (int i = 3; i <= std::min(gtn_, 6); i++) {
+		for (int i = 3; i <= (std::min)(gtn_, 6); i++) {
 			mov(tbl[i - 3], ptr [rsp + P + (i - 2) * 8]);
 		}
 		for (int i = 7; i <= gtn_; i++) {

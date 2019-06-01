@@ -473,7 +473,7 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 			{
 				std::vector<uint32_t> x;
 				while (!t.empty()) {
-					size_t remain = std::min((int)t.size(), 8);
+					size_t remain = (std::min)((int)t.size(), 8);
 					char *endp;
 					uint32_t v = strtoul(&t[t.size() - remain], &endp, 16);
 					if (*endp) goto ERR;
@@ -488,7 +488,7 @@ struct VuintT : public local::dividable<VuintT<Buffer>,
 			{
 				std::vector<uint32_t> x;
 				while (!t.empty()) {
-					size_t remain = std::min((int)t.size(), 9);
+					size_t remain = (std::min)((int)t.size(), 9);
 					char *endp;
 					uint32_t v = strtol(&t[t.size() - remain], &endp, 10);
 					if (*endp) goto ERR;
